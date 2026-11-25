@@ -33,6 +33,7 @@ import {
 } from '../utils/speech.ts';
 import { DayNavigatorBar } from './DayNavigatorBar.tsx';
 import { InteractiveText } from './InteractiveText.tsx';
+import { RealTalkRoleplayStudio } from './RealTalkRoleplayStudio.tsx';
 import { ShadowingDictationLab } from './ShadowingDictationLab.tsx';
 import { YouTubeStudyPlayer } from './YouTubeStudyPlayer.tsx';
 
@@ -45,19 +46,22 @@ interface CinematicLectureStudioProps {
   readingCompleted: boolean;
   savedNote: string;
   savedParaphrases: ParaphraseResult[];
+  completedRoleplayIds: string[];
+  initialTab?: StudioTab;
   onSelectDay: (dayNumber: number) => void;
   onMarkLectureComplete: () => void;
   onMarkVideoWatched: () => void;
   onMarkReadingComplete: () => void;
   onRecordShadowingScore: (accuracyPct: number, spokenDelta: number) => void;
   onRecordDictationScore: (accuracyPct: number) => void;
+  onCompleteRoleplay: (scenarioId: string, spokenTurns: number) => void;
   onAddReviewCard: (card: SpacedReviewCard) => void;
   onSaveNote: (note: string) => void;
   onSaveParaphrase: (item: ParaphraseResult, reviewCard?: SpacedReviewCard) => void;
   onOpenDictionary: (word?: string) => void;
 }
 
-type StudioTab = 'youtube' | 'sitcom' | 'chalkboard' | 'reading' | 'tutor';
+export type StudioTab = 'youtube' | 'sitcom' | 'chalkboard' | 'reading' | 'tutor' | 'roleplay';
 type SitcomSubMode = 'watch' | 'shadowing' | 'dictation';
 type SubtitleMode = 'both' | 'en' | 'off';
 
@@ -70,18 +74,21 @@ export function CinematicLectureStudio({
   readingCompleted,
   savedNote,
   savedParaphrases,
+  completedRoleplayIds,
+  initialTab,
   onSelectDay,
   onMarkLectureComplete,
   onMarkVideoWatched,
   onMarkReadingComplete,
   onRecordShadowingScore,
   onRecordDictationScore,
+  onCompleteRoleplay,
   onAddReviewCard,
   onSaveNote,
   onSaveParaphrase,
   onOpenDictionary
 }: CinematicLectureStudioProps) {
-  const [studioTab, setStudioTab] = useState<StudioTab>('youtube');
+  const [studioTab, setStudioTab] = useState<StudioTab>(initialTab ?? 'youtube');
   const [sitcomSubMode, setSitcomSubMode] = useState<SitcomSubMode>('watch');
 
   const defaultRate = LEVEL_INFO_MAP[settings.levelTier].defaultSpeechRate;
@@ -335,6 +342,16 @@ export function CinematicLectureStudio({
         >
           <MessageSquareText size={16} />
           <span>5교시 · 1:1 과외</span>
+        </button>
+
+        <button
+          id="studio-tab-roleplay"
+          type="button"
+          className={`submode-tab-btn ${studioTab === 'roleplay' ? 'active' : ''}`}
+          onClick={() => switchStudioTab('roleplay')}
+        >
+          <Mic size={16} />
+          <span>6교시 · 프리토킹 ({completedRoleplayIds.length}/12)</span>
         </button>
       </div>
 
@@ -1268,6 +1285,18 @@ export function CinematicLectureStudio({
             )}
           </div>
         </section>
+      )}
+
+      {/* =======================================================
+          TAB 6: MULTI-TURN REALTALK ROLEPLAY STUDIO (12 SCENARIOS)
+         ======================================================= */}
+      {studioTab === 'roleplay' && (
+        <RealTalkRoleplayStudio
+          completedRoleplayIds={completedRoleplayIds}
+          onCompleteRoleplay={onCompleteRoleplay}
+          onAddReviewCard={onAddReviewCard}
+          onOpenDictionary={onOpenDictionary}
+        />
       )}
     </main>
   );

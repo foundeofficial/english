@@ -3,8 +3,10 @@ import { CheckCircle2, Sparkles, VolumeX, X } from 'lucide-react';
 import {
   LEVEL_INFO_MAP,
   LEVEL_ORDER,
+  MASTERY_STAGE_MAP,
+  MASTERY_STAGE_ORDER,
   PLACEMENT_DIAGNOSTIC_ITEMS,
-  recommendLevelFromScore
+  recommendPlacementFromScore
 } from '../data/levels.ts';
 import type { LearnerSettings, StudyPace } from '../types/course.ts';
 
@@ -12,7 +14,7 @@ interface OnboardingSettingsModalProps {
   isOpen: boolean;
   isFirstVisit: boolean;
   settings: LearnerSettings;
-  onSave: (nextSettings: LearnerSettings) => void;
+  onSave: (nextSettings: LearnerSettings, jumpToRecommended?: boolean) => void;
   onClose: () => void;
 }
 
@@ -38,11 +40,16 @@ export function OnboardingSettingsModal({
         correct += 1;
       }
     }
-    const recommended = recommendLevelFromScore(correct);
-    const meta = LEVEL_INFO_MAP[recommended];
-    setDraft((prev) => ({ ...prev, levelTier: recommended }));
+    const { stage, levelTier } = recommendPlacementFromScore(correct);
+    const stageMeta = MASTERY_STAGE_MAP[stage];
+    const lvMeta = LEVEL_INFO_MAP[levelTier];
+    setDraft((prev) => ({
+      ...prev,
+      currentStage: stage,
+      levelTier
+    }));
     setQuizResultNote(
-      `6단계 CEFR 진단 완료 (${correct}/6 정답) → [${meta.titleKo}] 레벨로 맞춤 설정되었습니다! (추천 시작: Day ${String(meta.recommendedStartDay).padStart(2, '0')})`
+      `8문항 정밀 진단 완료 (${correct}/8 정답) → [${stageMeta.badge}] · [${lvMeta.shortLabel}] 트랙이 자동 추천되었습니다!`
     );
     setShowQuiz(false);
   };
@@ -51,30 +58,32 @@ export function OnboardingSettingsModal({
     {
       id: 'light',
       title: '가볍게 · 하루 10분',
-      desc: '출퇴근길 7분 어순 스프린트 + 핵심 단어 15개 + 유튜브 짧은 반복 훈련'
+      desc: '파닉스/기초 문장 1단원 + 출퇴근 단어 15개 + 7분 핵심 스프린트'
     },
     {
       id: 'standard',
       title: '표준 · 하루 25분',
-      desc: '유튜브 실전 인강 + 시트콤 대화 쉐도잉 + 7분 스프린트 + 영자 독해 1지문'
+      desc: '단계별 핵심 강의(파닉스·문법·독해·인강) + 실전 롤플레이 + 스프린트'
     },
     {
       id: 'intensive',
       title: '집중 · 하루 50분',
-      desc: '유튜브·시트콤·칠판·독해 4교시 완주 + 1:1 AI 과외 + 15~20문항 A4 단원평가 시험지까지 풀코스'
+      desc: '전 영역 완전학습(인강·구문독해·에세이·롤플레이) + A4 단원평가 시험지까지 풀코스'
     }
   ];
+
+  const activeStageMeta = MASTERY_STAGE_MAP[draft.currentStage ?? 'stage2'];
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
       <div className="modal-panel modal-panel-wide">
         <div className="modal-header-row">
           <div>
-            <span className="pill-tag pill-brand">CEFR 6단계 개인 맞춤형 학습 캘리브레이션</span>
-            <h2 id="settings-modal-title" style={{ marginTop: '10px', fontSize: '1.45rem' }}>
+            <span className="pill-tag pill-brand">유치원 파닉스 → 초등 → 중학 → 고등 수능 → 글로벌 C2 완전학습</span>
+            <h2 id="settings-modal-title" style={{ marginTop: '10px', fontSize: '1.42rem' }}>
               {isFirstVisit
-                ? '내 영어 실력(Lv.1~6)과 하루 학습 페이스를 설정하세요'
-                : '내 레벨(Lv.1~6) · 학습 환경 설정'}
+                ? '어디서부터 시작할까요? 내 단계(Stage 0~4)를 설정하세요'
+                : '학습 단계(Stage 0~4) · CEFR 레벨 · 환경 설정'}
             </h2>
           </div>
           {!isFirstVisit && (
@@ -92,7 +101,7 @@ export function OnboardingSettingsModal({
 
         <div className="settings-section">
           <label htmlFor="learner-name-input" className="field-label">
-            학습자 이름 (성적표 · 학습지에 표기)
+            학습자 이름 (성장 성적표 · A4 학습지에 표기)
           </label>
           <input
             id="learner-name-input"
@@ -104,9 +113,10 @@ export function OnboardingSettingsModal({
           />
         </div>
 
+        {/* STEP 1: 5-STAGE ZERO-TO-MASTERY SELECTOR + 8-Q DIAGNOSTIC */}
         <div className="settings-section">
           <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '8px' }}>
-            <span className="field-label">1. 내 영어 레벨 선택 (CEFR A1 입문 ~ C2 마스터 · 6단계)</span>
+            <span className="field-label">1. 시작 학습 단계 선택 (Stage 0 유치원 파닉스 ~ Stage 4 글로벌 C2)</span>
             <button
               id="toggle-mini-diagnostic-btn"
               type="button"
@@ -114,7 +124,7 @@ export function OnboardingSettingsModal({
               onClick={() => setShowQuiz((v) => !v)}
             >
               <Sparkles size={14} />
-              <span>{showQuiz ? '레벨 테스트 접기' : '1분 정밀 6단계 레벨 테스트 해보기'}</span>
+              <span>{showQuiz ? '진단 테스트 접기' : '1분 8문항 정밀 배치고사 (파닉스~고등·C2)'}</span>
             </button>
           </div>
 
@@ -128,7 +138,7 @@ export function OnboardingSettingsModal({
           {showQuiz && (
             <div className="mini-quiz-box">
               <p style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.92rem' }}>
-                A1 입문부터 C2 마스터까지 단계별 6문항을 풀어보면 내 정확한 레벨을 추천해 드립니다.
+                유치원 파닉스부터 초등 어순, 중학 시제, 고등 수능 어법, C2 논설까지 8문항으로 정확한 시작 단계를 찾아드립니다.
               </p>
               {PLACEMENT_DIAGNOSTIC_ITEMS.map((q) => (
                 <div key={q.id} className="mini-quiz-item">
@@ -156,12 +166,49 @@ export function OnboardingSettingsModal({
                 disabled={Object.keys(quizAnswers).length < PLACEMENT_DIAGNOSTIC_ITEMS.length}
                 onClick={handleApplyQuiz}
               >
-                6문항 채점 후 내 CEFR 레벨 자동 추천받기
+                8문항 채점 후 내 맞춤 단계(Stage 0~4) 자동 추천받기
               </button>
             </div>
           )}
 
-          <div className="level-six-grid">
+          <div className="stage-five-grid">
+            {MASTERY_STAGE_ORDER.map((stKey) => {
+              const st = MASTERY_STAGE_MAP[stKey];
+              const isSelected = draft.currentStage === stKey;
+              return (
+                <button
+                  key={stKey}
+                  id={`select-stage-${stKey}`}
+                  type="button"
+                  className={`radio-card-btn ${isSelected ? 'active' : ''}`}
+                  onClick={() =>
+                    setDraft({
+                      ...draft,
+                      currentStage: stKey,
+                      levelTier: st.recommendedLevelTier
+                    })
+                  }
+                >
+                  <div className="section-label-between" style={{ marginBottom: '4px', gap: '6px' }}>
+                    <span className="radio-card-title">{st.badge}</span>
+                    <span className="pill-tag pill-subtle" style={{ fontSize: '0.72rem' }}>
+                      {st.cefrRange}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 750, color: 'var(--brand)', marginBottom: '3px' }}>
+                    {st.schoolAgeLabel}
+                  </div>
+                  <p className="radio-card-desc">{st.descKo}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* STEP 2: FINE-GRAINED CEFR LEVEL */}
+        <div className="settings-section">
+          <span className="field-label">2. 세부 문장 난이도 &amp; 듣기 속도 (CEFR Lv.1 ~ Lv.6)</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {LEVEL_ORDER.map((lv) => {
               const info = LEVEL_INFO_MAP[lv];
               return (
@@ -169,27 +216,19 @@ export function OnboardingSettingsModal({
                   key={lv}
                   id={`select-level-${lv}`}
                   type="button"
-                  className={`radio-card-btn ${draft.levelTier === lv ? 'active' : ''}`}
+                  className={`day-switch-chip ${draft.levelTier === lv ? 'active' : ''}`}
                   onClick={() => setDraft({ ...draft, levelTier: lv })}
                 >
-                  <div className="section-label-between" style={{ marginBottom: '4px' }}>
-                    <span className="radio-card-title">{info.shortLabel}</span>
-                    <span className="pill-tag pill-subtle" style={{ fontSize: '0.72rem' }}>
-                      기본 {info.defaultSpeechRate}x
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--brand)', marginBottom: '3px' }}>
-                    {info.taglineKo}
-                  </div>
-                  <p className="radio-card-desc">{info.descKo}</p>
+                  {info.shortLabel} ({info.defaultSpeechRate}x)
                 </button>
               );
             })}
           </div>
         </div>
 
+        {/* STEP 3: STUDY PACE */}
         <div className="settings-section">
-          <span className="field-label">2. 하루 목표 학습량 (학습 능력 · 시간 여유)</span>
+          <span className="field-label">3. 하루 목표 학습량</span>
           <div className="choice-stack">
             {paceOptions.map((opt) => (
               <button
@@ -206,8 +245,9 @@ export function OnboardingSettingsModal({
           </div>
         </div>
 
+        {/* STEP 4: ACCENT & LEARNING AIDS */}
         <div className="settings-section">
-          <span className="field-label">3. 기본 원어민 발음 억양 · 직독직해 &amp; 출퇴근 설정</span>
+          <span className="field-label">4. 기본 원어민 억양 · 직독직해 &amp; 묵음 설정</span>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
             {(
               [
@@ -232,7 +272,7 @@ export function OnboardingSettingsModal({
               <div>
                 <div style={{ fontWeight: 700 }}>S/V/O 의미 단위 끊어읽기(/) 표시</div>
                 <div style={{ fontSize: '0.84rem', color: 'var(--text-sub)' }}>
-                  시트콤 대본과 영자 독해 지문에서 영어 어순 덩어리 슬래시를 함께 표시합니다.
+                  시트콤 대본·영자 독해·고등 구문독해에서 영어 어순 덩어리 슬래시를 함께 표시합니다.
                 </div>
               </div>
               <input
@@ -264,7 +304,7 @@ export function OnboardingSettingsModal({
 
         <div className="settings-section">
           <label htmlFor="gemini-api-key-input" className="field-label">
-            Google Gemini API Key (선택사항 · 실시간 AI 1:1 첨삭 연동)
+            Google Gemini API Key (선택사항 · 실시간 AI 1:1 에세이·회화 첨삭 연동)
           </label>
           <input
             id="gemini-api-key-input"
@@ -272,11 +312,11 @@ export function OnboardingSettingsModal({
             className="input-clean"
             value={draft.geminiApiKey ?? ''}
             onChange={(e) => setDraft({ ...draft, geminiApiKey: e.target.value })}
-            placeholder="AIza... (미입력 시에도 내장 한영 첨삭 엔진이 100% 작동합니다)"
+            placeholder="AIza... (미입력 시에도 내장 한국인 맞춤 첨삭·채점 엔진이 100% 작동합니다)"
           />
         </div>
 
-        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px', flexWrap: 'wrap' }}>
           {!isFirstVisit && (
             <button id="cancel-settings-btn" type="button" className="btn-outline" onClick={onClose}>
               취소
@@ -287,13 +327,16 @@ export function OnboardingSettingsModal({
             type="button"
             className="btn-solid-brand"
             onClick={() =>
-              onSave({
-                ...draft,
-                learnerName: draft.learnerName.trim() || '학습자'
-              })
+              onSave(
+                {
+                  ...draft,
+                  learnerName: draft.learnerName.trim() || '학습자'
+                },
+                isFirstVisit
+              )
             }
           >
-            {LEVEL_INFO_MAP[draft.levelTier].shortLabel} 맞춤 커리큘럼 적용하기
+            {activeStageMeta.shortLabel} ({LEVEL_INFO_MAP[draft.levelTier].shortLabel}) 트랙 시작하기
           </button>
         </div>
       </div>

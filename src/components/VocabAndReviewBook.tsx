@@ -36,6 +36,7 @@ interface VocabAndReviewBookProps {
   onToggleVocabMastered: (vocabId: string) => void;
   onRemoveSavedDictionaryWord: (wordId: string) => void;
   onPromoteReviewCard: (cardId: string) => void;
+  onRateReviewCard?: (cardId: string, rating: 'again' | 'good' | 'master') => void;
   onOpenDictionary: (word?: string) => void;
 }
 
@@ -61,6 +62,7 @@ export function VocabAndReviewBook({
   onToggleVocabMastered,
   onRemoveSavedDictionaryWord,
   onPromoteReviewCard,
+  onRateReviewCard,
   onOpenDictionary
 }: VocabAndReviewBookProps) {
   const [subTab, setSubTab] = useState<VocabTab>('sheet');
@@ -71,9 +73,12 @@ export function VocabAndReviewBook({
   const [quizInputs, setQuizInputs] = useState<Record<string, string>>({});
   const [quizGraded, setQuizGraded] = useState(false);
 
-  // Review deck states
+  // Review deck & SM-2 Active Recall Flashcard states
   const [revealedCardIds, setRevealedCardIds] = useState<Record<string, boolean>>({});
   const [intervalFilter, setIntervalFilter] = useState<'all' | 1 | 3 | 7 | 14 | 30>('all');
+  const [reviewViewMode, setReviewViewMode] = useState<'flashcard' | 'grid'>('flashcard');
+  const [flashIdx, setFlashIdx] = useState(0);
+  const [flashFlipped, setFlashFlipped] = useState(false);
 
   const dayPad = String(module.dayNumber).padStart(2, '0');
 
@@ -552,22 +557,49 @@ export function VocabAndReviewBook({
       )}
 
       {/* =======================================================
-          SUB-TAB 4: EBBINGHAUS SPACED REPETITION VAULT
+          SUB-TAB 5: SM-2 ACTIVE RECALL FLASHCARD & REVIEW VAULT
          ======================================================= */}
       {subTab === 'review' && (
-        <section aria-label="에빙하우스 망각곡선 복습함">
-          <div className="cellophane-bar">
-            <span style={{ fontWeight: 750, fontSize: '0.92rem' }}>복습 주기 필터:</span>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+        <section aria-label="SM-2 에빙하우스 망각곡선 복습함">
+          <div className="cellophane-bar" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <span style={{ fontWeight: 750, fontSize: '0.92rem' }}>복습 모드:</span>
+              <button
+                id="review-mode-flashcard-btn"
+                type="button"
+                className={`day-switch-chip ${reviewViewMode === 'flashcard' ? 'active' : ''}`}
+                onClick={() => {
+                  setReviewViewMode('flashcard');
+                  setFlashIdx(0);
+                  setFlashFlipped(false);
+                }}
+              >
+                🧠 SM-2 집중 플래시카드
+              </button>
+              <button
+                id="review-mode-grid-btn"
+                type="button"
+                className={`day-switch-chip ${reviewViewMode === 'grid' ? 'active' : ''}`}
+                onClick={() => setReviewViewMode('grid')}
+              >
+                📋 전체 목록 보기 ({activeReviewCards.length})
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               {(['all', 1, 3, 7, 14, 30] as const).map((iv) => (
                 <button
                   key={String(iv)}
                   id={`review-filter-${iv}`}
                   type="button"
                   className={`day-switch-chip ${intervalFilter === iv ? 'active' : ''}`}
-                  onClick={() => setIntervalFilter(iv)}
+                  onClick={() => {
+                    setIntervalFilter(iv);
+                    setFlashIdx(0);
+                    setFlashFlipped(false);
+                  }}
                 >
-                  {iv === 'all' ? '전체 대기 카드' : `D+${iv} 주기`}
+                  {iv === 'all' ? '전체' : `D+${iv}`}
                 </button>
               ))}
             </div>
@@ -577,9 +609,124 @@ export function VocabAndReviewBook({
             <div className="surface-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
               <h2 style={{ fontSize: '1.25rem' }}>현재 주기에 대기 중인 복습 카드가 없습니다!</h2>
               <p style={{ color: 'var(--text-sub)', marginTop: '8px' }}>
-                스프린트·단원평가 오답, 1:1 과외 첨삭, 영한사전 검색 카드가 이곳에 자동으로 모입니다.
+                파닉스·초등 10강·비주얼 문법·고등 수능 독해·롤플레이·시험지 오답이 이곳에 자동으로 모여 장기 기억으로 정착됩니다.
               </p>
             </div>
+          ) : reviewViewMode === 'flashcard' ? (
+            (() => {
+              const safeIdx = Math.min(flashIdx, activeReviewCards.length - 1);
+              const card = activeReviewCards[safeIdx];
+              const handleGrade = (rating: 'again' | 'good' | 'master') => {
+                if (onRateReviewCard) {
+                  onRateReviewCard(card.id, rating);
+                } else if (rating !== 'again') {
+                  onPromoteReviewCard(card.id);
+                }
+                setFlashFlipped(false);
+                setFlashIdx((prev) =>
+                  activeReviewCards.length <= 1 ? 0 : prev % Math.max(1, activeReviewCards.length - 1)
+                );
+              };
+
+              return (
+                <div className="sm2-flashcard-stage">
+                  <div className="section-label-between" style={{ marginBottom: '12px' }}>
+                    <span className="pill-tag pill-coral">
+                      SM-2 액티브 리콜 · 카드 {safeIdx + 1} / {activeReviewCards.length}
+                    </span>
+                    <span style={{ fontSize: '0.84rem', color: 'var(--text-sub)', fontWeight: 650 }}>
+                      D+{card.intervalDays} 주기 · {card.sourceLabel}
+                      {card.dueDate ? ` · 예정일 ${card.dueDate}` : ''}
+                    </span>
+                  </div>
+
+                  <div className={`sm2-card-face ${flashFlipped ? 'flipped' : ''}`}>
+                    <span className="pill-tag pill-subtle">
+                      {flashFlipped ? '원어민 정답 & 해설' : '한국어 뜻을 보고 입으로 영작해 보세요'}
+                    </span>
+                    <h3 style={{ fontSize: '1.35rem', marginTop: '14px', lineHeight: 1.5 }}>
+                      {card.promptKo}
+                    </h3>
+
+                    {!flashFlipped ? (
+                      <div style={{ marginTop: '24px', display: 'flex', gap: '10px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button
+                          id="sm2-flip-card-btn"
+                          type="button"
+                          className="btn-solid-brand"
+                          onClick={() => {
+                            setFlashFlipped(true);
+                            speakEnglish(card.targetEn, 0.94);
+                          }}
+                        >
+                          정답 뒤집기 &amp; 원어민 발음 듣기
+                        </button>
+                        <button
+                          type="button"
+                          className="btn-outline"
+                          onClick={() => speakEnglish(card.targetEn, 0.85)}
+                        >
+                          <Volume2 size={15} /> 발음 힌트 먼저 듣기
+                        </button>
+                      </div>
+                    ) : (
+                      <div style={{ marginTop: '18px' }}>
+                        <div className="vocab-example-box" style={{ textAlign: 'left' }}>
+                          <div className="section-label-between" style={{ gap: '8px' }}>
+                            <p style={{ fontFamily: 'var(--font-en)', fontSize: '1.22rem', fontWeight: 800, color: 'var(--brand)' }}>
+                              {card.targetEn}
+                            </p>
+                            <button
+                              type="button"
+                              className="inline-audio-btn"
+                              onClick={() => speakEnglish(card.targetEn, 0.94)}
+                            >
+                              <Volume2 size={14} /> 다시 듣기
+                            </button>
+                          </div>
+                          <p style={{ marginTop: '8px', fontSize: '0.92rem', color: 'var(--text-body)' }}>
+                            💡 {card.noteKo}
+                          </p>
+                        </div>
+
+                        <p style={{ fontSize: '0.84rem', color: 'var(--text-sub)', marginTop: '16px', marginBottom: '10px' }}>
+                          얼마나 쉽게 떠올랐나요? (에빙하우스 복습 간격이 자동 계산됩니다)
+                        </p>
+                        <div className="sm2-rating-row">
+                          <button
+                            id="sm2-rate-again"
+                            type="button"
+                            className="sm2-rate-btn again"
+                            onClick={() => handleGrade('again')}
+                          >
+                            <strong>다시 (D+1)</strong>
+                            <small>내일 바로 재복습</small>
+                          </button>
+                          <button
+                            id="sm2-rate-good"
+                            type="button"
+                            className="sm2-rate-btn good"
+                            onClick={() => handleGrade('good')}
+                          >
+                            <strong>기억남 (다음 주기)</strong>
+                            <small>D+{card.intervalDays} → 승급</small>
+                          </button>
+                          <button
+                            id="sm2-rate-master"
+                            type="button"
+                            className="sm2-rate-btn master"
+                            onClick={() => handleGrade('master')}
+                          >
+                            <strong>1초 인출 완벽!</strong>
+                            <small>완전 체화 졸업</small>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })()
           ) : (
             <div className="vocab-cards-grid">
               {activeReviewCards.map((card) => {
@@ -587,7 +734,9 @@ export function VocabAndReviewBook({
                 return (
                   <div key={card.id} className="vocab-item-card">
                     <div className="section-label-between">
-                      <span className="pill-tag pill-coral">D+{card.intervalDays} 복습 주기</span>
+                      <span className="pill-tag pill-coral">
+                        D+{card.intervalDays} {card.dueDate ? `· ${card.dueDate}` : ''}
+                      </span>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                         {card.sourceLabel}
                       </span>

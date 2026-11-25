@@ -189,7 +189,7 @@ export function GrowthReportDashboard({
             <span className="pill-tag pill-coral">{levelMeta.shortLabel}</span>
           </div>
           <h1 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', marginTop: '8px' }}>
-            {state.settings.learnerName} 님의 30일 영어 성장 리포트 &amp; 취약점 클리닉
+            {state.settings.learnerName} 님의 통합 영어 성장 리포트 &amp; 취약점 클리닉
           </h1>
           <p style={{ color: 'var(--text-sub)', marginTop: '6px' }}>
             5대 영어 역량 분석, 최근 7일 학습 시간, 자동 감지된 취약 문법 패턴, 그리고 30일 완주 현황을 한눈에 확인하고 A4 성적표로 출력할 수 있습니다.
@@ -244,26 +244,101 @@ export function GrowthReportDashboard({
       {/* TOP KPI STRIP */}
       <section className="report-kpi-grid" aria-label="핵심 학습 지표">
         <div className="report-kpi-card">
-          <span className="mini-stat-label">30일 코스 진도율</span>
+          <span className="mini-stat-label">통합 마스터리 레벨</span>
           <strong>
-            {completedDays} / 30일 ({Math.round((completedDays / 30) * 100)}%)
+            Lv.{Math.floor((state.xpPoints ?? 0) / 250) + 1} · {state.xpPoints ?? 0} XP
           </strong>
-          <small>연속 학습 {state.streakDays}일째</small>
+          <small>연속 학습 {state.streakDays}일째 · 30일 중 {completedDays}일 진행</small>
         </div>
         <div className="report-kpi-card">
-          <span className="mini-stat-label">누적 집중 학습 시간</span>
-          <strong>{totalMinutes}분</strong>
-          <small>일일 목표 {targetDailyMin}분</small>
+          <span className="mini-stat-label">파닉스 · 초등 10강</span>
+          <strong>
+            {state.phonicsMasteredIds.length}/86 · {state.foundationCompletedIds.length}/10강
+          </strong>
+          <small>미니멀페어 최고 {state.minimalPairBestStreak}연속 정답</small>
         </div>
         <div className="report-kpi-card">
-          <span className="mini-stat-label">누적 영어 발화 &amp; 첨삭</span>
-          <strong>{state.totalSentencesSpoken}문장</strong>
-          <small>1:1 과외 첨삭 {state.savedParaphrases.length}건</small>
+          <span className="mini-stat-label">비주얼 문법 · 고등 독해</span>
+          <strong>
+            {state.grammarMasteredIds.length}/20강 · {Object.keys(state.highSchoolPassageScores ?? {}).length}/10지문
+          </strong>
+          <small>에세이 {state.savedEssays.length}편 · 롤플레이 {state.completedRoleplayIds.length}/12편</small>
         </div>
         <div className="report-kpi-card">
-          <span className="mini-stat-label">단원평가 평균 점수</span>
-          <strong>{examScores.length > 0 ? `${avgExam}점` : '응시 전'}</strong>
-          <small>{examScores.length}개 단원 채점 완료</small>
+          <span className="mini-stat-label">누적 학습 · 평균 시험</span>
+          <strong>
+            {totalMinutes}분 · {examScores.length > 0 ? `${avgExam}점` : '응시 전'}
+          </strong>
+          <small>발화 {state.totalSentencesSpoken}문장 · 첨삭 {state.savedParaphrases.length}건</small>
+        </div>
+      </section>
+
+      {/* ZERO-TO-MASTERY 5-STAGE MILESTONE TRACKER */}
+      <section className="surface-card" style={{ marginBottom: '22px' }} aria-label="유치원~고등·C2 5단계 수료 현황">
+        <div className="section-label-between" style={{ marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+          <h2 style={{ fontSize: '1.16rem' }}>
+            유치원 파닉스 → 초등 → 중학 → 고등 수능 → 글로벌 C2 완전정복 진도
+          </h2>
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            <button
+              type="button"
+              className="day-switch-chip"
+              onClick={() => onJumpToDay(state.selectedDay, 'foundation')}
+            >
+              파닉스·초등 가기 →
+            </button>
+            <button
+              type="button"
+              className="day-switch-chip"
+              onClick={() => onJumpToDay(state.selectedDay, 'academy')}
+            >
+              영문법·고등 가기 →
+            </button>
+          </div>
+        </div>
+        <div className="report-stage-strip">
+          {[
+            {
+              label: 'Stage 0 · 유치원 파닉스',
+              detail: `음가·사이트워드 ${state.phonicsMasteredIds.length}/86 · 귀트임 ${state.minimalPairBestStreak}연속`,
+              pct: Math.min(100, Math.round(((state.phonicsMasteredIds.length + state.minimalPairBestStreak * 2) / 86) * 100))
+            },
+            {
+              label: 'Stage 1 · 초등 기초 10강',
+              detail: `필수 어순 ${state.foundationCompletedIds.length}/10강 완료`,
+              pct: Math.min(100, Math.round((state.foundationCompletedIds.length / 10) * 100))
+            },
+            {
+              label: 'Stage 2 · 중학 문법·일상',
+              detail: `초·중 문법 ${state.grammarMasteredIds.filter((id) => Number(id.replace('g', '')) <= 12).length}/12강`,
+              pct: Math.min(100, Math.round((state.grammarMasteredIds.filter((id) => Number(id.replace('g', '')) <= 12).length / 12) * 100))
+            },
+            {
+              label: 'Stage 3 · 고등 수능·에세이',
+              detail: `고등독해 ${Object.keys(state.highSchoolPassageScores ?? {}).length}/10 · 에세이 ${state.savedEssays.length}편`,
+              pct: Math.min(100, Math.round(((Object.keys(state.highSchoolPassageScores ?? {}).length + state.savedEssays.length) / 14) * 100))
+            },
+            {
+              label: 'Stage 4 · 글로벌 C1–C2',
+              detail: `30일 ${completedDays}/30 · 롤플레이 ${state.completedRoleplayIds.length}/12`,
+              pct: Math.min(100, Math.round(((completedDays + state.completedRoleplayIds.length) / 42) * 100))
+            }
+          ].map((item) => (
+            <div key={item.label} className="report-stage-box">
+              <div className="section-label-between" style={{ fontSize: '0.8rem', gap: '6px', flexWrap: 'nowrap' }}>
+                <strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {item.label}
+                </strong>
+                <span style={{ color: 'var(--brand)', fontWeight: 800, flexShrink: 0 }}>{item.pct}%</span>
+              </div>
+              <div className="skill-bar-track" style={{ height: '6px', marginTop: '6px' }}>
+                <div className="skill-bar-fill" style={{ width: `${Math.max(4, item.pct)}%` }} />
+              </div>
+              <small style={{ color: 'var(--text-sub)', display: 'block', marginTop: '5px' }}>
+                {item.detail}
+              </small>
+            </div>
+          ))}
         </div>
       </section>
 

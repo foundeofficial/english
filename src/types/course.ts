@@ -1,7 +1,17 @@
-export type MainRoute = 'home' | 'lecture' | 'worksheet' | 'vocab-review' | 'report';
+import type { MasteryStage, SavedEssayRecord } from './academy.ts';
+
+export type MainRoute =
+  | 'home'
+  | 'foundation'
+  | 'academy'
+  | 'lecture'
+  | 'worksheet'
+  | 'vocab-review'
+  | 'report';
 
 /**
  * 6-Tier CEFR-aligned Korean learner level system (Lv.1 A1 ~ Lv.6 C2)
+ * paired with 5-Stage Zero-to-Mastery School/Life Track (Stage 0 유치원 파닉스 ~ Stage 4 C2)
  */
 export type LevelTier = 'a1' | 'a2' | 'b1' | 'b2' | 'c1' | 'c2';
 export type StudyPace = 'light' | 'standard' | 'intensive';
@@ -12,6 +22,7 @@ export type KeySentenceLadder = Record<LevelTier, string>;
 
 export interface LearnerSettings {
   learnerName: string;
+  currentStage: MasteryStage; // stage0 유치원 파닉스 ~ stage4 글로벌 C2
   levelTier: LevelTier; // Lv.1 A1 입문 ~ Lv.6 C2 마스터
   studyPace: StudyPace; // 가볍게(10분) / 표준(25분) / 집중(50분)
   accent: AccentPreference; // en-US 미국 / en-GB 영국 / en-AU 호주
@@ -209,6 +220,8 @@ export interface SpacedReviewCard {
   noteKo: string;
   sourceLabel: string;
   intervalDays: 1 | 3 | 7 | 14 | 30;
+  dueDate?: string;
+  reviewCount?: number;
   mastered: boolean;
 }
 
@@ -239,6 +252,7 @@ export interface AppPersistState {
   streakDays: number;
   lastStudyDate?: string;
   totalSentencesSpoken: number;
+  xpPoints: number;
   selectedDay: number;
   settings: LearnerSettings;
   dayRecords: Record<number, DayCompletionRecord>;
@@ -249,4 +263,12 @@ export interface AppPersistState {
   savedDictionaryWords: SavedDictionaryWord[];
   reviewDeck: SpacedReviewCard[];
   savedParaphrases: ParaphraseResult[];
+  // v4.0 Zero-to-Mastery Stage Progress
+  phonicsMasteredIds: string[];
+  minimalPairBestStreak: number;
+  foundationCompletedIds: string[];
+  grammarMasteredIds: string[];
+  highSchoolPassageScores: Record<string, number>;
+  savedEssays: SavedEssayRecord[];
+  completedRoleplayIds: string[];
 }

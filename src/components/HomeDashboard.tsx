@@ -1,15 +1,19 @@
 import { useState } from 'react';
 import {
+  ArrowRight,
   Award,
   BookOpen,
   BookOpenCheck,
   CheckCircle2,
   Circle,
+  GraduationCap,
   Layers,
+  Mic,
   PlayCircle,
   Search,
-  Volume2,
+  Sparkles,
   Video,
+  Volume2,
   Zap
 } from 'lucide-react';
 import {
@@ -17,7 +21,13 @@ import {
   COURSE_METADATA,
   WEEK_THEMES
 } from '../data/courseCatalog.ts';
-import { LEVEL_INFO_MAP, LEVEL_ORDER } from '../data/levels.ts';
+import {
+  LEVEL_INFO_MAP,
+  LEVEL_ORDER,
+  MASTERY_STAGE_MAP,
+  MASTERY_STAGE_ORDER
+} from '../data/levels.ts';
+import type { MasteryStage } from '../types/academy.ts';
 import type {
   AppPersistState,
   DayLessonModule,
@@ -31,21 +41,130 @@ interface HomeDashboardProps {
   state: AppPersistState;
   currentModule: DayLessonModule;
   onSelectDay: (dayNumber: number) => void;
+  onSelectStage: (stage: MasteryStage) => void;
   onStartSprint: () => void;
-  onNavigate: (route: MainRoute) => void;
+  onNavigate: (route: MainRoute, opts?: { lectureTab?: 'youtube' | 'roleplay' }) => void;
   onOpenDictionary: (word?: string) => void;
 }
 
-const PACE_RECOMMENDATION: Record<AppPersistState['settings']['studyPace'], string> = {
-  light: '가볍게 10분 코스: [7분 집중 스프린트] + [핵심 단어 15개]로 매일 부담 없이 감각을 유지하세요.',
-  standard: '표준 25분 코스: [유튜브 인강] + [시트콤·독해] 시청 후 [7분 스프린트]로 어순을 체화하세요.',
-  intensive: '집중 50분 코스: [유튜브·시트콤·독해·1:1과외] → [스프린트] → [15~20문항 A4 시험지] 풀코스를 완주하세요.'
+const STAGE_DAILY_STEPS: Record<
+  MasteryStage,
+  Array<{ stepNum: string; title: string; desc: string; route: MainRoute; lectureTab?: 'youtube' | 'roleplay' }>
+> = {
+  stage0: [
+    {
+      stepNum: 'STEP 1',
+      title: 'A–Z 음가 보드 & 매직-E 소리 합치기',
+      desc: '오늘의 알파벳 3글자 입모양과 CVC/Magic-E 규칙을 소리 내어 익히세요.',
+      route: 'foundation'
+    },
+    {
+      stepNum: 'STEP 2',
+      title: 'R/L · F/V 한국인 발음 귀트임 게임',
+      desc: '미니멀 페어 듣기 퀴즈와 사이트워드 60개로 영어 귀를 엽니다.',
+      route: 'foundation'
+    },
+    {
+      stepNum: 'STEP 3',
+      title: '유치원·초등 첫인사 프리토킹 롤플레이',
+      desc: '새 친구와 인사하고 좋아하는 것을 영어로 주고받아 보세요.',
+      route: 'lecture',
+      lectureTab: 'roleplay'
+    }
+  ],
+  stage1: [
+    {
+      stepNum: 'STEP 1',
+      title: '초등 필수 10강 어순 블록 조립 (F01~F10)',
+      desc: '한국어 어순을 영어 [주어+동사+목적어] 블록으로 뒤집는 훈련을 하세요.',
+      route: 'foundation'
+    },
+    {
+      stepNum: 'STEP 2',
+      title: '초등 핵심 영문법 (G01~G05) & 문장변환기',
+      desc: 'be동사·일반동사의 평서문/부정문/의문문 변화를 눈으로 확인하세요.',
+      route: 'academy'
+    },
+    {
+      stepNum: 'STEP 3',
+      title: '아이스크림 주문 · 길 묻기 5턴 롤플레이',
+      desc: '배운 기초 문장을 원어민 파트너와 실제 대화로 써먹어 보세요.',
+      route: 'lecture',
+      lectureTab: 'roleplay'
+    }
+  ],
+  stage2: [
+    {
+      stepNum: 'STEP 1',
+      title: '12시제 타임라인 & 중학 영문법 (G06~G12)',
+      desc: '현재완료·수동태·to부정사를 시각 공식과 4문항 드릴로 정복하세요.',
+      route: 'academy'
+    },
+    {
+      stepNum: 'STEP 2',
+      title: '유튜브 A–B 반복 · 시트콤 쉐도잉 · 딕테이션',
+      desc: 'Day 01~12 실전 영상과 마이크 발음 피드백으로 원어민 리듬을 익히세요.',
+      route: 'lecture',
+      lectureTab: 'youtube'
+    },
+    {
+      stepNum: 'STEP 3',
+      title: '카페 · 공항 · 식당 여행 5턴 롤플레이 & 복습',
+      desc: '실전 상황 대화 후 SM-2 플래시카드로 장기 기억을 고정하세요.',
+      route: 'lecture',
+      lectureTab: 'roleplay'
+    }
+  ],
+  stage3: [
+    {
+      stepNum: 'STEP 1',
+      title: '고등·수능 킬러 문법 (G13~G20) 정복',
+      desc: '관계사·분사구문·가정법 도치·동격 that을 비주얼 블록으로 끝내세요.',
+      route: 'academy'
+    },
+    {
+      stepNum: 'STEP 2',
+      title: '수능 구문독해 X-Ray & 30문항 실전 풀이',
+      desc: 'S/V/O/M 구문 컬러 해부로 고난도 아카데믹 지문을 직독직해하세요.',
+      route: 'academy'
+    },
+    {
+      stepNum: 'STEP 3',
+      title: '4축 루브릭 에세이 첨삭 & 영어 찬반 토론',
+      desc: '서론·본론·결론 에세이를 자동 채점받고 고등 토론 롤플레이에 도전하세요.',
+      route: 'lecture',
+      lectureTab: 'roleplay'
+    }
+  ],
+  stage4: [
+    {
+      stepNum: 'STEP 1',
+      title: 'Day 13~30 글로벌 오피스 · BBC/TED 시사 인강',
+      desc: '미국·영국·호주 억양 쉐도잉과 블라인드 딕테이션으로 원어민 청취력을 완성하세요.',
+      route: 'lecture',
+      lectureTab: 'youtube'
+    },
+    {
+      stepNum: 'STEP 2',
+      title: '협상 · 클레임 대응 · 임원 Q&A 5턴 롤플레이',
+      desc: '실무 현장에서 바로 통하는 완곡한 설득·반론 표현을 훈련하세요.',
+      route: 'lecture',
+      lectureTab: 'roleplay'
+    },
+    {
+      stepNum: 'STEP 3',
+      title: 'A4 실전 단원평가 & 아카데믹 에세이 포트폴리오',
+      desc: '950문항 쌍둥이 오답 클리닉과 1등급 에세이로 완벽 마스터를 증명하세요.',
+      route: 'worksheet'
+    }
+  ]
 };
 
 export function HomeDashboard({
   state,
   currentModule,
   onSelectDay,
+  onSelectStage,
   onStartSprint,
   onNavigate,
   onOpenDictionary
@@ -55,6 +174,9 @@ export function HomeDashboard({
   );
   const [levelFilter, setLevelFilter] = useState<'all' | LevelTier>('all');
   const [quickDictInput, setQuickDictInput] = useState('');
+
+  const activeStage: MasteryStage = state.settings.currentStage ?? 'stage2';
+  const activeStageMeta = MASTERY_STAGE_MAP[activeStage];
 
   const dayRec = state.dayRecords[currentModule.dayNumber] ?? {
     sprintCompleted: false,
@@ -73,19 +195,54 @@ export function HomeDashboard({
   const dayLevelMeta = LEVEL_INFO_MAP[currentModule.cefrLevel];
   const targetKeySentence = currentModule.keySentenceByTier[state.settings.levelTier];
 
-  const examScores = Object.values(state.dayRecords)
-    .map((r) => r.examScore)
-    .filter((s): s is number => s !== null);
-  const avgExamScore =
-    examScores.length > 0
-      ? Math.round(examScores.reduce((acc, v) => acc + v, 0) / examScores.length)
-      : null;
-
   const completedDaysCount = Object.values(state.dayRecords).filter(
     (r) => r.sprintCompleted || r.lectureCompleted || r.examScore !== null
   ).length;
-  const monthlyProgressPct = Math.round((completedDaysCount / COURSE_METADATA.totalDays) * 100);
-  const unmasteredReviewCount = state.reviewDeck.filter((c) => !c.mastered).length;
+
+  // Real progress percentages across the 5 Zero-to-Mastery stages
+  const stage0Pct = Math.min(
+    100,
+    Math.round(((state.phonicsMasteredIds.length + Math.min(10, state.minimalPairBestStreak * 2)) / 86) * 100)
+  );
+  const stage1Pct = Math.min(
+    100,
+    Math.round((state.foundationCompletedIds.length / 10) * 100)
+  );
+  const stage2DaysDone = Object.entries(state.dayRecords).filter(
+    ([d, r]) => Number(d) <= 12 && (r.sprintCompleted || r.lectureCompleted || r.examScore !== null)
+  ).length;
+  const stage2GrammarDone = state.grammarMasteredIds.filter((id) => {
+    const n = Number(id.replace('g', ''));
+    return n >= 1 && n <= 12;
+  }).length;
+  const stage2Pct = Math.min(
+    100,
+    Math.round(((stage2DaysDone + stage2GrammarDone) / 24) * 100)
+  );
+  const stage3GrammarDone = state.grammarMasteredIds.filter((id) => {
+    const n = Number(id.replace('g', ''));
+    return n >= 13 && n <= 20;
+  }).length;
+  const stage3PassagesDone = Object.keys(state.highSchoolPassageScores ?? {}).length;
+  const stage3Pct = Math.min(
+    100,
+    Math.round(((stage3GrammarDone + stage3PassagesDone + Math.min(4, state.savedEssays.length)) / 22) * 100)
+  );
+  const stage4DaysDone = Object.entries(state.dayRecords).filter(
+    ([d, r]) => Number(d) >= 13 && (r.sprintCompleted || r.lectureCompleted || r.examScore !== null)
+  ).length;
+  const stage4Pct = Math.min(
+    100,
+    Math.round(((stage4DaysDone + state.completedRoleplayIds.length) / 30) * 100)
+  );
+
+  const stageProgressMap: Record<MasteryStage, number> = {
+    stage0: stage0Pct,
+    stage1: stage1Pct,
+    stage2: stage2Pct,
+    stage3: stage3Pct,
+    stage4: stage4Pct
+  };
 
   const visibleDays = COURSE_CATALOG.filter((d) => {
     const matchWeek = selectedWeekTab === 'all' ? true : d.weekNumber === selectedWeekTab;
@@ -108,42 +265,46 @@ export function HomeDashboard({
         : 25;
   const dailyGoalPct = Math.min(100, Math.round((todayStudyMin / targetDailyMin) * 100));
 
+  const xpLevel = Math.floor((state.xpPoints ?? 0) / 250) + 1;
+
   return (
     <main className="page-wrap">
-      {/* TOP INTRO + STATS + DAILY GOAL BAR */}
+      {/* TOP INTRO + STATS */}
       <div className="track-intro-row">
         <div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-            <span className="pill-tag pill-brand">{COURSE_METADATA.trackTitle}</span>
-            <span className="pill-tag pill-amber">유튜브 A–B 반복 · 쉐도잉 · 딕테이션 · 영한사전</span>
+            <span className="pill-tag pill-brand">유치원 파닉스 → 초·중·고등 수능 → 글로벌 C2 완전학습</span>
+            <span className="pill-tag pill-amber">Lv.{xpLevel} · {state.xpPoints ?? 0} XP</span>
           </div>
           <p style={{ marginTop: '8px', color: 'var(--text-sub)', fontSize: '0.94rem' }}>
-            <strong>{state.settings.learnerName}</strong> 님 ({learnerLevelMeta.shortLabel}) ·{' '}
-            {PACE_RECOMMENDATION[state.settings.studyPace]}
+            <strong>{state.settings.learnerName}</strong> 님 · 현재 단계{' '}
+            <strong style={{ color: 'var(--brand)' }}>{activeStageMeta.badge}</strong> ({learnerLevelMeta.shortLabel})
           </p>
         </div>
 
         <div className="summary-stat-strip">
           <div className="mini-stat-chip">
-            <span className="mini-stat-label">30일 완주율</span>
+            <span className="mini-stat-label">파닉스·초등10강</span>
             <strong>
-              {completedDaysCount} / 30일 ({monthlyProgressPct}%)
+              {state.phonicsMasteredIds.length} · {state.foundationCompletedIds.length}/10
+            </strong>
+          </div>
+          <div className="mini-stat-chip">
+            <span className="mini-stat-label">문법·고등독해</span>
+            <strong>
+              {state.grammarMasteredIds.length}/20 · {stage3PassagesDone}/10
+            </strong>
+          </div>
+          <div className="mini-stat-chip">
+            <span className="mini-stat-label">30일·롤플레이</span>
+            <strong>
+              {completedDaysCount}/30 · {state.completedRoleplayIds.length}/12
             </strong>
           </div>
           <div className="mini-stat-chip">
             <span className="mini-stat-label">암기 단어</span>
             <strong>
-              {state.masteredVocabIds.length} / {COURSE_METADATA.totalVocabCount}
-            </strong>
-          </div>
-          <div className="mini-stat-chip">
-            <span className="mini-stat-label">평균 단원평가</span>
-            <strong>{avgExamScore !== null ? `${avgExamScore}점` : '응시 전'}</strong>
-          </div>
-          <div className="mini-stat-chip">
-            <span className="mini-stat-label">사전 저장 · 복습</span>
-            <strong>
-              {state.savedDictionaryWords.length} · {unmasteredReviewCount}
+              {state.masteredVocabIds.length}/{COURSE_METADATA.totalVocabCount}
             </strong>
           </div>
         </div>
@@ -167,7 +328,7 @@ export function HomeDashboard({
           style={{ whiteSpace: 'nowrap' }}
           onClick={() => onNavigate('report')}
         >
-          성장 리포트 &amp; 취약점 클리닉 →
+          전 단계 성적표 &amp; 취약점 클리닉 →
         </button>
       </div>
 
@@ -188,7 +349,7 @@ export function HomeDashboard({
             className="home-quick-dict-input"
             value={quickDictInput}
             onChange={(e) => setQuickDictInput(e.target.value)}
-            placeholder="궁금한 영어 단어나 한국어 뜻을 바로 검색하세요 (예: detour, bottleneck, 협상, 마감) — 무료 실시간 API 연동"
+            placeholder="궁금한 영어 단어나 한국어 뜻을 바로 검색하세요 (예: phonics, resilience, 협상, 분사구문) — 무료 실시간 API"
           />
         </div>
         <button id="home-quick-dict-submit" type="submit" className="btn-solid-brand" style={{ padding: '10px 18px', fontSize: '0.9rem' }}>
@@ -196,8 +357,156 @@ export function HomeDashboard({
         </button>
       </form>
 
-      {/* HERO CARD FOR SELECTED DAY */}
-      <section className="today-hero-card" aria-label="오늘의 핵심 레슨">
+      {/* =======================================================
+          NEW: ZERO-TO-MASTERY 5-STAGE LADDER (KINDERGARTEN -> HIGH SCHOOL+ -> C2)
+         ======================================================= */}
+      <section className="zero-to-mastery-section" aria-labelledby="z2m-heading">
+        <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+          <div>
+            <span className="pill-tag pill-coral">Zero-to-Mastery 5단계 완전정복 로드맵</span>
+            <h1 id="z2m-heading" style={{ fontSize: 'clamp(1.45rem, 2.5vw, 1.95rem)', marginTop: '6px' }}>
+              유치원 파닉스부터 고등 수능 1등급·글로벌 C2까지 한 길로 완성
+            </h1>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              id="home-quick-phonics-btn"
+              type="button"
+              className="btn-outline"
+              style={{ padding: '8px 14px', fontSize: '0.86rem' }}
+              onClick={() => onNavigate('foundation')}
+            >
+              <Sparkles size={15} /> 파닉스 · 초등 10강
+            </button>
+            <button
+              id="home-quick-academy-btn"
+              type="button"
+              className="btn-outline"
+              style={{ padding: '8px 14px', fontSize: '0.86rem' }}
+              onClick={() => onNavigate('academy')}
+            >
+              <GraduationCap size={15} /> 영문법 20강 · 고등 수능
+            </button>
+            <button
+              id="home-quick-roleplay-btn"
+              type="button"
+              className="btn-solid-coral"
+              style={{ padding: '8px 14px', fontSize: '0.86rem' }}
+              onClick={() => onNavigate('lecture', { lectureTab: 'roleplay' })}
+            >
+              <Mic size={15} /> 실전 프리토킹 12편
+            </button>
+          </div>
+        </div>
+
+        {/* 5 STAGE CARDS */}
+        <div className="stage-ladder-grid">
+          {MASTERY_STAGE_ORDER.map((stKey) => {
+            const st = MASTERY_STAGE_MAP[stKey];
+            const pct = stageProgressMap[stKey];
+            const isCurrent = stKey === activeStage;
+            return (
+              <div
+                key={stKey}
+                id={`stage-ladder-card-${stKey}`}
+                className={`stage-ladder-card ${isCurrent ? 'current' : ''}`}
+              >
+                <div className="section-label-between" style={{ gap: '6px' }}>
+                  <span className={`pill-tag pill-${st.pillTone}`} style={{ fontSize: '0.73rem' }}>
+                    Stage {st.stageNum}
+                  </span>
+                  <span style={{ fontSize: '0.76rem', fontWeight: 750, color: 'var(--text-muted)' }}>
+                    {st.cefrRange}
+                  </span>
+                </div>
+
+                <h2 style={{ fontSize: '1.02rem', marginTop: '8px' }}>
+                  {st.shortLabel.replace(`Stage ${st.stageNum} `, '')}
+                </h2>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginTop: '4px', lineHeight: 1.48 }}>
+                  {st.titleKo}
+                </p>
+
+                <div style={{ marginTop: '12px' }}>
+                  <div className="section-label-between" style={{ fontSize: '0.76rem', marginBottom: '4px' }}>
+                    <span style={{ color: 'var(--text-sub)' }}>달성률</span>
+                    <strong style={{ color: 'var(--brand)' }}>{pct}%</strong>
+                  </div>
+                  <div className="skill-bar-track" style={{ height: '6px' }}>
+                    <div className="skill-bar-fill" style={{ width: `${Math.max(4, pct)}%` }} />
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '6px', marginTop: '12px' }}>
+                  <button
+                    type="button"
+                    className={isCurrent ? 'btn-solid-brand' : 'btn-outline'}
+                    style={{ flex: 1, padding: '7px 10px', fontSize: '0.8rem' }}
+                    onClick={() => {
+                      onSelectStage(stKey);
+                      if (stKey === 'stage2' || stKey === 'stage4') {
+                        onSelectDay(st.recommendedStartDay);
+                      }
+                      onNavigate(st.recommendedRoute);
+                    }}
+                  >
+                    {isCurrent ? '이어서 학습 →' : '이 단계 열기'}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* TODAY'S 1-2-3 GUIDED ROUTINE FOR ACTIVE STAGE */}
+        <div className="surface-card guided-routine-card" style={{ marginTop: '16px' }}>
+          <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            <div>
+              <span className="pill-tag pill-brand">오늘의 1–2–3 추천 루틴 · {activeStageMeta.badge}</span>
+              <h2 style={{ fontSize: '1.16rem', marginTop: '6px' }}>
+                고민 없이 아래 3단계를 순서대로 따라오면 실력이 쏙쏙 쌓입니다
+              </h2>
+            </div>
+            <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+              {MASTERY_STAGE_ORDER.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  className={`day-switch-chip ${s === activeStage ? 'active' : ''}`}
+                  onClick={() => onSelectStage(s)}
+                >
+                  S{MASTERY_STAGE_MAP[s].stageNum}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="guided-steps-grid">
+            {STAGE_DAILY_STEPS[activeStage].map((step) => (
+              <button
+                key={step.stepNum}
+                type="button"
+                className="guided-step-tile"
+                onClick={() => onNavigate(step.route, { lectureTab: step.lectureTab })}
+              >
+                <span className="guided-step-badge">{step.stepNum}</span>
+                <strong style={{ fontSize: '0.96rem', marginTop: '6px', display: 'block' }}>
+                  {step.title}
+                </strong>
+                <p style={{ fontSize: '0.84rem', color: 'var(--text-sub)', marginTop: '4px', lineHeight: 1.5 }}>
+                  {step.desc}
+                </p>
+                <span className="guided-step-cta">
+                  바로 시작 <ArrowRight size={13} />
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* HERO CARD FOR SELECTED 30-DAY LESSON */}
+      <section className="today-hero-card" aria-label="오늘의 핵심 30일 레슨" style={{ marginTop: '28px' }}>
         <div className="today-hero-content">
           <div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
@@ -206,7 +515,7 @@ export function HomeDashboard({
               <span className="pill-tag pill-subtle">{currentModule.categoryLabel}</span>
             </div>
 
-            <h1 className="today-hero-title">{currentModule.title}</h1>
+            <h2 className="today-hero-title">{currentModule.title}</h2>
             <p style={{ marginTop: '10px', color: 'var(--text-body)', fontSize: '1.01rem' }}>
               {currentModule.subtitle}
             </p>
@@ -270,10 +579,10 @@ export function HomeDashboard({
               id="launch-lecture-primary-btn"
               type="button"
               className="btn-solid-brand"
-              onClick={() => onNavigate('lecture')}
+              onClick={() => onNavigate('lecture', { lectureTab: 'youtube' })}
             >
               <PlayCircle size={18} />
-              <span>유튜브 · 시트콤 · 독해 5교시 ({currentModule.estimatedLectureMin}분)</span>
+              <span>유튜브 · 시트콤 · 독해 · 롤플레이 6교시 ({currentModule.estimatedLectureMin}분)</span>
             </button>
 
             <button
@@ -303,7 +612,7 @@ export function HomeDashboard({
               onClick={() => onNavigate('vocab-review')}
             >
               <Layers size={17} />
-              <span>단어 15개 &amp; 오답노트</span>
+              <span>단어 15개 &amp; SM-2 복습</span>
             </button>
           </div>
         </div>
@@ -328,12 +637,12 @@ export function HomeDashboard({
             <h2 id="monthly-roadmap-heading" style={{ fontSize: '1.42rem' }}>
               {activeWeekInfo
                 ? activeWeekInfo.titleKo
-                : '1개월(30일) 전체 커리큘럼 로드맵 · Day 01 ~ Day 30'}
+                : '30일 실전 회화·비즈니스·시사 마스터 트랙 · Day 01 ~ Day 30'}
             </h2>
             <p style={{ color: 'var(--text-sub)', fontSize: '0.92rem', marginTop: '4px' }}>
               {activeWeekInfo
                 ? activeWeekInfo.subtitleKo
-                : '입문(Lv.1 A1)부터 마스터(Lv.6 C2)까지 총 30일, 450단어, 30편 영자독해, 40편 유튜브 강의, 950 시험·쌍둥이 문항이 수록되어 있습니다.'}
+                : '일상·여행 회화(A1–B1)부터 글로벌 오피스·협상·BBC/TED 시사(B2–C2)까지 30일, 450단어, 52편 검증 유튜브, 950 시험 문항이 수록되어 있습니다.'}
             </p>
           </div>
 

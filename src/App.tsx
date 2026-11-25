@@ -78,11 +78,13 @@ export default function App() {
     }
 
     // Best-effort sync with optional Node SQLite backend if running
-    fetch('/api/progress', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ state })
-    }).catch(() => {});
+    if (import.meta.env.DEV) {
+      fetch('/api/progress', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state })
+      }).catch(() => {});
+    }
   }, [state]);
 
   const currentModule = getDayModule(state.selectedDay);

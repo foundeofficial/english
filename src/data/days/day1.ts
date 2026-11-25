@@ -1,7 +1,10 @@
 import type { DayLessonModule } from '../../types/course.ts';
+import { DAY_YOUTUBE_VIDEOS } from '../youtubeLibrary.ts';
 
 export const day1Module: DayLessonModule = {
   dayNumber: 1,
+  weekNumber: 1,
+  cefrLevel: 'a1',
   dayBadge: 'DAY 01 · 동선 & 구동사 코어',
   categoryLabel: '일상·오피스 스몰토크 필수 패턴',
   title: '퇴근길에 잠깐 들렀어요',
@@ -9,12 +12,69 @@ export const day1Module: DayLessonModule = {
   heroImage: 'assets/scene_cafe_detour.jpg',
   secondaryImage: 'assets/visual_preposition_card.jpg',
   estimatedSprintMin: 7,
-  estimatedLectureMin: 35,
+  estimatedLectureMin: 40,
   keyExpression: 'stop by ~ on my way home',
   keySentenceByTier: {
-    basic: 'I stopped by a cafe on my way home.',
-    standard: 'I just stopped by to grab an iced latte on my way home from work.',
-    advanced: 'I figured I would swing by on my way back to drop off these samples and grab a quick coffee.'
+    a1: 'I stopped by a cafe on my way home.',
+    a2: 'I stopped by a coffee shop to grab a latte on my way home.',
+    b1: 'I just stopped by to grab an iced latte on my way home from work.',
+    b2: 'I figured I would swing by on my way back to drop off these samples and grab a quick coffee.',
+    c1: 'Since I was already in the neighborhood running errands, I thought I would swing by and drop off the prototypes.',
+    c2: 'Having wrapped up my client errands nearby, I figured I might as well swing by to drop off the samples before rush hour hits.'
+  },
+  youtubeVideo: DAY_YOUTUBE_VIDEOS[1],
+  readingPassage: {
+    titleEn: 'The Power of the Five-Minute Coffee Detour',
+    titleKo: '퇴근길 5분 카페 들르기가 만드는 작은 여유',
+    genreBadge: '라이프스타일 에세이 · Lv.1–2',
+    estimatedMin: 6,
+    paragraphsEn: [
+      'After a long day at the office, most commuters rush straight to the subway without looking up from their phones. Yet behavioral researchers say that a tiny five-minute detour on your way home can reset your mood far better than scrolling on the sofa.',
+      'For Minjun, that daily reset means stopping by a quiet neighborhood roastery two blocks from his station. He grabs a decaf iced Americano to go, chats briefly with the barista, and lets his mind shift out of work mode before stepping through his front door.',
+      'On Fridays, he often drops off his dry cleaning next door and picks up fresh sourdough bread for the weekend. Because these errands sit right along his regular route, they feel less like chores and more like a welcome ritual.'
+    ],
+    paragraphsSlash: [
+      'After a long day at the office, / most commuters rush straight to the subway / without looking up from their phones. / Yet behavioral researchers say / that a tiny five-minute detour on your way home / can reset your mood / far better than scrolling on the sofa.',
+      'For Minjun, / that daily reset means / stopping by a quiet neighborhood roastery / two blocks from his station. / He grabs a decaf iced Americano to go, / chats briefly with the barista, / and lets his mind shift out of work mode / before stepping through his front door.',
+      'On Fridays, / he often drops off his dry cleaning next door / and picks up fresh sourdough bread for the weekend. / Because these errands sit right along his regular route, / they feel less like chores / and more like a welcome ritual.'
+    ],
+    paragraphsKo: [
+      '사무실에서 긴 하루를 보낸 뒤 대부분의 직장인은 스마트폰에서 눈을 떼지 못한 채 곧장 지하철로 향합니다. 하지만 행동 심리 연구자들은 퇴근길에 잠깐 5분만 우회해 들르는 습관이 소파에서 폰을 보는 것보다 훨씬 효과적으로 기분을 전환해 준다고 말합니다.',
+      '민준 씨에게 그 매일의 리셋은 역에서 두 블록 떨어진 조용한 동네 로스터리에 잠깐 들르는 일입니다. 그는 디카페인 아이스 아메리카노를 포장 주문하고 바리스타와 짧은 안부를 나누며, 현관문을 열기 전에 머릿속을 업무 모드에서 자연스럽게 전환합니다.',
+      '금요일이면 옆집 세탁소에 옷을 맡기고 주말에 먹을 갓 구운 사워도우 빵을 챙겨 갑니다. 이 볼일들이 평소 동선 바로 위에 있기 때문에 귀찮은 숙제가 아니라 기분 좋은 의식처럼 느껴집니다.'
+    ],
+    keyExpressions: ['on your way home', 'stop by', 'grab ~ to go', 'drop off', 'pick up', 'run errands'],
+    comprehensionQuiz: [
+      {
+        id: 'd1-rq01',
+        questionKo: '연구자들에 따르면 퇴근길 5분 우회(detour)가 주는 가장 큰 효과는 무엇인가요?',
+        options: [
+          '소파에서 스마트폰을 보는 것보다 기분 전환(리셋)에 훨씬 도움이 된다',
+          '출근 시간을 10분 이상 단축해 준다',
+          '커피값을 매달 절반으로 절약할 수 있다'
+        ],
+        answer: '소파에서 스마트폰을 보는 것보다 기분 전환(리셋)에 훨씬 도움이 된다',
+        explanationKo: '첫 문단 마지막 문장 "can reset your mood far better than scrolling on the sofa"가 정답 근거입니다.'
+      },
+      {
+        id: 'd1-rq02',
+        questionKo: '민준 씨가 금요일에 동선상에서 처리하는 두 가지 일(errands)은 무엇인가요?',
+        options: [
+          '은행 업무와 우체국 택배 발송',
+          '세탁물 맡기기(drop off)와 주말용 빵 챙기기(pick up)',
+          '헬스장 등록과 동료와 저녁 식사'
+        ],
+        answer: '세탁물 맡기기(drop off)와 주말용 빵 챙기기(pick up)',
+        explanationKo: '셋째 문단 "drops off his dry cleaning next door and picks up fresh sourdough bread"를 확인하세요.'
+      },
+      {
+        id: 'd1-rq03',
+        questionKo: '본문에서 "집에 가는 길에"를 표현할 때 전치사가 정확히 쓰인 표현은?',
+        options: ['on your way to home', 'in your way home', 'on your way home'],
+        answer: 'on your way home',
+        explanationKo: 'home은 부사로 쓰이므로 전치사 to를 붙이지 않고 on your way home이라고 합니다.'
+      }
+    ]
   },
   vocabList: [
     {

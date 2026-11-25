@@ -1,20 +1,31 @@
+import { useState } from 'react';
 import {
   Award,
+  BookOpen,
   BookOpenCheck,
   CheckCircle2,
   Circle,
   Layers,
   PlayCircle,
+  Search,
   Volume2,
+  Video,
   Zap
 } from 'lucide-react';
-import { COURSE_METADATA, WEEK1_MODULES } from '../data/week1MasterCourse.ts';
+import {
+  COURSE_CATALOG,
+  COURSE_METADATA,
+  WEEK_THEMES
+} from '../data/courseCatalog.ts';
+import { LEVEL_INFO_MAP, LEVEL_ORDER } from '../data/levels.ts';
 import type {
   AppPersistState,
   DayLessonModule,
+  LevelTier,
   MainRoute
 } from '../types/course.ts';
 import { speakEnglish } from '../utils/speech.ts';
+import { InteractiveText } from './InteractiveText.tsx';
 
 interface HomeDashboardProps {
   state: AppPersistState;
@@ -22,12 +33,13 @@ interface HomeDashboardProps {
   onSelectDay: (dayNumber: number) => void;
   onStartSprint: () => void;
   onNavigate: (route: MainRoute) => void;
+  onOpenDictionary: (word?: string) => void;
 }
 
 const PACE_RECOMMENDATION: Record<AppPersistState['settings']['studyPace'], string> = {
-  light: '가볍게 7분 코스 추천: [7분 집중 스프린트]로 오늘의 핵심 문장 10개만 빠르게 입에 붙여보세요.',
-  standard: '표준 20분 코스 추천: [시네마틱 인강] 시청 후 [7분 집중 스프린트]로 어순을 체화하세요.',
-  intensive: '집중 45분 코스 추천: [인강 & 1:1 과외] → [7분 스프린트] → [15문항 단원평가 시험지] 순서로 완주하세요.'
+  light: '가볍게 10분 코스: [7분 집중 스프린트] + [핵심 단어 15개]로 매일 부담 없이 감각을 유지하세요.',
+  standard: '표준 25분 코스: [유튜브 인강] + [시트콤·독해] 시청 후 [7분 스프린트]로 어순을 체화하세요.',
+  intensive: '집중 50분 코스: [유튜브·시트콤·독해·1:1과외] → [스프린트] → [15~20문항 A4 시험지] 풀코스를 완주하세요.'
 };
 
 export function HomeDashboard({
@@ -35,11 +47,20 @@ export function HomeDashboard({
   currentModule,
   onSelectDay,
   onStartSprint,
-  onNavigate
+  onNavigate,
+  onOpenDictionary
 }: HomeDashboardProps) {
+  const [selectedWeekTab, setSelectedWeekTab] = useState<'all' | 1 | 2 | 3 | 4 | 5>(
+    currentModule.weekNumber
+  );
+  const [levelFilter, setLevelFilter] = useState<'all' | LevelTier>('all');
+  const [quickDictInput, setQuickDictInput] = useState('');
+
   const dayRec = state.dayRecords[currentModule.dayNumber] ?? {
     sprintCompleted: false,
     lectureCompleted: false,
+    videoWatched: false,
+    readingCompleted: false,
     examScore: null,
     vocabMasteredCount: 0
   };
@@ -48,6 +69,8 @@ export function HomeDashboard({
     state.masteredVocabIds.includes(v.id)
   ).length;
 
+  const learnerLevelMeta = LEVEL_INFO_MAP[state.settings.levelTier];
+  const dayLevelMeta = LEVEL_INFO_MAP[currentModule.cefrLevel];
   const targetKeySentence = currentModule.keySentenceByTier[state.settings.levelTier];
 
   const examScores = Object.values(state.dayRecords)
@@ -58,36 +81,88 @@ export function HomeDashboard({
       ? Math.round(examScores.reduce((acc, v) => acc + v, 0) / examScores.length)
       : null;
 
+  const completedDaysCount = Object.values(state.dayRecords).filter(
+    (r) => r.sprintCompleted || r.lectureCompleted || r.examScore !== null
+  ).length;
+  const monthlyProgressPct = Math.round((completedDaysCount / COURSE_METADATA.totalDays) * 100);
   const unmasteredReviewCount = state.reviewDeck.filter((c) => !c.mastered).length;
+
+  const visibleDays = COURSE_CATALOG.filter((d) => {
+    const matchWeek = selectedWeekTab === 'all' ? true : d.weekNumber === selectedWeekTab;
+    const matchLevel = levelFilter === 'all' ? true : d.cefrLevel === levelFilter;
+    return matchWeek && matchLevel;
+  });
+
+  const activeWeekInfo =
+    selectedWeekTab === 'all'
+      ? null
+      : WEEK_THEMES.find((w) => w.weekNumber === selectedWeekTab) ?? WEEK_THEMES[0];
 
   return (
     <main className="page-wrap">
+      {/* TOP INTRO + STATS + QUICK DICTIONARY BAR */}
       <div className="track-intro-row">
         <div>
-          <span className="pill-tag pill-brand">{COURSE_METADATA.trackTitle}</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+            <span className="pill-tag pill-brand">{COURSE_METADATA.trackTitle}</span>
+            <span className="pill-tag pill-amber">30일 완성 · 유튜브 40편 · 실시간 영한사전</span>
+          </div>
           <p style={{ marginTop: '8px', color: 'var(--text-sub)', fontSize: '0.94rem' }}>
-            { state.settings.learnerName } 님 · {PACE_RECOMMENDATION[state.settings.studyPace]}
+            <strong>{state.settings.learnerName}</strong> 님 ({learnerLevelMeta.shortLabel}) ·{' '}
+            {PACE_RECOMMENDATION[state.settings.studyPace]}
           </p>
         </div>
+
         <div className="summary-stat-strip">
           <div className="mini-stat-chip">
-            <span className="mini-stat-label">암기 단어</span>
-            <strong>{state.masteredVocabIds.length} / {COURSE_METADATA.totalVocabCount}</strong>
+            <span className="mini-stat-label">30일 완주율</span>
+            <strong>
+              {completedDaysCount} / 30일 ({monthlyProgressPct}%)
+            </strong>
           </div>
           <div className="mini-stat-chip">
-            <span className="mini-stat-label">누적 발화</span>
-            <strong>{state.totalSentencesSpoken}문장</strong>
+            <span className="mini-stat-label">암기 단어</span>
+            <strong>
+              {state.masteredVocabIds.length} / {COURSE_METADATA.totalVocabCount}
+            </strong>
           </div>
           <div className="mini-stat-chip">
             <span className="mini-stat-label">평균 단원평가</span>
             <strong>{avgExamScore !== null ? `${avgExamScore}점` : '응시 전'}</strong>
           </div>
           <div className="mini-stat-chip">
-            <span className="mini-stat-label">복습 대기</span>
-            <strong>{unmasteredReviewCount}개</strong>
+            <span className="mini-stat-label">사전 저장 · 복습</span>
+            <strong>
+              {state.savedDictionaryWords.length} · {unmasteredReviewCount}
+            </strong>
           </div>
         </div>
       </div>
+
+      {/* QUICK LIVE ENGLISH-KOREAN DICTIONARY BAR */}
+      <form
+        className="home-quick-dict-bar"
+        onSubmit={(e) => {
+          e.preventDefault();
+          onOpenDictionary(quickDictInput.trim());
+          setQuickDictInput('');
+        }}
+      >
+        <div className="home-quick-dict-left">
+          <Search size={18} style={{ color: 'var(--brand)', flexShrink: 0 }} />
+          <input
+            id="home-quick-dict-input"
+            type="text"
+            className="home-quick-dict-input"
+            value={quickDictInput}
+            onChange={(e) => setQuickDictInput(e.target.value)}
+            placeholder="궁금한 영어 단어나 한국어 뜻을 바로 검색하세요 (예: detour, bottleneck, 협상, 마감) — 무료 실시간 API 연동"
+          />
+        </div>
+        <button id="home-quick-dict-submit" type="submit" className="btn-solid-brand" style={{ padding: '10px 18px', fontSize: '0.9rem' }}>
+          영한사전 검색
+        </button>
+      </form>
 
       {/* HERO CARD FOR SELECTED DAY */}
       <section className="today-hero-card" aria-label="오늘의 핵심 레슨">
@@ -95,72 +170,70 @@ export function HomeDashboard({
           <div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
               <span className="pill-tag pill-coral">{currentModule.dayBadge}</span>
+              <span className="pill-tag pill-brand">{dayLevelMeta.shortLabel}</span>
               <span className="pill-tag pill-subtle">{currentModule.categoryLabel}</span>
             </div>
 
             <h1 className="today-hero-title">{currentModule.title}</h1>
-            <p style={{ marginTop: '10px', color: 'var(--text-body)', fontSize: '1.02rem' }}>
+            <p style={{ marginTop: '10px', color: 'var(--text-body)', fontSize: '1.01rem' }}>
               {currentModule.subtitle}
             </p>
           </div>
 
           <div className="today-key-sentence-box">
-            <div className="section-label-between" style={{ marginBottom: '6px' }}>
+            <div className="section-label-between" style={{ marginBottom: '6px', flexWrap: 'wrap', gap: '8px' }}>
               <span style={{ fontSize: '0.8rem', fontWeight: 750, color: 'var(--brand)' }}>
-                내 레벨({state.settings.levelTier.toUpperCase()}) 맞춤 대표 문장
+                내 레벨({learnerLevelMeta.shortLabel}) 맞춤 대표 문장 · 단어 클릭 시 영한사전 열림
               </span>
               <button
                 id="hero-listen-key-sentence-btn"
                 type="button"
                 className="inline-audio-btn"
-                onClick={() => speakEnglish(targetKeySentence, 0.96)}
+                onClick={() => speakEnglish(targetKeySentence, learnerLevelMeta.defaultSpeechRate)}
               >
                 <Volume2 size={15} />
-                <span>원어민 발음 듣기</span>
+                <span>발음 듣기 ({learnerLevelMeta.defaultSpeechRate}x)</span>
               </button>
             </div>
             <p
               style={{
                 fontFamily: 'var(--font-en)',
-                fontSize: '1.16rem',
+                fontSize: '1.15rem',
                 fontWeight: 750,
                 color: 'var(--text-strong)'
               }}
             >
-              “{targetKeySentence}”
+              “
+              <InteractiveText text={targetKeySentence} onLookupWord={onOpenDictionary} />
+              ”
             </p>
           </div>
 
+          {/* 5-PART DEEP STUDY CHECKLIST */}
           <div className="hero-checklist-row">
+            <span className={`check-pill ${dayRec.videoWatched ? 'done' : ''}`}>
+              {dayRec.videoWatched ? <CheckCircle2 size={15} /> : <Video size={15} />}
+              유튜브 실전 인강
+            </span>
+            <span className={`check-pill ${dayRec.readingCompleted ? 'done' : ''}`}>
+              {dayRec.readingCompleted ? <CheckCircle2 size={15} /> : <BookOpen size={15} />}
+              영자 독해 · 3문항
+            </span>
             <span className={`check-pill ${dayVocabMastered >= 10 ? 'done' : ''}`}>
               {dayVocabMastered >= 10 ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-              필수 단어 ({dayVocabMastered}/{currentModule.vocabList.length})
-            </span>
-            <span className={`check-pill ${dayRec.lectureCompleted ? 'done' : ''}`}>
-              {dayRec.lectureCompleted ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-              시트콤 인강 · 과외
+              단어 ({dayVocabMastered}/{currentModule.vocabList.length})
             </span>
             <span className={`check-pill ${dayRec.sprintCompleted ? 'done' : ''}`}>
               {dayRec.sprintCompleted ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-              10문항 스피킹 스프린트
+              10문항 스프린트
             </span>
             <span className={`check-pill ${dayRec.examScore !== null ? 'done' : ''}`}>
               {dayRec.examScore !== null ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-              단원평가 시험지 {dayRec.examScore !== null ? `(${dayRec.examScore}점)` : `(${currentModule.worksheetExam.length}문항)`}
+              시험지 {dayRec.examScore !== null ? `(${dayRec.examScore}점)` : `(${currentModule.worksheetExam.length}문항)`}
             </span>
           </div>
 
           <div className="hero-cta-group">
-            <button
-              id="launch-sprint-primary-btn"
-              type="button"
-              className="btn-solid-coral"
-              onClick={onStartSprint}
-            >
-              <Zap size={18} />
-              <span>{currentModule.estimatedSprintMin}분 집중 스프린트 시작</span>
-            </button>
-
             <button
               id="launch-lecture-primary-btn"
               type="button"
@@ -168,7 +241,17 @@ export function HomeDashboard({
               onClick={() => onNavigate('lecture')}
             >
               <PlayCircle size={18} />
-              <span>시네마틱 인강 &amp; 1:1 과외 ({currentModule.estimatedLectureMin}분)</span>
+              <span>유튜브 · 시트콤 · 독해 5교시 ({currentModule.estimatedLectureMin}분)</span>
+            </button>
+
+            <button
+              id="launch-sprint-primary-btn"
+              type="button"
+              className="btn-solid-coral"
+              onClick={onStartSprint}
+            >
+              <Zap size={18} />
+              <span>{currentModule.estimatedSprintMin}분 집중 스프린트</span>
             </button>
 
             <button
@@ -178,7 +261,7 @@ export function HomeDashboard({
               onClick={() => onNavigate('worksheet')}
             >
               <BookOpenCheck size={17} />
-              <span>학습지 · 시험지 ({currentModule.worksheetExam.length}문항)</span>
+              <span>A4 학습지 · 시험지 ({currentModule.worksheetExam.length}문항)</span>
             </button>
 
             <button
@@ -188,60 +271,146 @@ export function HomeDashboard({
               onClick={() => onNavigate('vocab-review')}
             >
               <Layers size={17} />
-              <span>필수 단어 15개 암기장</span>
+              <span>단어 15개 &amp; 오답노트</span>
             </button>
           </div>
         </div>
 
         <div className="today-hero-visual">
-          <img
-            src={currentModule.heroImage}
-            alt={currentModule.title}
-          />
+          <img src={currentModule.heroImage} alt={currentModule.title} />
           <div className="hero-visual-caption">
-            <span className="pill-tag pill-amber">핵심 패턴 · {currentModule.keyExpression}</span>
-            <p style={{ marginTop: '8px', fontSize: '0.9rem', color: 'rgba(255,255,255,0.9)' }}>
-              실제 북미 오피스 · 일상 시트콤 장면과 6~7턴 풀 대화 스크립트로 문맥을 체화합니다.
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center' }}>
+              <span className="pill-tag pill-amber">핵심 패턴 · {currentModule.keyExpression}</span>
+            </div>
+            <p style={{ marginTop: '8px', fontSize: '0.88rem', color: 'rgba(255,255,255,0.92)' }}>
+              🎬 추천 유튜브 강의: {currentModule.youtubeVideo.title} ({currentModule.youtubeVideo.channel})
             </p>
           </div>
         </div>
       </section>
 
-      {/* WEEK 1 CURRICULUM ROADMAP */}
-      <section aria-labelledby="week1-roadmap-heading">
-        <div className="section-label-between" style={{ marginBottom: '18px' }}>
+      {/* 30-DAY MONTHLY ROADMAP (WEEK 1-5 + LEVEL 1-6 FILTER) */}
+      <section aria-labelledby="monthly-roadmap-heading">
+        <div className="section-label-between" style={{ marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h2 id="week1-roadmap-heading" style={{ fontSize: '1.38rem' }}>
-              {COURSE_METADATA.weekTitle}
+            <h2 id="monthly-roadmap-heading" style={{ fontSize: '1.42rem' }}>
+              {activeWeekInfo
+                ? activeWeekInfo.titleKo
+                : '1개월(30일) 전체 커리큘럼 로드맵 · Day 01 ~ Day 30'}
             </h2>
             <p style={{ color: 'var(--text-sub)', fontSize: '0.92rem', marginTop: '4px' }}>
-              원하는 Day 카드를 선택하면 상단 학습 스튜디오와 인강·시험지·단어장이 즉시 해당 단원으로 전환됩니다.
+              {activeWeekInfo
+                ? activeWeekInfo.subtitleKo
+                : '입문(Lv.1 A1)부터 마스터(Lv.6 C2)까지 총 30일, 450단어, 30편 영자독해, 40편 유튜브 강의, 950 시험·쌍둥이 문항이 수록되어 있습니다.'}
             </p>
+          </div>
+
+          <button
+            id="jump-recommended-level-day-btn"
+            type="button"
+            className="btn-outline"
+            style={{ fontSize: '0.86rem', padding: '8px 14px' }}
+            onClick={() => {
+              const targetDay = learnerLevelMeta.recommendedStartDay;
+              onSelectDay(targetDay);
+              const meta = COURSE_CATALOG.find((d) => d.dayNumber === targetDay);
+              if (meta) setSelectedWeekTab(meta.weekNumber);
+              setLevelFilter('all');
+            }}
+          >
+            내 레벨({learnerLevelMeta.shortLabel}) 추천 시작점(Day {String(learnerLevelMeta.recommendedStartDay).padStart(2, '0')}) 이동
+          </button>
+        </div>
+
+        {/* WEEK 1..5 SELECTOR BAR */}
+        <div className="roadmap-filter-box">
+          <div className="week-tabs-strip" role="tablist" aria-label="주차별 커리큘럼 탭">
+            {WEEK_THEMES.map((w) => (
+              <button
+                key={w.weekNumber}
+                id={`roadmap-week-tab-${w.weekNumber}`}
+                type="button"
+                role="tab"
+                aria-selected={selectedWeekTab === w.weekNumber}
+                className={`week-tab-pill ${selectedWeekTab === w.weekNumber ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedWeekTab(w.weekNumber);
+                  setLevelFilter('all');
+                }}
+              >
+                <span>Week {w.weekNumber}</span>
+                <small>
+                  {w.shortLabel} · {w.cefrRange.split(' ')[0]}
+                </small>
+              </button>
+            ))}
+            <button
+              id="roadmap-week-tab-all"
+              type="button"
+              role="tab"
+              aria-selected={selectedWeekTab === 'all'}
+              className={`week-tab-pill ${selectedWeekTab === 'all' ? 'active' : ''}`}
+              onClick={() => setSelectedWeekTab('all')}
+            >
+              <span>전체 30일</span>
+              <small>Day 01–30</small>
+            </button>
+          </div>
+
+          {/* CEFR LEVEL 1..6 FILTER */}
+          <div className="level-filter-strip" aria-label="레벨별 필터">
+            <span style={{ fontSize: '0.82rem', fontWeight: 750, color: 'var(--text-sub)' }}>
+              레벨 필터:
+            </span>
+            <button
+              type="button"
+              className={`day-switch-chip ${levelFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setLevelFilter('all')}
+            >
+              전체 레벨
+            </button>
+            {LEVEL_ORDER.map((lv) => (
+              <button
+                key={lv}
+                id={`roadmap-level-filter-${lv}`}
+                type="button"
+                className={`day-switch-chip ${levelFilter === lv ? 'active' : ''}`}
+                onClick={() => {
+                  setLevelFilter(lv);
+                  setSelectedWeekTab('all');
+                }}
+              >
+                {LEVEL_INFO_MAP[lv].shortLabel}
+              </button>
+            ))}
           </div>
         </div>
 
         <div className="day-roadmap-grid">
-          {WEEK1_MODULES.map((mod) => {
-            const rec = state.dayRecords[mod.dayNumber];
-            const isSelected = mod.dayNumber === currentModule.dayNumber;
-            const vocabDone = mod.vocabList.filter((v) =>
-              state.masteredVocabIds.includes(v.id)
-            ).length;
+          {visibleDays.map((meta) => {
+            const rec = state.dayRecords[meta.dayNumber];
+            const isSelected = meta.dayNumber === currentModule.dayNumber;
+            const lvInfo = LEVEL_INFO_MAP[meta.cefrLevel];
 
             return (
               <button
-                key={mod.dayNumber}
-                id={`select-day-card-${mod.dayNumber}`}
+                key={meta.dayNumber}
+                id={`select-day-card-${meta.dayNumber}`}
                 type="button"
                 className={`day-card ${isSelected ? 'selected' : ''}`}
-                onClick={() => onSelectDay(mod.dayNumber)}
+                onClick={() => {
+                  onSelectDay(meta.dayNumber);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
               >
                 <div style={{ position: 'relative', width: '100%' }}>
                   <img
-                    src={mod.heroImage}
-                    alt={mod.title}
+                    src={meta.heroImage}
+                    alt={meta.title}
                     className="day-card-thumb"
+                    loading="lazy"
                   />
+                  <span className="card-corner-level">{lvInfo.shortLabel}</span>
                   {rec?.examScore !== null && rec?.examScore !== undefined && (
                     <span className="card-corner-score">
                       <Award size={13} /> 시험 {rec.examScore}점
@@ -251,27 +420,30 @@ export function HomeDashboard({
 
                 <div className="day-card-body">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                    <span className={`pill-tag ${mod.dayNumber === 6 ? 'pill-amber' : 'pill-brand'}`}>
-                      {mod.dayBadge}
+                    <span className={`pill-tag ${meta.isWeeklyReview ? 'pill-amber' : 'pill-brand'}`}>
+                      Day {String(meta.dayNumber).padStart(2, '0')}
+                      {meta.isWeeklyReview ? (meta.dayNumber === 30 ? ' · 파이널 졸업고사' : ' · 주간 종합평가') : ''}
                     </span>
                     {isSelected && (
                       <span style={{ fontSize: '0.78rem', fontWeight: 750, color: 'var(--brand)' }}>
-                        현재 선택됨
+                        현재 학습 중
                       </span>
                     )}
                   </div>
 
-                  <h3 style={{ fontSize: '1.14rem', fontWeight: 800 }}>{mod.title}</h3>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--text-sub)', lineHeight: 1.5 }}>
-                    {mod.subtitle}
+                  <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>{meta.title}</h3>
+                  <p style={{ fontSize: '0.86rem', color: 'var(--text-sub)', lineHeight: 1.5 }}>
+                    {meta.subtitle}
                   </p>
 
                   <div className="day-card-meta-footer">
-                    <span>단어 {vocabDone}/{mod.vocabList.length}</span>
+                    <span>🎬 유튜브</span>
                     <span>·</span>
-                    <span>스프린트 {rec?.sprintCompleted ? '완료' : `${mod.sprintDrills.length}문항`}</span>
+                    <span>독해</span>
                     <span>·</span>
-                    <span>시험지 {mod.worksheetExam.length}문항</span>
+                    <span>단어 {meta.vocabCount}</span>
+                    <span>·</span>
+                    <span>시험 {meta.examCount}문항</span>
                   </div>
                 </div>
               </button>

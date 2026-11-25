@@ -1,7 +1,10 @@
 import type { DayLessonModule } from '../../types/course.ts';
+import { DAY_YOUTUBE_VIDEOS } from '../youtubeLibrary.ts';
 
 export const day5Module: DayLessonModule = {
   dayNumber: 5,
+  weekNumber: 1,
+  cefrLevel: 'a2',
   dayBadge: 'DAY 05 · 단답형 탈출 3문장 확장법',
   categoryLabel: '오픽 IH·AL & 인터뷰·스몰토크 확장 기술',
   title: '단답형 Yes/No 탈출: 3문장 스토리 확장',
@@ -9,12 +12,73 @@ export const day5Module: DayLessonModule = {
   heroImage: 'assets/scene_riverside_walk.jpg',
   secondaryImage: 'assets/scene_cafe_detour.jpg',
   estimatedSprintMin: 8,
-  estimatedLectureMin: 42,
+  estimatedLectureMin: 45,
   keyExpression: 'What I love most is that it helps me clear my head',
   keySentenceByTier: {
-    basic: 'I like walking by the river because it helps me relax after work.',
-    standard: 'What I love most about evening walks is that they help me clear my head after a hectic day.',
-    advanced: 'Whenever I feel burned out from staring at screens all day, going for a walk along the river is my go-to way to unwind and clear my head.'
+    a1: 'I like walking by the river after work.',
+    a2: 'I like walking by the river because it helps me relax after work.',
+    b1: 'What I love most about evening walks is that they help me clear my head after a hectic day.',
+    b2: 'Whenever I feel burned out from staring at screens all day, going for a walk along the river is my go-to way to unwind and clear my head.',
+    c1: 'After hours of back-to-back calls, nothing resets my focus quite like taking a brisk walk along the Han River and listening to the city wind down.',
+    c2: 'When screen fatigue sets in after a relentless week, an unhurried riverside stroll remains my ultimate sanctuary for decompressing and regaining perspective.'
+  },
+  youtubeVideo: DAY_YOUTUBE_VIDEOS[5],
+  readingPassage: {
+    titleEn: 'Breaking the One-Word Answer Habit in English Conversations',
+    titleKo: '영어 대화에서 어색한 단답형 습관을 깨는 3문장 공식',
+    genreBadge: '스피킹 코칭 칼럼 · Lv.2–3',
+    estimatedMin: 6,
+    paragraphsEn: [
+      'When someone asks "How was your weekend?", many learners freeze and reply with a single word: "Good." Although polite, one-word answers put all the pressure back on the other speaker to keep the conversation alive.',
+      'A simple three-sentence structure solves this instantly: start with your main point, add one short reason, and finish with a vivid personal detail. For instance, you can say you spent Saturday walking by the river, explain that it helps you clear your head, and mention the iced coffee you grabbed afterward.',
+      'Notice that you do not need rare academic vocabulary to sound fluent. Everyday connectors like "What I love most is...", "Whenever I feel...", and "Especially after..." turn basic words into warm, memorable stories.'
+    ],
+    paragraphsSlash: [
+      'When someone asks "How was your weekend?", / many learners freeze / and reply with a single word: "Good." / Although polite, / one-word answers put all the pressure back on the other speaker / to keep the conversation alive.',
+      'A simple three-sentence structure solves this instantly: / start with your main point, / add one short reason, / and finish with a vivid personal detail. / For instance, you can say you spent Saturday walking by the river, / explain that it helps you clear your head, / and mention the iced coffee you grabbed afterward.',
+      'Notice that you do not need rare academic vocabulary / to sound fluent. / Everyday connectors like "What I love most is...", "Whenever I feel...", and "Especially after..." / turn basic words into warm, memorable stories.'
+    ],
+    paragraphsKo: [
+      '누군가 “주말 잘 보냈어요?”라고 물으면 많은 학습자가 얼어붙어 “Good” 한 마디로 답하곤 합니다. 예의는 갖췄지만 단답형 답변은 대화를 이어가야 할 부담을 상대방에게 모두 넘겨 버립니다.',
+      '단순한 3문장 구조로 이 문제를 바로 해결할 수 있습니다. 핵심 결론으로 시작해 짧은 이유를 덧붙이고, 생생한 개인 에피소드로 마무리하는 것입니다. 예를 들어 토요일에 강변을 걸었다고 말하고, 머리를 식히는 데 도움이 된다고 설명한 뒤, 끝나고 마신 아이스커피 이야기를 덧붙여 보세요.',
+      '유창하게 들리기 위해 어려운 학술 어휘가 필요한 것은 아닙니다. "What I love most is...", "Whenever I feel...", "Especially after..." 같은 일상 연결 표현만으로도 기초 단어가 따뜻하고 기억에 남는 이야기로 바뀝니다.'
+    ],
+    keyExpressions: ['clear my head', 'three-sentence structure', 'What I love most is', 'unwind', 'vivid detail'],
+    comprehensionQuiz: [
+      {
+        id: 'd5-rq01',
+        questionKo: '단답형 답변("Good.")이 영어 대화에서 아쉬운 이유는 무엇인가요?',
+        options: [
+          '문법적으로 완전히 틀린 표현이기 때문',
+          '대화를 이어가야 하는 부담을 상대방에게 모두 넘기기 때문',
+          '발음이 너무 어렵기 때문'
+        ],
+        answer: '대화를 이어가야 하는 부담을 상대방에게 모두 넘기기 때문',
+        explanationKo: '첫 문단 "put all the pressure back on the other speaker to keep the conversation alive"가 근거입니다.'
+      },
+      {
+        id: 'd5-rq02',
+        questionKo: '본문이 제안하는 3문장 확장 구조의 올바른 순서는?',
+        options: [
+          '핵심 결론 → 짧은 이유 → 생생한 개인 디테일',
+          '어려운 명언 → 문법 설명 → 질문하기',
+          '날씨 이야기 → 뉴스 요약 → 인사하기'
+        ],
+        answer: '핵심 결론 → 짧은 이유 → 생생한 개인 디테일',
+        explanationKo: '둘째 문단 "start with your main point, add one short reason, and finish with a vivid personal detail"을 확인하세요.'
+      },
+      {
+        id: 'd5-rq03',
+        questionKo: '본문이 유창함을 위해 강조한 요소는 무엇인가요?',
+        options: [
+          '어려운 학술 단어만 골라 쓰기',
+          '"What I love most is..." 같은 일상 연결 표현으로 스토리 확장하기',
+          '최대한 빠르게 10초 안에 말 끝내기'
+        ],
+        answer: '"What I love most is..." 같은 일상 연결 표현으로 스토리 확장하기',
+        explanationKo: '셋째 문단에서 일상 연결어(everyday connectors)의 힘을 강조하고 있습니다.'
+      }
+    ]
   },
   vocabList: [
     {

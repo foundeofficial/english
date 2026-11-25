@@ -1,7 +1,7 @@
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { WEEK1_MODULES } from '../src/data/week1MasterCourse.ts';
+import { ALL_30_DAY_MODULES } from '../src/data/monthMasterCourse.ts';
 import type { AppPersistState, DayLessonModule } from '../src/types/course.ts';
 import { validateWeekModule } from '../src/utils/courseQA.ts';
 
@@ -38,7 +38,7 @@ export function initializeDatabase(): void {
   `);
 
   const now = new Date().toISOString();
-  for (const mod of WEEK1_MODULES) {
+  for (const mod of ALL_30_DAY_MODULES) {
     const qa = validateWeekModule(mod);
     upsertStmt.run(
       mod.dayNumber,

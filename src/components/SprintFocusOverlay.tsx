@@ -173,7 +173,7 @@ export function SprintFocusOverlay({
             promptKo: currentDrill.promptKo,
             targetEn: currentDrill.targetEn,
             noteKo: currentDrill.explanationKo,
-            sourceLabel: `Day 0${module.dayNumber} 스프린트 오답`,
+            sourceLabel: `Day ${String(module.dayNumber).padStart(2, '0')} 스프린트 오답`,
             intervalDays: 1,
             mastered: false
           }

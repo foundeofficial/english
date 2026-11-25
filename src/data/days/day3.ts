@@ -1,7 +1,10 @@
 import type { DayLessonModule } from '../../types/course.ts';
+import { DAY_YOUTUBE_VIDEOS } from '../youtubeLibrary.ts';
 
 export const day3Module: DayLessonModule = {
   dayNumber: 3,
+  weekNumber: 1,
+  cefrLevel: 'a2',
   dayBadge: 'DAY 03 · 완곡한 거절 & 일정 조율',
   categoryLabel: '비즈니스 & 실전 커뮤니케이션 매너',
   title: '내일은 일정이 좀 애매하네요',
@@ -9,12 +12,73 @@ export const day3Module: DayLessonModule = {
   heroImage: 'assets/office_sitcom_scene.jpg',
   secondaryImage: 'assets/scene_video_call.jpg',
   estimatedSprintMin: 7,
-  estimatedLectureMin: 40,
+  estimatedLectureMin: 42,
   keyExpression: 'Tomorrow looks a bit tight — would ~ work instead?',
   keySentenceByTier: {
-    basic: 'Tomorrow is a bit tight for me. Can we do Thursday instead?',
-    standard: 'Tomorrow looks a bit tight on my end. Would Thursday afternoon work instead?',
-    advanced: 'My calendar is pretty packed tomorrow—could we possibly push our sync back to Thursday at 2 PM instead?'
+    a1: 'Tomorrow is busy for me. Can we meet on Thursday?',
+    a2: 'Tomorrow is a bit tight for me. Can we do Thursday instead?',
+    b1: 'Tomorrow looks a bit tight on my end. Would Thursday afternoon work instead?',
+    b2: 'My calendar is pretty packed tomorrow—could we possibly push our sync back to Thursday at 2 PM instead?',
+    c1: 'Given back-to-back client reviews tomorrow, I am quite stretched; would pushing our sync to Thursday afternoon work on your end?',
+    c2: 'With back-to-back deliverables crowding tomorrow’s calendar, I’d hate to shortchange our discussion—might we move our sync to Thursday afternoon instead?'
+  },
+  youtubeVideo: DAY_YOUTUBE_VIDEOS[3],
+  readingPassage: {
+    titleEn: 'How to Say No to a Meeting Without Burning Bridges',
+    titleKo: '관계를 해치지 않으면서 회의 일정을 정중히 미루는 법',
+    genreBadge: '비즈니스 매너 가이드 · Lv.2',
+    estimatedMin: 6,
+    paragraphsEn: [
+      'Many Korean professionals hesitate to decline a meeting request because a direct "I cannot make it" sounds harsh. In English workplace culture, however, politely rescheduling is seen as a sign of reliability rather than rudeness.',
+      'The golden formula has two simple parts: first, briefly acknowledge the invite and note that your schedule looks tight; second, immediately offer one or two concrete alternative slots. Saying "Tomorrow looks tight on my end—would Thursday at 2 PM work instead?" keeps the conversation moving smoothly.',
+      'Avoid vague Konglish phrases like "Tomorrow is ambiguous" or "I have another promise." Native colleagues respond much better to specific availability words such as packed, tied up, or wide open.'
+    ],
+    paragraphsSlash: [
+      'Many Korean professionals hesitate / to decline a meeting request / because a direct "I cannot make it" sounds harsh. / In English workplace culture, however, / politely rescheduling is seen as a sign of reliability / rather than rudeness.',
+      'The golden formula has two simple parts: / first, briefly acknowledge the invite / and note that your schedule looks tight; / second, immediately offer one or two concrete alternative slots. / Saying "Tomorrow looks tight on my end—would Thursday at 2 PM work instead?" / keeps the conversation moving smoothly.',
+      'Avoid vague Konglish phrases / like "Tomorrow is ambiguous" or "I have another promise." / Native colleagues respond much better / to specific availability words / such as packed, tied up, or wide open.'
+    ],
+    paragraphsKo: [
+      '많은 한국 직장인이 “참석 못 해요”라는 직설적인 표현이 무례하게 들릴까 봐 회의 일정 거절을 망설입니다. 하지만 영어권 직장 문화에서는 정중하게 일정을 재조율하는 것이 무례함이 아니라 신뢰감의 신호로 받아들여집니다.',
+      '황금 공식은 두 가지 단순한 요소로 이루어집니다. 첫째, 초대에 감사를 표하고 일정이 빠듯하다고 짧게 알립니다. 둘째, 즉시 구체적인 대안 시간 1~2개를 제시합니다. “내일은 제 쪽 일정이 빠듯하네요—대신 목요일 오후 2시가 괜찮으실까요?”라고 말하면 대화가 매끄럽게 이어집니다.',
+      '“내일은 애매해요(ambiguous)”나 “약속(promise)이 있어요” 같은 모호한 콩글리시는 피하세요. 원어민 동료들은 packed(꽉 찬), tied up(묶여 있는), wide open(여유 있는)처럼 명확한 일정 표현에 훨씬 긍정적으로 반응합니다.'
+    ],
+    keyExpressions: ['looks tight on my end', 'would ~ work instead?', 'alternative slots', 'packed', 'tied up'],
+    comprehensionQuiz: [
+      {
+        id: 'd3-rq01',
+        questionKo: '영어권 직장 문화에서 정중하게 일정을 재조율하는 것은 어떻게 인식되나요?',
+        options: [
+          '업무 의욕이 부족하다는 신호',
+          '무례함이 아니라 신뢰감(reliability)의 신호',
+          '상대방과의 관계를 끊겠다는 의미'
+        ],
+        answer: '무례함이 아니라 신뢰감(reliability)의 신호',
+        explanationKo: '첫 문단 "politely rescheduling is seen as a sign of reliability rather than rudeness"가 핵심입니다.'
+      },
+      {
+        id: 'd3-rq02',
+        questionKo: '일정 거절의 황금 공식 2단계 중 두 번째 단계는 무엇인가요?',
+        options: [
+          '구체적인 대안 시간 1~2개를 즉시 역제안한다',
+          '일정이 비어 있을 때 나중에 연락하겠다고만 말한다',
+          '왜 바쁜지 개인 사정을 5문장 이상 상세히 설명한다'
+        ],
+        answer: '구체적인 대안 시간 1~2개를 즉시 역제안한다',
+        explanationKo: '둘째 문단 "immediately offer one or two concrete alternative slots"를 확인하세요.'
+      },
+      {
+        id: 'd3-rq03',
+        questionKo: '다음 중 본문이 피하라고 조언한 콩글리시 표현은?',
+        options: [
+          'My calendar is packed tomorrow.',
+          'Tomorrow is ambiguous.',
+          'Thursday afternoon is wide open.'
+        ],
+        answer: 'Tomorrow is ambiguous.',
+        explanationKo: 'ambiguous는 뜻이 모호하다는 의미이며, 일정이 빠듯할 때는 tight/packed를 씁니다.'
+      }
+    ]
   },
   vocabList: [
     {

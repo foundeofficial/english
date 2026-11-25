@@ -1,7 +1,10 @@
 import type { DayLessonModule } from '../../types/course.ts';
+import { DAY_YOUTUBE_VIDEOS } from '../youtubeLibrary.ts';
 
 export const day2Module: DayLessonModule = {
   dayNumber: 2,
+  weekNumber: 1,
+  cefrLevel: 'a1',
   dayBadge: 'DAY 02 · 의도 vs 결과 반전',
   categoryLabel: '일상·업무 근황 토크 핵심 시제',
   title: '일찍 가려 했는데 결국 야근했어요',
@@ -9,12 +12,69 @@ export const day2Module: DayLessonModule = {
   heroImage: 'assets/scene_late_office.jpg',
   secondaryImage: 'assets/visual_preposition_card.jpg',
   estimatedSprintMin: 7,
-  estimatedLectureMin: 38,
+  estimatedLectureMin: 40,
   keyExpression: 'I meant to ~, but I ended up -ing',
   keySentenceByTier: {
-    basic: 'I wanted to leave early, but I ended up working late.',
-    standard: 'I meant to leave on time, but an urgent issue came up and I ended up staying late.',
-    advanced: 'I was originally planning to head out at six, only to get tied up with a client request and end up working past nine.'
+    a1: 'I wanted to leave early, but I worked late.',
+    a2: 'I wanted to leave early, but I ended up working late.',
+    b1: 'I meant to leave on time, but an urgent issue came up and I ended up staying late.',
+    b2: 'I was originally planning to head out at six, only to get tied up with a client request and end up working past nine.',
+    c1: 'Although I had every intention of wrapping up by six, a last-minute escalation cropped up and kept me at my desk until nine.',
+    c2: 'Despite my best intentions to clock out promptly at six, an unforeseen client escalation derailed my evening and left me burning the midnight oil.'
+  },
+  youtubeVideo: DAY_YOUTUBE_VIDEOS[2],
+  readingPassage: {
+    titleEn: 'When Good Intentions Meet Last-Minute Requests',
+    titleKo: '정시 퇴근 계획이 갑작스러운 요청을 만났을 때',
+    genreBadge: '오피스 스토리 칼럼 · Lv.1–2',
+    estimatedMin: 6,
+    paragraphsEn: [
+      'Every Tuesday morning, Chloe writes a clean to-do list and promises herself she will leave the office right at six. She even packs her running shoes so she can head straight to the gym after work.',
+      'Yesterday, however, everything went off script at 5:30 PM. A major client sent an urgent revision right before a regional launch, and two teammates were already stuck in traffic on their way to another meeting.',
+      'Chloe meant to answer just one quick email, but she ended up redesigning three slides and staying past eight. Before logging off, she left a polite note proposing an earlier review buffer so the whole team can avoid last-minute crunches next week.'
+    ],
+    paragraphsSlash: [
+      'Every Tuesday morning, / Chloe writes a clean to-do list / and promises herself / she will leave the office right at six. / She even packs her running shoes / so she can head straight to the gym after work.',
+      'Yesterday, however, / everything went off script at 5:30 PM. / A major client sent an urgent revision / right before a regional launch, / and two teammates were already stuck in traffic / on their way to another meeting.',
+      'Chloe meant to answer just one quick email, / but she ended up redesigning three slides / and staying past eight. / Before logging off, / she left a polite note proposing an earlier review buffer / so the whole team can avoid last-minute crunches next week.'
+    ],
+    paragraphsKo: [
+      '매주 화요일 아침, 클로이는 깔끔한 할 일 목록을 적으며 딱 6시에 퇴근하겠다고 다짐합니다. 퇴근하자마자 곧장 헬스장으로 갈 수 있도록 운동화까지 챙겨 오곤 합니다.',
+      '하지만 어제는 오후 5시 30분에 모든 계획이 어긋나고 말았습니다. 주요 고객사가 지역 론칭 직전에 긴급 수정 요청을 보냈고, 팀원 두 명은 이미 다른 미팅으로 이동하다 도로에 갇혀 있었기 때문입니다.',
+      '클로이는 짧은 이메일 하나만 답장하려 했지만, 결국 슬라이드 세 장을 다시 디자인하며 8시가 넘도록 야근하게 되었습니다. 퇴근 전 그녀는 다음 주에 막판 야근을 피할 수 있도록 사전 검수 여유 시간을 두자고 정중한 메모를 남겼습니다.'
+    ],
+    keyExpressions: ['meant to ~', 'ended up -ing', 'went off script', 'stuck in traffic', 'last-minute revision'],
+    comprehensionQuiz: [
+      {
+        id: 'd2-rq01',
+        questionKo: '클로이가 어제 원래 오후 6시에 퇴근해서 하려던 계획은 무엇이었나요?',
+        options: [
+          '친구와 저녁 식사를 하러 가기',
+          '운동화를 챙겨 곧장 헬스장에 가기',
+          '집에서 영화를 보며 쉬기'
+        ],
+        answer: '운동화를 챙겨 곧장 헬스장에 가기',
+        explanationKo: '첫 문단 "packs her running shoes so she can head straight to the gym after work"에서 확인할 수 있습니다.'
+      },
+      {
+        id: 'd2-rq02',
+        questionKo: '클로이가 결국 8시 넘어서까지 야근하게 된 직접적인 원인은 무엇인가요?',
+        options: [
+          '오후 5시 30분에 주요 고객사의 긴급 수정 요청이 들어왔기 때문',
+          '컴퓨터가 고장 나서 파일을 잃어버렸기 때문',
+          '팀 회식이 갑자기 잡혔기 때문'
+        ],
+        answer: '오후 5시 30분에 주요 고객사의 긴급 수정 요청이 들어왔기 때문',
+        explanationKo: '둘째 문단 "A major client sent an urgent revision right before a regional launch"가 원인입니다.'
+      },
+      {
+        id: 'd2-rq03',
+        questionKo: '본문에서 "결국 ~하게 되었다"를 나타내는 올바른 문법 구조는?',
+        options: ['ended up to redesign', 'ended up redesigning', 'meant to redesigning'],
+        answer: 'ended up redesigning',
+        explanationKo: 'end up 뒤에는 반드시 동명사(-ing)가 와야 합니다!'
+      }
+    ]
   },
   vocabList: [
     {

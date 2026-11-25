@@ -1,8 +1,8 @@
 {
   "name": "코어브릿지 KoreBridge 영어 스튜디오",
   "short_name": "KoreBridge",
-  "description": "한국인을 위한 5~10분 데일리 스프린트 & 30~60분 정규 인강·1:1 과외 영어교육 웹앱",
-  "start_url": "/",
+  "description": "한국인을 위한 30일 완성 · CEFR 6단계 하이브리드 영어교육 웹앱 (유튜브 인강 · 영한사전 · A4 시험지)",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#FAF8F4",
   "theme_color": "#185443",

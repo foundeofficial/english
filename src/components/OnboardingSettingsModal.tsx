@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { CheckCircle2, Sparkles, VolumeX, X } from 'lucide-react';
 import {
-  MINI_DIAGNOSTIC_ITEMS,
-  recommendTierFromScore
-} from '../data/week1MasterCourse.ts';
-import type { LearnerSettings, LevelTier, StudyPace } from '../types/course.ts';
+  LEVEL_INFO_MAP,
+  LEVEL_ORDER,
+  PLACEMENT_DIAGNOSTIC_ITEMS,
+  recommendLevelFromScore
+} from '../data/levels.ts';
+import type { LearnerSettings, StudyPace } from '../types/course.ts';
 
 interface OnboardingSettingsModalProps {
   isOpen: boolean;
@@ -30,67 +32,49 @@ export function OnboardingSettingsModal({
 
   const handleApplyQuiz = () => {
     let correct = 0;
-    for (const q of MINI_DIAGNOSTIC_ITEMS) {
+    for (const q of PLACEMENT_DIAGNOSTIC_ITEMS) {
       const pickedIdx = quizAnswers[q.id];
       if (pickedIdx !== undefined && q.options[pickedIdx]?.isCorrect) {
         correct += 1;
       }
     }
-    const recommended = recommendTierFromScore(correct);
+    const recommended = recommendLevelFromScore(correct);
+    const meta = LEVEL_INFO_MAP[recommended];
     setDraft((prev) => ({ ...prev, levelTier: recommended }));
-    const labelMap: Record<LevelTier, string> = {
-      basic: 'Lv.1 기초 코어 (핵심 단문 뼈대부터 탄탄히)',
-      standard: 'Lv.2 실전 표준 (일상·오피스 구동사 밸런스)',
-      advanced: 'Lv.3 비즈니스 심화 (글로벌 실무 & 정교한 뉘앙스)'
-    };
-    setQuizResultNote(`진단 결과 3문항 중 ${correct}문항 정답! → [${labelMap[recommended]}] 레벨로 맞춤 설정되었습니다.`);
+    setQuizResultNote(
+      `6단계 CEFR 진단 완료 (${correct}/6 정답) → [${meta.titleKo}] 레벨로 맞춤 설정되었습니다! (추천 시작: Day ${String(meta.recommendedStartDay).padStart(2, '0')})`
+    );
     setShowQuiz(false);
   };
-
-  const levelOptions: Array<{ id: LevelTier; title: string; desc: string }> = [
-    {
-      id: 'basic',
-      title: 'Lv.1 기초 코어',
-      desc: '길고 복잡한 문장 대신 [주어+동사] 핵심 단문부터 입에서 바로 나오게 훈련합니다.'
-    },
-    {
-      id: 'standard',
-      title: 'Lv.2 실전 표준 (추천)',
-      desc: '원어민 구동사와 전치사 감각을 익혀 일상 스몰토크와 직장 대화를 자연스럽게 구사합니다.'
-    },
-    {
-      id: 'advanced',
-      title: 'Lv.3 비즈니스 심화',
-      desc: '글로벌 화상회의·이메일에 바로 쓰는 완곡한 조율과 3문장 확장 표현까지 마스터합니다.'
-    }
-  ];
 
   const paceOptions: Array<{ id: StudyPace; title: string; desc: string }> = [
     {
       id: 'light',
-      title: '가볍게 · 하루 7분',
-      desc: '출퇴근길 데일리 어순 스프린트와 핵심 단어 위주로 부담 없이 루틴을 만듭니다.'
+      title: '가볍게 · 하루 10분',
+      desc: '출퇴근길 7분 어순 스프린트 + 핵심 단어 15개 + 유튜브 짧은 반복 훈련'
     },
     {
       id: 'standard',
-      title: '표준 · 하루 20분',
-      desc: '시트콤 인강 + 7분 스프린트 + 핵심 오답 복습까지 균형 있게 학습합니다.'
+      title: '표준 · 하루 25분',
+      desc: '유튜브 실전 인강 + 시트콤 대화 쉐도잉 + 7분 스프린트 + 영자 독해 1지문'
     },
     {
       id: 'intensive',
-      title: '집중 · 하루 45분',
-      desc: '원리 인강 + 1:1 AI 과외 + 15문항 단원평가 시험지까지 학원·과외처럼 완벽 완주합니다.'
+      title: '집중 · 하루 50분',
+      desc: '유튜브·시트콤·칠판·독해 4교시 완주 + 1:1 AI 과외 + 15~20문항 A4 단원평가 시험지까지 풀코스'
     }
   ];
 
   return (
     <div className="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="settings-modal-title">
-      <div className="modal-panel">
+      <div className="modal-panel modal-panel-wide">
         <div className="modal-header-row">
           <div>
-            <span className="pill-tag pill-brand">개인 맞춤형 학습 캘리브레이션</span>
+            <span className="pill-tag pill-brand">CEFR 6단계 개인 맞춤형 학습 캘리브레이션</span>
             <h2 id="settings-modal-title" style={{ marginTop: '10px', fontSize: '1.45rem' }}>
-              {isFirstVisit ? '나에게 딱 맞는 영어 레벨과 페이스를 설정하세요' : '내 레벨 · 학습 환경 설정'}
+              {isFirstVisit
+                ? '내 영어 실력(Lv.1~6)과 하루 학습 페이스를 설정하세요'
+                : '내 레벨(Lv.1~6) · 학습 환경 설정'}
             </h2>
           </div>
           {!isFirstVisit && (
@@ -121,8 +105,8 @@ export function OnboardingSettingsModal({
         </div>
 
         <div className="settings-section">
-          <div className="section-label-between">
-            <span className="field-label">1. 내 영어 문장 레벨 선택</span>
+          <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '8px' }}>
+            <span className="field-label">1. 내 영어 레벨 선택 (CEFR A1 입문 ~ C2 마스터 · 6단계)</span>
             <button
               id="toggle-mini-diagnostic-btn"
               type="button"
@@ -130,7 +114,7 @@ export function OnboardingSettingsModal({
               onClick={() => setShowQuiz((v) => !v)}
             >
               <Sparkles size={14} />
-              <span>{showQuiz ? '진단 접기' : '30초 미니 레벨 테스트 해보기'}</span>
+              <span>{showQuiz ? '레벨 테스트 접기' : '1분 정밀 6단계 레벨 테스트 해보기'}</span>
             </button>
           </div>
 
@@ -144,9 +128,9 @@ export function OnboardingSettingsModal({
           {showQuiz && (
             <div className="mini-quiz-box">
               <p style={{ fontWeight: 700, marginBottom: '12px', fontSize: '0.92rem' }}>
-                한국인이 가장 자주 헷갈리는 실전 문장 3문항을 골라보세요.
+                A1 입문부터 C2 마스터까지 단계별 6문항을 풀어보면 내 정확한 레벨을 추천해 드립니다.
               </p>
-              {MINI_DIAGNOSTIC_ITEMS.map((q) => (
+              {PLACEMENT_DIAGNOSTIC_ITEMS.map((q) => (
                 <div key={q.id} className="mini-quiz-item">
                   <p className="mini-quiz-q">{q.questionKo}</p>
                   <div className="mini-quiz-opts">
@@ -169,27 +153,38 @@ export function OnboardingSettingsModal({
                 type="button"
                 className="btn-solid-brand"
                 style={{ width: '100%', marginTop: '8px' }}
-                disabled={Object.keys(quizAnswers).length < MINI_DIAGNOSTIC_ITEMS.length}
+                disabled={Object.keys(quizAnswers).length < PLACEMENT_DIAGNOSTIC_ITEMS.length}
                 onClick={handleApplyQuiz}
               >
-                진단 결과로 내 레벨 자동 추천받기
+                6문항 채점 후 내 CEFR 레벨 자동 추천받기
               </button>
             </div>
           )}
 
-          <div className="choice-stack">
-            {levelOptions.map((opt) => (
-              <button
-                key={opt.id}
-                id={`select-level-${opt.id}`}
-                type="button"
-                className={`radio-card-btn ${draft.levelTier === opt.id ? 'active' : ''}`}
-                onClick={() => setDraft({ ...draft, levelTier: opt.id })}
-              >
-                <div className="radio-card-title">{opt.title}</div>
-                <p className="radio-card-desc">{opt.desc}</p>
-              </button>
-            ))}
+          <div className="level-six-grid">
+            {LEVEL_ORDER.map((lv) => {
+              const info = LEVEL_INFO_MAP[lv];
+              return (
+                <button
+                  key={lv}
+                  id={`select-level-${lv}`}
+                  type="button"
+                  className={`radio-card-btn ${draft.levelTier === lv ? 'active' : ''}`}
+                  onClick={() => setDraft({ ...draft, levelTier: lv })}
+                >
+                  <div className="section-label-between" style={{ marginBottom: '4px' }}>
+                    <span className="radio-card-title">{info.shortLabel}</span>
+                    <span className="pill-tag pill-subtle" style={{ fontSize: '0.72rem' }}>
+                      기본 {info.defaultSpeechRate}x
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--brand)', marginBottom: '3px' }}>
+                    {info.taglineKo}
+                  </div>
+                  <p className="radio-card-desc">{info.descKo}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -212,13 +207,13 @@ export function OnboardingSettingsModal({
         </div>
 
         <div className="settings-section">
-          <span className="field-label">3. 직독직해 & 출퇴근 보조 설정</span>
+          <span className="field-label">3. 직독직해 &amp; 출퇴근 보조 설정</span>
           <div className="toggle-list">
             <label className="toggle-row" htmlFor="toggle-slashes-checkbox">
               <div>
                 <div style={{ fontWeight: 700 }}>S/V/O 의미 단위 끊어읽기(/) 표시</div>
                 <div style={{ fontSize: '0.84rem', color: 'var(--text-sub)' }}>
-                  인강 대본과 개념서에서 영어 어순 덩어리 슬래시를 함께 표시합니다.
+                  시트콤 대본과 영자 독해 지문에서 영어 어순 덩어리 슬래시를 함께 표시합니다.
                 </div>
               </div>
               <input
@@ -262,7 +257,7 @@ export function OnboardingSettingsModal({
           />
         </div>
 
-        <div style={{ marginTop: '28px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+        <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
           {!isFirstVisit && (
             <button id="cancel-settings-btn" type="button" className="btn-outline" onClick={onClose}>
               취소
@@ -279,7 +274,7 @@ export function OnboardingSettingsModal({
               })
             }
           >
-            맞춤 커리큘럼 적용하기
+            {LEVEL_INFO_MAP[draft.levelTier].shortLabel} 맞춤 커리큘럼 적용하기
           </button>
         </div>
       </div>

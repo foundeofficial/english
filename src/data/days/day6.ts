@@ -1,7 +1,11 @@
 import type { DayLessonModule } from '../../types/course.ts';
+import { DAY_YOUTUBE_VIDEOS } from '../youtubeLibrary.ts';
 
 export const day6Module: DayLessonModule = {
   dayNumber: 6,
+  weekNumber: 1,
+  cefrLevel: 'a2',
+  isWeeklyReview: true,
   dayBadge: 'DAY 06 · WEEK 1 주간 종합 성취도 평가',
   categoryLabel: 'Week 1 총정리 리허설 & 20문항 실전 모의고사',
   title: 'Week 1 실전 통합 리허설 & 종합 모의고사',
@@ -9,12 +13,69 @@ export const day6Module: DayLessonModule = {
   heroImage: 'assets/office_sitcom_scene.jpg',
   secondaryImage: 'assets/visual_preposition_card.jpg',
   estimatedSprintMin: 10,
-  estimatedLectureMin: 45,
+  estimatedLectureMin: 48,
   keyExpression: 'Week 1 Complete Mastery: Fluency × Nuance × Accuracy',
   keySentenceByTier: {
-    basic: "I'll wrap this up by 5 PM and stop by a cafe on my way home.",
-    standard: "Tomorrow looks tight on my end, so I'll wrap up the draft by Friday and unwind with an evening walk.",
-    advanced: "Although an urgent issue came up and we had to push our sync back, we're still on track to wrap everything up by EOD Friday."
+    a1: 'I will finish by 5 PM and stop by a cafe on my way home.',
+    a2: "I'll wrap this up by 5 PM and stop by a cafe on my way home.",
+    b1: "Tomorrow looks tight on my end, so I'll wrap up the draft by Friday and unwind with an evening walk.",
+    b2: "Although an urgent issue came up and we had to push our sync back, we're still on track to wrap everything up by EOD Friday.",
+    c1: 'Even though an unexpected escalation forced us to reschedule our mid-week sync, the team rallied to stay on track for our Friday deadline.',
+    c2: 'Notwithstanding a mid-week client escalation that compelled us to push back our sync, we pulled everything together ahead of Friday’s EOD cutoff.'
+  },
+  youtubeVideo: DAY_YOUTUBE_VIDEOS[6],
+  readingPassage: {
+    titleEn: 'One Week That Changed How Minjun Speaks at Work',
+    titleKo: '민준 씨의 오피스 영어를 바꾼 1주일의 실전 기록',
+    genreBadge: 'Week 1 종합 리포트 · Lv.1–2',
+    estimatedMin: 7,
+    paragraphsEn: [
+      'At the start of the week, Minjun still translated every Korean sentence word for word before speaking. Whenever his overseas manager asked a quick question, he paused too long and fell back on short "Yes" or "Okay" replies.',
+      'By Friday, a noticeable shift had taken place. When a design update came up unexpectedly on Wednesday, he smoothly replied that Thursday looked tight on his end and proposed a Friday morning sync instead. He then promised to wrap up the revised slides by EOD and keep the whole team in the loop.',
+      'On his way home Friday evening, Minjun stopped by his favorite cafe to grab an iced oat latte before walking along the river to unwind. For the first time, speaking English felt less like taking a grammar exam and more like having a real conversation.'
+    ],
+    paragraphsSlash: [
+      'At the start of the week, / Minjun still translated every Korean sentence word for word / before speaking. / Whenever his overseas manager asked a quick question, / he paused too long / and fell back on short "Yes" or "Okay" replies.',
+      'By Friday, / a noticeable shift had taken place. / When a design update came up unexpectedly on Wednesday, / he smoothly replied that Thursday looked tight on his end / and proposed a Friday morning sync instead. / He then promised to wrap up the revised slides by EOD / and keep the whole team in the loop.',
+      'On his way home Friday evening, / Minjun stopped by his favorite cafe / to grab an iced oat latte / before walking along the river to unwind. / For the first time, / speaking English felt less like taking a grammar exam / and more like having a real conversation.'
+    ],
+    paragraphsKo: [
+      '주 초만 해도 민준 씨는 말하기 전에 모든 한국어 문장을 단어 대 단어로 직역하곤 했습니다. 해외 매니저가 짧은 질문을 던질 때마다 너무 오래 멈칫거리다가 짧은 "Yes"나 "Okay"로만 대답했습니다.',
+      '금요일 무렵에는 눈에 띄는 변화가 생겼습니다. 수요일에 디자인 수정 건이 갑자기 생겼을 때, 그는 목요일은 제 쪽 일정이 빠듯하다고 자연스럽게 알리고 금요일 오전 싱크를 역제안했습니다. 이어서 퇴근 전까지 수정 슬라이드를 마무리해 팀 전체와 공유하겠다고 약속했습니다.',
+      '금요일 퇴근길에 민준 씨는 강변을 걸으며 긴장을 풀기 전 단골 카페에 들러 아이스 오트 라떼를 샀습니다. 처음으로 영어 말하기가 문법 시험이 아니라 진짜 대화처럼 느껴졌습니다.'
+    ],
+    keyExpressions: ['word for word', 'came up unexpectedly', 'tight on his end', 'wrap up ~ by EOD', 'keep ~ in the loop', 'unwind'],
+    comprehensionQuiz: [
+      {
+        id: 'd6-rq01',
+        questionKo: '주 초에 민준 씨가 해외 매니저와 대화할 때 겪었던 어려움은 무엇인가요?',
+        options: [
+          '한국어를 단어별로 직역하느라 멈칫거리고 단답형으로만 답했다',
+          '너무 빠르게 말해서 상대가 알아듣지 못했다',
+          '화상회의 프로그램 설치를 못 했다'
+        ],
+        answer: '한국어를 단어별로 직역하느라 멈칫거리고 단답형으로만 답했다',
+        explanationKo: '첫 문단 "translated every Korean sentence word for word... fell back on short Yes or Okay replies"를 확인하세요.'
+      },
+      {
+        id: 'd6-rq02',
+        questionKo: '수요일에 갑작스러운 디자인 수정 건이 생겼을 때 민준 씨가 취한 대응은?',
+        options: [
+          '무조건 야근해서 당일 끝내겠다고 답했다',
+          '목요일 일정이 빠듯하다고 알리고 금요일 오전 싱크를 역제안했다',
+          '다른 팀원에게 업무를 넘겼다'
+        ],
+        answer: '목요일 일정이 빠듯하다고 알리고 금요일 오전 싱크를 역제안했다',
+        explanationKo: '둘째 문단 "Thursday looked tight on his end and proposed a Friday morning sync instead"가 정답입니다.'
+      },
+      {
+        id: 'd6-rq03',
+        questionKo: '본문에서 Week 1 핵심 표현들이 자연스럽게 녹아 있지 않은 것은?',
+        options: ['stop by + on his way home', 'wrap up + by EOD', 'on my way to home + until EOD'],
+        answer: 'on my way to home + until EOD',
+        explanationKo: 'home 앞에는 to를 쓰지 않고, 마감 기한에는 until이 아니라 by를 써야 합니다!'
+      }
+    ]
   },
   vocabList: [
     {

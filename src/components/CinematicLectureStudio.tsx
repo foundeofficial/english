@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  FileText,
   MessageSquareText,
   Mic,
   Pause,
@@ -12,10 +13,12 @@ import {
   RotateCcw,
   Send,
   Subtitles,
-  Volume2
+  Volume2,
+  Video
 } from 'lucide-react';
-import { WEEK1_MODULES } from '../data/week1MasterCourse.ts';
+import { LEVEL_INFO_MAP } from '../data/levels.ts';
 import type {
+  DayCompletionRecord,
   DayLessonModule,
   LearnerSettings,
   ParaphraseResult,
@@ -28,39 +31,56 @@ import {
   startSpeechRecognition,
   stopSpeaking
 } from '../utils/speech.ts';
+import { DayNavigatorBar } from './DayNavigatorBar.tsx';
+import { InteractiveText } from './InteractiveText.tsx';
+import { YouTubeStudyPlayer } from './YouTubeStudyPlayer.tsx';
 
 interface CinematicLectureStudioProps {
   module: DayLessonModule;
   settings: LearnerSettings;
+  dayRecords: Record<number, DayCompletionRecord>;
   lectureCompleted: boolean;
+  videoWatched: boolean;
+  readingCompleted: boolean;
   savedNote: string;
   savedParaphrases: ParaphraseResult[];
   onSelectDay: (dayNumber: number) => void;
   onMarkLectureComplete: () => void;
+  onMarkVideoWatched: () => void;
+  onMarkReadingComplete: () => void;
   onSaveNote: (note: string) => void;
   onSaveParaphrase: (item: ParaphraseResult, reviewCard?: SpacedReviewCard) => void;
+  onOpenDictionary: (word?: string) => void;
 }
 
-type StudioTab = 'sitcom' | 'chalkboard' | 'tutor';
+type StudioTab = 'youtube' | 'sitcom' | 'chalkboard' | 'reading' | 'tutor';
 type SubtitleMode = 'both' | 'en' | 'off';
 
 export function CinematicLectureStudio({
   module,
   settings,
+  dayRecords,
   lectureCompleted,
+  videoWatched,
+  readingCompleted,
   savedNote,
   savedParaphrases,
   onSelectDay,
   onMarkLectureComplete,
+  onMarkVideoWatched,
+  onMarkReadingComplete,
   onSaveNote,
-  onSaveParaphrase
+  onSaveParaphrase,
+  onOpenDictionary
 }: CinematicLectureStudioProps) {
-  const [studioTab, setStudioTab] = useState<StudioTab>('sitcom');
+  const [studioTab, setStudioTab] = useState<StudioTab>('youtube');
+
+  const defaultRate = LEVEL_INFO_MAP[settings.levelTier].defaultSpeechRate;
 
   // Sitcom Video Player states
   const [turnIdx, setTurnIdx] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackRate, setPlaybackRate] = useState(1.0);
+  const [playbackRate, setPlaybackRate] = useState(defaultRate);
   const [subtitleMode, setSubtitleMode] = useState<SubtitleMode>('both');
   const [slashView, setSlashView] = useState(settings.showStructureSlashes);
 
@@ -68,6 +88,12 @@ export function CinematicLectureStudio({
   const [slideIdx, setSlideIdx] = useState(0);
   const [noteDraft, setNoteDraft] = useState(savedNote);
   const [noteSavedToast, setNoteSavedToast] = useState(false);
+
+  // Reading Passage states
+  const [readingSlash, setReadingSlash] = useState(settings.showStructureSlashes);
+  const [showReadingKo, setShowReadingKo] = useState(true);
+  const [readingAnswers, setReadingAnswers] = useState<Record<string, string>>({});
+  const [readingGraded, setReadingGraded] = useState(false);
 
   // 1:1 AI Tutor states
   const [tutorStep, setTutorStep] = useState<1 | 2>(1);
@@ -90,6 +116,13 @@ export function CinematicLectureStudio({
 
   const currentTurn = module.dialogue[turnIdx] ?? module.dialogue[0];
   const currentGrammar = module.grammarSections[slideIdx] ?? module.grammarSections[0];
+
+  const switchStudioTab = (next: StudioTab) => {
+    stopSpeaking();
+    setIsPlaying(false);
+    isPlayingRef.current = false;
+    setStudioTab(next);
+  };
 
   const playTurnFromIndex = (idx: number, autoAdvance: boolean) => {
     const target = module.dialogue[idx];
@@ -180,7 +213,7 @@ export function CinematicLectureStudio({
     setIsAnalyzing(false);
 
     if (!settings.silentMode) {
-      speakEnglish(result.grammarFix, 0.97);
+      speakEnglish(result.grammarFix, defaultRate);
     }
   };
 
@@ -201,29 +234,31 @@ export function CinematicLectureStudio({
     );
   };
 
+  const readingCorrectCount = readingGraded
+    ? module.readingPassage.comprehensionQuiz.filter((q) => readingAnswers[q.id] === q.answer).length
+    : 0;
+
   const dayParaphrases = savedParaphrases.filter((p) => p.dayNumber === module.dayNumber);
+  const dayPad = String(module.dayNumber).padStart(2, '0');
 
   return (
     <main className="page-wrap">
-      {/* DAY SELECTOR BAR */}
-      <div className="day-pill-switcher" role="tablist" aria-label="강의 단원 선택">
-        {WEEK1_MODULES.map((m) => (
-          <button
-            key={m.dayNumber}
-            id={`lecture-day-switch-${m.dayNumber}`}
-            type="button"
-            className={`day-switch-chip ${m.dayNumber === module.dayNumber ? 'active' : ''}`}
-            onClick={() => onSelectDay(m.dayNumber)}
-          >
-            Day 0{m.dayNumber}
-          </button>
-        ))}
-      </div>
+      {/* 30-DAY WEEK & DAY SWITCHER */}
+      <DayNavigatorBar
+        selectedDay={module.dayNumber}
+        dayRecords={dayRecords}
+        onSelectDay={onSelectDay}
+      />
 
       {/* STUDIO HEADER */}
       <div className="studio-header-row">
         <div>
-          <span className="pill-tag pill-brand">{module.dayBadge}</span>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
+            <span className="pill-tag pill-brand">{module.dayBadge}</span>
+            <span className="pill-tag pill-coral">
+              {LEVEL_INFO_MAP[module.cefrLevel].shortLabel}
+            </span>
+          </div>
           <h1 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', marginTop: '8px' }}>
             {module.title}
           </h1>
@@ -237,60 +272,82 @@ export function CinematicLectureStudio({
           onClick={onMarkLectureComplete}
         >
           <CheckCircle2 size={18} />
-          <span>{lectureCompleted ? '인강 수강 완료됨' : '오늘 인강 수강 완료 체크'}</span>
+          <span>{lectureCompleted ? '오늘 인강 완주됨' : '오늘 인강 완주 체크'}</span>
         </button>
       </div>
 
-      {/* 3-MODE SUB NAVIGATION */}
+      {/* 5-SESSION DEEP STUDY SUB NAVIGATION */}
       <div className="submode-tab-bar" role="tablist" aria-label="스튜디오 학습 단계">
+        <button
+          id="studio-tab-youtube"
+          type="button"
+          className={`submode-tab-btn ${studioTab === 'youtube' ? 'active' : ''}`}
+          onClick={() => switchStudioTab('youtube')}
+        >
+          <Video size={16} />
+          <span>1교시 · 유튜브 인강 {videoWatched ? '✓' : ''}</span>
+        </button>
+
         <button
           id="studio-tab-sitcom"
           type="button"
           className={`submode-tab-btn ${studioTab === 'sitcom' ? 'active' : ''}`}
-          onClick={() => {
-            stopSpeaking();
-            setIsPlaying(false);
-            isPlayingRef.current = false;
-            setStudioTab('sitcom');
-          }}
+          onClick={() => switchStudioTab('sitcom')}
         >
           <Play size={16} />
-          <span>1교시 · 시트콤 스토리 영상 ({module.dialogue.length}턴)</span>
+          <span>2교시 · 시트콤 ({module.dialogue.length}턴)</span>
+        </button>
+
+        <button
+          id="studio-tab-reading"
+          type="button"
+          className={`submode-tab-btn ${studioTab === 'reading' ? 'active' : ''}`}
+          onClick={() => switchStudioTab('reading')}
+        >
+          <FileText size={16} />
+          <span>3교시 · 영자 독해 {readingCompleted ? '✓' : ''}</span>
         </button>
 
         <button
           id="studio-tab-chalkboard"
           type="button"
           className={`submode-tab-btn ${studioTab === 'chalkboard' ? 'active' : ''}`}
-          onClick={() => {
-            stopSpeaking();
-            setIsPlaying(false);
-            isPlayingRef.current = false;
-            setStudioTab('chalkboard');
-          }}
+          onClick={() => switchStudioTab('chalkboard')}
         >
           <BookOpen size={16} />
-          <span>2교시 · 원리 칠판 강의 &amp; 필기 ({module.grammarSections.length}강)</span>
+          <span>4교시 · 원리 칠판 ({module.grammarSections.length}강)</span>
         </button>
 
         <button
           id="studio-tab-tutor"
           type="button"
           className={`submode-tab-btn ${studioTab === 'tutor' ? 'active' : ''}`}
-          onClick={() => {
-            stopSpeaking();
-            setIsPlaying(false);
-            isPlayingRef.current = false;
-            setStudioTab('tutor');
-          }}
+          onClick={() => switchStudioTab('tutor')}
         >
           <MessageSquareText size={16} />
-          <span>3교시 · 1:1 원어민 과외 &amp; 3단 첨삭</span>
+          <span>5교시 · 1:1 과외</span>
         </button>
       </div>
 
       {/* =======================================================
-          TAB 1: CINEMATIC SITCOM VIDEO PLAYER & INTERACTIVE SCRIPT
+          TAB 1: REAL EMBEDDED YOUTUBE EDUCATIONAL VIDEO STUDIO
+         ======================================================= */}
+      {studioTab === 'youtube' && (
+        <YouTubeStudyPlayer
+          key={`yt-${module.dayNumber}`}
+          dayNumber={module.dayNumber}
+          recommendedVideo={module.youtubeVideo}
+          learnerLevel={settings.levelTier}
+          videoWatched={videoWatched}
+          savedNote={savedNote}
+          onMarkVideoWatched={onMarkVideoWatched}
+          onSaveNote={onSaveNote}
+          onOpenDictionary={onOpenDictionary}
+        />
+      )}
+
+      {/* =======================================================
+          TAB 2: CINEMATIC SITCOM VIDEO PLAYER & CLICKABLE SCRIPT
          ======================================================= */}
       {studioTab === 'sitcom' && (
         <section className="lecture-two-col" aria-label="시트콤 스토리 영상 플레이어">
@@ -321,7 +378,10 @@ export function CinematicLectureStudio({
               {subtitleMode !== 'off' && (
                 <div className="cinema-subtitle-overlay">
                   <p className="cinema-sub-en">
-                    {slashView ? currentTurn.slashBroken : currentTurn.english}
+                    <InteractiveText
+                      text={slashView ? currentTurn.slashBroken : currentTurn.english}
+                      onLookupWord={onOpenDictionary}
+                    />
                   </p>
                   {subtitleMode === 'both' && (
                     <p className="cinema-sub-ko">{currentTurn.korean}</p>
@@ -405,12 +465,12 @@ export function CinematicLectureStudio({
                   </span>
                 </button>
 
-                {[0.85, 1.0, 1.15].map((spd) => (
+                {[0.8, 0.95, 1.05, 1.15].map((spd) => (
                   <button
                     key={spd}
                     id={`cinema-speed-${spd}`}
                     type="button"
-                    className={`cinema-ctrl-btn ${playbackRate === spd ? 'active' : ''}`}
+                    className={`cinema-ctrl-btn ${Math.abs(playbackRate - spd) < 0.04 ? 'active' : ''}`}
                     onClick={() => setPlaybackRate(spd)}
                   >
                     {spd}x
@@ -427,10 +487,10 @@ export function CinematicLectureStudio({
             </div>
           </div>
 
-          {/* RIGHT SIDE: CLICKABLE FULL TRANSCRIPT */}
+          {/* RIGHT SIDE: CLICKABLE FULL TRANSCRIPT WITH DICTIONARY LOOKUP */}
           <div className="script-panel-card">
             <div className="section-label-between" style={{ marginBottom: '14px' }}>
-              <h2 style={{ fontSize: '1.15rem' }}>전체 대화 스크립트 (문장 클릭 시 즉시 재생)</h2>
+              <h2 style={{ fontSize: '1.1rem' }}>전체 대화 스크립트 (단어 클릭 시 사전 검색)</h2>
               <span style={{ fontSize: '0.82rem', color: 'var(--text-sub)' }}>
                 총 {module.dialogue.length}턴
               </span>
@@ -440,12 +500,16 @@ export function CinematicLectureStudio({
               {module.dialogue.map((turn, idx) => {
                 const active = idx === turnIdx;
                 return (
-                  <button
+                  <div
                     key={turn.id}
                     id={`script-turn-btn-${idx}`}
-                    type="button"
+                    role="button"
+                    tabIndex={0}
                     className={`script-turn-row ${active ? 'active' : ''}`}
                     onClick={() => handleSelectLine(idx)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSelectLine(idx);
+                    }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', gap: '8px' }}>
                       <span className="script-speaker-name">
@@ -454,10 +518,13 @@ export function CinematicLectureStudio({
                       <Volume2 size={15} style={{ color: active ? 'var(--brand)' : 'var(--text-muted)' }} />
                     </div>
                     <p className="script-en-line">
-                      {slashView ? turn.slashBroken : turn.english}
+                      <InteractiveText
+                        text={slashView ? turn.slashBroken : turn.english}
+                        onLookupWord={onOpenDictionary}
+                      />
                     </p>
                     <p className="script-ko-line">{turn.korean}</p>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -466,7 +533,204 @@ export function CinematicLectureStudio({
       )}
 
       {/* =======================================================
-          TAB 2: CHALKBOARD GRAMMAR SLIDES & PERSONAL LECTURE NOTE
+          TAB 3: DAILY AUTHENTIC READING PASSAGE + COMPREHENSION QUIZ
+         ======================================================= */}
+      {studioTab === 'reading' && (
+        <section className="lecture-two-col" aria-label="데일리 영자 독해 및 이해도 퀴즈">
+          <article className="reading-article-card">
+            <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '10px', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <span className="pill-tag pill-brand">{module.readingPassage.genreBadge}</span>
+                <span className="pill-tag pill-subtle">
+                  약 {module.readingPassage.estimatedMin}분 정독 · 모르는 단어 클릭 시 영한사전 열림
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                <button
+                  id="reading-toggle-slash-btn"
+                  type="button"
+                  className={`day-switch-chip ${readingSlash ? 'active' : ''}`}
+                  onClick={() => setReadingSlash((v) => !v)}
+                >
+                  직독직해(/) {readingSlash ? 'ON' : 'OFF'}
+                </button>
+                <button
+                  id="reading-toggle-ko-btn"
+                  type="button"
+                  className={`day-switch-chip ${showReadingKo ? 'active' : ''}`}
+                  onClick={() => setShowReadingKo((v) => !v)}
+                >
+                  우리말 해석 {showReadingKo ? '표시' : '숨김'}
+                </button>
+                <button
+                  id="reading-listen-full-btn"
+                  type="button"
+                  className="inline-audio-btn"
+                  onClick={() =>
+                    speakEnglish(module.readingPassage.paragraphsEn.join(' '), playbackRate)
+                  }
+                >
+                  <Volume2 size={14} /> 지문 전체 듣기
+                </button>
+              </div>
+            </div>
+
+            <h2 style={{ fontFamily: 'var(--font-book)', fontSize: '1.65rem', lineHeight: 1.3 }}>
+              {module.readingPassage.titleEn}
+            </h2>
+            <p style={{ color: 'var(--text-sub)', fontSize: '0.96rem', marginTop: '4px', marginBottom: '20px' }}>
+              {module.readingPassage.titleKo}
+            </p>
+
+            <div className="reading-paragraphs-stack">
+              {module.readingPassage.paragraphsEn.map((paraEn, idx) => (
+                <div key={idx} className="reading-para-block">
+                  <div className="section-label-between" style={{ marginBottom: '6px' }}>
+                    <span className="reading-para-num">Paragraph {idx + 1}</span>
+                    <button
+                      type="button"
+                      className="inline-audio-btn"
+                      onClick={() => speakEnglish(paraEn, playbackRate)}
+                    >
+                      <Volume2 size={13} /> 문단 듣기
+                    </button>
+                  </div>
+                  <p className="reading-en-text">
+                    <InteractiveText
+                      text={readingSlash ? module.readingPassage.paragraphsSlash[idx] : paraEn}
+                      onLookupWord={onOpenDictionary}
+                    />
+                  </p>
+                  {showReadingKo && (
+                    <p className="reading-ko-text">{module.readingPassage.paragraphsKo[idx]}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="reading-expr-strip">
+              <span style={{ fontSize: '0.84rem', fontWeight: 750, color: 'var(--brand)' }}>
+                지문 핵심 표현 (클릭 시 영한사전 조회):
+              </span>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
+                {module.readingPassage.keyExpressions.map((expr) => (
+                  <button
+                    key={expr}
+                    type="button"
+                    className="dict-mini-chip"
+                    onClick={() => onOpenDictionary(expr.replace(/~/g, '').trim())}
+                  >
+                    {expr}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </article>
+
+          {/* RIGHT SIDE: 3-QUESTION READING COMPREHENSION QUIZ */}
+          <div className="surface-card">
+            <div className="section-label-between" style={{ marginBottom: '14px' }}>
+              <div>
+                <span className="pill-tag pill-coral">독해 이해도 체크</span>
+                <h3 style={{ fontSize: '1.18rem', marginTop: '6px' }}>
+                  지문 핵심 확인 퀴즈 ({module.readingPassage.comprehensionQuiz.length}문항)
+                </h3>
+              </div>
+              {readingGraded && (
+                <span className="pill-tag pill-brand" style={{ fontSize: '0.9rem' }}>
+                  {readingCorrectCount} / {module.readingPassage.comprehensionQuiz.length} 정답
+                </span>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+              {module.readingPassage.comprehensionQuiz.map((q, qIdx) => {
+                const picked = readingAnswers[q.id] ?? '';
+                const isOk = readingGraded && picked === q.answer;
+                return (
+                  <div key={q.id} className="reading-quiz-item">
+                    <p style={{ fontWeight: 750, fontSize: '0.95rem', marginBottom: '10px' }}>
+                      Q{qIdx + 1}. {q.questionKo}
+                    </p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      {q.options.map((opt) => {
+                        const selected = picked === opt;
+                        const rightOpt = readingGraded && opt === q.answer;
+                        const wrongOpt = readingGraded && selected && opt !== q.answer;
+                        return (
+                          <button
+                            key={opt}
+                            type="button"
+                            disabled={readingGraded}
+                            className={`option-choice-btn ${selected ? 'selected' : ''} ${
+                              rightOpt ? 'correct-opt' : ''
+                            } ${wrongOpt ? 'wrong-opt' : ''}`}
+                            onClick={() =>
+                              setReadingAnswers((prev) => ({ ...prev, [q.id]: opt }))
+                            }
+                          >
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {readingGraded && (
+                      <p
+                        style={{
+                          marginTop: '8px',
+                          fontSize: '0.85rem',
+                          color: isOk ? 'var(--ok)' : 'var(--danger)',
+                          fontWeight: 650
+                        }}
+                      >
+                        {isOk ? '⭕ 정답! ' : `❌ 정답: ${q.answer} — `}
+                        {q.explanationKo}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: '20px', display: 'flex', gap: '10px' }}>
+              {!readingGraded ? (
+                <button
+                  id="grade-reading-quiz-btn"
+                  type="button"
+                  className="btn-solid-brand"
+                  style={{ width: '100%' }}
+                  disabled={
+                    Object.keys(readingAnswers).length <
+                    module.readingPassage.comprehensionQuiz.length
+                  }
+                  onClick={() => {
+                    setReadingGraded(true);
+                    if (!readingCompleted) onMarkReadingComplete();
+                  }}
+                >
+                  독해 퀴즈 채점 &amp; 독해 완료 기록
+                </button>
+              ) : (
+                <button
+                  id="reset-reading-quiz-btn"
+                  type="button"
+                  className="btn-outline"
+                  style={{ width: '100%' }}
+                  onClick={() => {
+                    setReadingAnswers({});
+                    setReadingGraded(false);
+                  }}
+                >
+                  독해 퀴즈 다시 풀기
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* =======================================================
+          TAB 4: CHALKBOARD GRAMMAR SLIDES & PERSONAL LECTURE NOTE
          ======================================================= */}
       {studioTab === 'chalkboard' && (
         <section className="lecture-two-col" aria-label="원리 칠판 강의 및 필기">
@@ -523,13 +787,16 @@ export function CinematicLectureStudio({
                     id="listen-grammar-right-btn"
                     type="button"
                     className="cinema-ctrl-btn"
-                    onClick={() => speakEnglish(currentGrammar.rightNative, 0.96)}
+                    onClick={() => speakEnglish(currentGrammar.rightNative, playbackRate)}
                   >
                     <Volume2 size={14} /> 듣기
                   </button>
                 </div>
                 <p style={{ fontFamily: 'var(--font-en)', marginTop: '8px', fontWeight: 750, fontSize: '1.08rem' }}>
-                  {currentGrammar.rightNative}
+                  <InteractiveText
+                    text={currentGrammar.rightNative}
+                    onLookupWord={onOpenDictionary}
+                  />
                 </p>
               </div>
             </div>
@@ -552,14 +819,14 @@ export function CinematicLectureStudio({
                     <div>
                       <span className="register-level-tag">{label}</span>
                       <p style={{ fontFamily: 'var(--font-en)', fontWeight: 650, marginTop: '4px' }}>
-                        {sentence}
+                        <InteractiveText text={sentence} onLookupWord={onOpenDictionary} />
                       </p>
                     </div>
                     <button
                       id={`listen-register-${idx}`}
                       type="button"
                       className="cinema-ctrl-btn"
-                      onClick={() => speakEnglish(sentence, 0.96)}
+                      onClick={() => speakEnglish(sentence, playbackRate)}
                     >
                       <Volume2 size={14} />
                     </button>
@@ -573,11 +840,11 @@ export function CinematicLectureStudio({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="surface-card">
               <h3 style={{ fontSize: '1.05rem', marginBottom: '10px' }}>
-                시각 이미지로 각인하는 공간·동선 개념도
+                장면 이미지 &amp; 상황 연상 카드
               </h3>
               <img
                 src={module.secondaryImage}
-                alt="공간 전치사 및 동선 개념 일러스트"
+                alt="상황 개념 일러스트"
                 style={{ width: '100%', borderRadius: '12px', display: 'block' }}
               />
             </div>
@@ -585,7 +852,7 @@ export function CinematicLectureStudio({
             <div className="surface-card">
               <div className="section-label-between" style={{ marginBottom: '10px' }}>
                 <label htmlFor="lecture-personal-note" style={{ fontWeight: 800, fontSize: '1.05rem' }}>
-                  나만의 강의 필기 노트 (Day 0{module.dayNumber})
+                  나만의 강의 필기 노트 (Day {dayPad})
                 </label>
                 {noteSavedToast && (
                   <span style={{ fontSize: '0.82rem', color: 'var(--ok)', fontWeight: 700 }}>
@@ -620,7 +887,7 @@ export function CinematicLectureStudio({
       )}
 
       {/* =======================================================
-          TAB 3: 1:1 AI NATIVE TUTOR & 3-TIER RINGLE PARAPHRASING
+          TAB 5: 1:1 AI NATIVE TUTOR & 3-TIER RINGLE PARAPHRASING
          ======================================================= */}
       {studioTab === 'tutor' && (
         <section className="lecture-two-col" aria-label="1:1 원어민 과외 및 3단 패러프레이징">
@@ -661,7 +928,7 @@ export function CinematicLectureStudio({
                       tutorStep === 1
                         ? module.tutorScenario.openingQuestionEn
                         : module.tutorScenario.followUpQuestionEn,
-                      0.96
+                      playbackRate
                     )
                   }
                 >
@@ -677,9 +944,14 @@ export function CinematicLectureStudio({
                 }}
               >
                 “
-                {tutorStep === 1
-                  ? module.tutorScenario.openingQuestionEn
-                  : module.tutorScenario.followUpQuestionEn}
+                <InteractiveText
+                  text={
+                    tutorStep === 1
+                      ? module.tutorScenario.openingQuestionEn
+                      : module.tutorScenario.followUpQuestionEn
+                  }
+                  onLookupWord={onOpenDictionary}
+                />
                 ”
               </p>
               <p style={{ color: 'var(--text-sub)', fontSize: '0.92rem', marginTop: '6px' }}>
@@ -769,14 +1041,17 @@ export function CinematicLectureStudio({
               <summary>원어민 모범 만점 답변 예시 보기</summary>
               <div style={{ marginTop: '10px' }}>
                 <p style={{ fontFamily: 'var(--font-en)', fontWeight: 700 }}>
-                  {module.tutorScenario.modelAnswerEn}
+                  <InteractiveText
+                    text={module.tutorScenario.modelAnswerEn}
+                    onLookupWord={onOpenDictionary}
+                  />
                 </p>
                 <button
                   id="listen-tutor-model-answer-btn"
                   type="button"
                   className="inline-audio-btn"
                   style={{ marginTop: '8px' }}
-                  onClick={() => speakEnglish(module.tutorScenario.modelAnswerEn, 0.96)}
+                  onClick={() => speakEnglish(module.tutorScenario.modelAnswerEn, playbackRate)}
                 >
                   <Volume2 size={14} /> 모범 답변 원어민 음성 듣기
                 </button>
@@ -813,12 +1088,17 @@ export function CinematicLectureStudio({
                       id="listen-para-fix-btn"
                       type="button"
                       className="inline-audio-btn"
-                      onClick={() => speakEnglish(latestFeedback.grammarFix, 0.96)}
+                      onClick={() => speakEnglish(latestFeedback.grammarFix, playbackRate)}
                     >
                       <Volume2 size={14} /> 듣기
                     </button>
                   </div>
-                  <p className="para-en-main">{latestFeedback.grammarFix}</p>
+                  <p className="para-en-main">
+                    <InteractiveText
+                      text={latestFeedback.grammarFix}
+                      onLookupWord={onOpenDictionary}
+                    />
+                  </p>
                   <p style={{ marginTop: '8px', fontSize: '0.9rem', color: 'var(--text-body)' }}>
                     {latestFeedback.tutorExplanationKo}
                   </p>
@@ -831,12 +1111,17 @@ export function CinematicLectureStudio({
                       id="listen-para-casual-btn"
                       type="button"
                       className="inline-audio-btn"
-                      onClick={() => speakEnglish(latestFeedback.casualNative, 0.98)}
+                      onClick={() => speakEnglish(latestFeedback.casualNative, playbackRate)}
                     >
                       <Volume2 size={14} /> 듣기
                     </button>
                   </div>
-                  <p className="para-en-main">{latestFeedback.casualNative}</p>
+                  <p className="para-en-main">
+                    <InteractiveText
+                      text={latestFeedback.casualNative}
+                      onLookupWord={onOpenDictionary}
+                    />
+                  </p>
                 </div>
 
                 <div className="para-box business">
@@ -846,12 +1131,17 @@ export function CinematicLectureStudio({
                       id="listen-para-business-btn"
                       type="button"
                       className="inline-audio-btn"
-                      onClick={() => speakEnglish(latestFeedback.businessNative, 0.96)}
+                      onClick={() => speakEnglish(latestFeedback.businessNative, playbackRate)}
                     >
                       <Volume2 size={14} /> 듣기
                     </button>
                   </div>
-                  <p className="para-en-main">{latestFeedback.businessNative}</p>
+                  <p className="para-en-main">
+                    <InteractiveText
+                      text={latestFeedback.businessNative}
+                      onLookupWord={onOpenDictionary}
+                    />
+                  </p>
                 </div>
 
                 <button
@@ -865,7 +1155,7 @@ export function CinematicLectureStudio({
                       promptKo: `[내 표현 업그레이드] ${latestFeedback.originalInput}`,
                       targetEn: latestFeedback.businessNative,
                       noteKo: latestFeedback.tutorExplanationKo,
-                      sourceLabel: `Day 0${module.dayNumber} 1:1 과외 첨삭`,
+                      sourceLabel: `Day ${dayPad} 1:1 과외 첨삭`,
                       intervalDays: 1,
                       mastered: false
                     };

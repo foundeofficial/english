@@ -9,8 +9,9 @@ import {
   Volume2,
   XCircle
 } from 'lucide-react';
-import { WEEK1_MODULES } from '../data/week1MasterCourse.ts';
+import { LEVEL_INFO_MAP, LEVEL_ORDER } from '../data/levels.ts';
 import type {
+  DayCompletionRecord,
   DayLessonModule,
   LearnerSettings,
   ParaphraseResult,
@@ -19,13 +20,17 @@ import type {
 } from '../types/course.ts';
 import { analyzeWithOptionalGemini } from '../utils/paraphraseEngine.ts';
 import { speakEnglish } from '../utils/speech.ts';
+import { DayNavigatorBar } from './DayNavigatorBar.tsx';
+import { InteractiveText } from './InteractiveText.tsx';
 
 interface AuthenticWorksheetExamProps {
   module: DayLessonModule;
   settings: LearnerSettings;
+  dayRecords: Record<number, DayCompletionRecord>;
   previousBestScore: number | null;
   onSelectDay: (dayNumber: number) => void;
   onSubmitExamScore: (score: number, missedCards: SpacedReviewCard[]) => void;
+  onOpenDictionary: (word?: string) => void;
 }
 
 function normalizeExamAnswer(raw: string): string {
@@ -59,9 +64,11 @@ function gradeLetter(score: number): string {
 export function AuthenticWorksheetExam({
   module,
   settings,
+  dayRecords,
   previousBestScore,
   onSelectDay,
-  onSubmitExamScore
+  onSubmitExamScore,
+  onOpenDictionary
 }: AuthenticWorksheetExamProps) {
   const [subTab, setSubTab] = useState<'concept' | 'exam'>('exam');
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -78,6 +85,9 @@ export function AuthenticWorksheetExam({
   const [essayResults, setEssayResults] = useState<ParaphraseResult[]>([]);
   const [gradingEssay, setGradingEssay] = useState(false);
 
+  const dayPad = String(module.dayNumber).padStart(2, '0');
+  const speechRate = LEVEL_INFO_MAP[settings.levelTier].defaultSpeechRate;
+
   const handleGradePaper = () => {
     let correctCount = 0;
     const missedCards: SpacedReviewCard[] = [];
@@ -92,7 +102,7 @@ export function AuthenticWorksheetExam({
           promptKo: `[단원평가 #${item.number}] ${item.questionKo}`,
           targetEn: item.answer,
           noteKo: item.explanationKo,
-          sourceLabel: `Day 0${module.dayNumber} 시험지 오답`,
+          sourceLabel: `Day ${dayPad} 시험지 오답`,
           intervalDays: 1,
           mastered: false
         });
@@ -109,7 +119,6 @@ export function AuthenticWorksheetExam({
   const handleFillDemoAnswers = () => {
     const filled: Record<string, string> = {};
     module.worksheetExam.forEach((item, idx) => {
-      // Leave 2 items deliberately wrong so user can experience the Red Stamp + Twin Mistake Clinic!
       if (idx === 1) {
         filled[item.id] = 'wrong answer';
       } else if (idx === 6 && item.options) {
@@ -162,20 +171,12 @@ export function AuthenticWorksheetExam({
 
   return (
     <main className="page-wrap">
-      {/* DAY SWITCHER */}
-      <div className="day-pill-switcher no-print" role="tablist" aria-label="시험지 단원 선택">
-        {WEEK1_MODULES.map((m) => (
-          <button
-            key={m.dayNumber}
-            id={`worksheet-day-switch-${m.dayNumber}`}
-            type="button"
-            className={`day-switch-chip ${m.dayNumber === module.dayNumber ? 'active' : ''}`}
-            onClick={() => onSelectDay(m.dayNumber)}
-          >
-            {m.dayNumber === 6 ? 'Day 06 · 주간 종합평가' : `Day 0${m.dayNumber}`}
-          </button>
-        ))}
-      </div>
+      {/* 30-DAY SWITCHER */}
+      <DayNavigatorBar
+        selectedDay={module.dayNumber}
+        dayRecords={dayRecords}
+        onSelectDay={onSelectDay}
+      />
 
       {/* SUB-MODE TABS */}
       <div className="submode-tab-bar no-print" style={{ marginBottom: '24px' }}>
@@ -186,7 +187,7 @@ export function AuthenticWorksheetExam({
           onClick={() => setSubTab('concept')}
         >
           <BookOpen size={16} />
-          <span>단원 개념 원리서 &amp; 전문 구문독해</span>
+          <span>단원 개념 원리서 · 6단계 문장 사다리 · 영자 독해</span>
         </button>
 
         <button
@@ -204,13 +205,18 @@ export function AuthenticWorksheetExam({
       </div>
 
       {/* =======================================================
-          SUB-TAB 1: EDITORIAL CONCEPT TEXTBOOK & S/V/O READER
+          SUB-TAB 1: EDITORIAL CONCEPT TEXTBOOK & 6-LEVEL LADDER
          ======================================================= */}
       {subTab === 'concept' && (
         <article className="exam-paper-sheet">
           <div className="exam-paper-header">
             <div>
-              <span className="pill-tag pill-brand">{module.dayBadge} · 개념 원리 교재</span>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <span className="pill-tag pill-brand">{module.dayBadge} · 개념 원리 교재</span>
+                <span className="pill-tag pill-coral">
+                  {LEVEL_INFO_MAP[module.cefrLevel].shortLabel}
+                </span>
+              </div>
               <h1 style={{ fontSize: '1.8rem', marginTop: '10px' }}>{module.title}</h1>
               <p style={{ color: 'var(--text-sub)', marginTop: '4px' }}>{module.subtitle}</p>
             </div>
@@ -226,33 +232,37 @@ export function AuthenticWorksheetExam({
 
           <section style={{ marginBottom: '36px' }}>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '14px' }}>
-              1. 레벨별 목표 문장 스펙트럼
+              1. CEFR 6단계 레벨별 목표 문장 스펙트럼 (Lv.1 입문 → Lv.6 마스터)
             </h2>
-            <div className="concept-tier-grid">
-              {(
-                [
-                  ['Lv.1 기초 코어', module.keySentenceByTier.basic],
-                  ['Lv.2 실전 표준', module.keySentenceByTier.standard],
-                  ['Lv.3 비즈니스 심화', module.keySentenceByTier.advanced]
-                ] as const
-              ).map(([tierName, sentence], idx) => (
-                <div key={tierName} className="concept-tier-card">
-                  <div className="section-label-between">
-                    <span className="pill-tag pill-subtle">{tierName}</span>
-                    <button
-                      id={`concept-tier-audio-${idx}`}
-                      type="button"
-                      className="inline-audio-btn no-print"
-                      onClick={() => speakEnglish(sentence, 0.96)}
-                    >
-                      <Volume2 size={14} /> 발음
-                    </button>
+            <div className="concept-tier-grid-six">
+              {LEVEL_ORDER.map((lv) => {
+                const info = LEVEL_INFO_MAP[lv];
+                const sentence = module.keySentenceByTier[lv];
+                const isMine = settings.levelTier === lv;
+                return (
+                  <div
+                    key={lv}
+                    className={`concept-tier-card ${isMine ? 'my-level-highlight' : ''}`}
+                  >
+                    <div className="section-label-between">
+                      <span className={`pill-tag ${isMine ? 'pill-brand' : 'pill-subtle'}`}>
+                        {info.shortLabel} {isMine ? '· 내 레벨' : ''}
+                      </span>
+                      <button
+                        id={`concept-tier-audio-${lv}`}
+                        type="button"
+                        className="inline-audio-btn no-print"
+                        onClick={() => speakEnglish(sentence, info.defaultSpeechRate)}
+                      >
+                        <Volume2 size={14} /> 발음
+                      </button>
+                    </div>
+                    <p style={{ fontFamily: 'var(--font-en)', fontWeight: 700, marginTop: '10px', fontSize: '0.98rem' }}>
+                      <InteractiveText text={sentence} onLookupWord={onOpenDictionary} />
+                    </p>
                   </div>
-                  <p style={{ fontFamily: 'var(--font-en)', fontWeight: 700, marginTop: '10px', fontSize: '1.03rem' }}>
-                    {sentence}
-                  </p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
@@ -270,13 +280,14 @@ export function AuthenticWorksheetExam({
                       <strong>✕ 콩글리시 주의:</strong> {sec.wrongKonglish}
                     </p>
                     <p style={{ color: 'var(--ok)', marginTop: '4px' }}>
-                      <strong>✓ 원어민 표준:</strong> {sec.rightNative}{' '}
+                      <strong>✓ 원어민 표준:</strong>{' '}
+                      <InteractiveText text={sec.rightNative} onLookupWord={onOpenDictionary} />{' '}
                       <button
                         id={`textbook-sec-audio-${idx}`}
                         type="button"
                         className="inline-audio-btn no-print"
                         style={{ marginLeft: '8px' }}
-                        onClick={() => speakEnglish(sec.rightNative, 0.96)}
+                        onClick={() => speakEnglish(sec.rightNative, speechRate)}
                       >
                         <Volume2 size={13} /> 듣기
                       </button>
@@ -288,9 +299,30 @@ export function AuthenticWorksheetExam({
             </div>
           </section>
 
+          <section style={{ marginBottom: '36px' }}>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '12px' }}>
+              3. 데일리 실전 영자 독해 지문 — {module.readingPassage.titleEn}
+            </h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {module.readingPassage.paragraphsEn.map((p, i) => (
+                <div key={i} className="textbook-dialogue-row">
+                  <p style={{ fontFamily: 'var(--font-en)', fontWeight: 700, fontSize: '1rem' }}>
+                    <InteractiveText
+                      text={settings.showStructureSlashes ? module.readingPassage.paragraphsSlash[i] : p}
+                      onLookupWord={onOpenDictionary}
+                    />
+                  </p>
+                  <p style={{ color: 'var(--text-body)', fontSize: '0.92rem', marginTop: '6px' }}>
+                    {module.readingPassage.paragraphsKo[i]}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
           <section>
             <h2 style={{ fontSize: '1.25rem', marginBottom: '16px' }}>
-              3. 전체 시트콤 대화 S/V/O 직독직해 구문 분석
+              4. 전체 시트콤 대화 S/V/O 직독직해 구문 분석
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {module.dialogue.map((turn, idx) => (
@@ -303,13 +335,13 @@ export function AuthenticWorksheetExam({
                       id={`textbook-turn-audio-${idx}`}
                       type="button"
                       className="inline-audio-btn no-print"
-                      onClick={() => speakEnglish(turn.english, 0.96, undefined, turn.voicePitch)}
+                      onClick={() => speakEnglish(turn.english, speechRate, undefined, turn.voicePitch)}
                     >
                       <Volume2 size={14} /> 듣기
                     </button>
                   </div>
                   <p style={{ fontFamily: 'var(--font-en)', fontWeight: 750, fontSize: '1.05rem', marginTop: '6px' }}>
-                    {turn.slashBroken}
+                    <InteractiveText text={turn.slashBroken} onLookupWord={onOpenDictionary} />
                   </p>
                   <p style={{ color: 'var(--text-body)', fontSize: '0.94rem', marginTop: '4px' }}>
                     해석: {turn.korean}
@@ -379,7 +411,9 @@ export function AuthenticWorksheetExam({
                 <div className="exam-student-meta">
                   <span>응시자: <strong>{settings.learnerName}</strong></span>
                   <span>|</span>
-                  <span>레벨: <strong>{settings.levelTier.toUpperCase()}</strong></span>
+                  <span>내 레벨: <strong>{LEVEL_INFO_MAP[settings.levelTier].shortLabel}</strong></span>
+                  <span>|</span>
+                  <span>단원 난이도: <strong>{LEVEL_INFO_MAP[module.cefrLevel].shortLabel}</strong></span>
                   <span>|</span>
                   <span>총 문항: <strong>{module.worksheetExam.length}문항 (100점 만점)</strong></span>
                 </div>
@@ -422,7 +456,6 @@ export function AuthenticWorksheetExam({
                           {item.stimulusEn}
                         </div>
 
-                        {/* MULTIPLE CHOICE OR WRITTEN INPUT */}
                         {item.options ? (
                           <div className="exam-mcq-grid" style={{ marginTop: '14px' }}>
                             {item.options.map((opt, optIdx) => {
@@ -467,7 +500,6 @@ export function AuthenticWorksheetExam({
                           </div>
                         )}
 
-                        {/* EXPLANATION & INLINE TWIN MISTAKE CLINIC */}
                         {graded && (
                           <div
                             className={`exam-explanation-panel ${correct ? 'ok' : 'wrong'}`}
@@ -481,7 +513,7 @@ export function AuthenticWorksheetExam({
                                 id={`exam-listen-ans-${item.id}`}
                                 type="button"
                                 className="inline-audio-btn no-print"
-                                onClick={() => speakEnglish(item.answer, 0.96)}
+                                onClick={() => speakEnglish(item.answer, speechRate)}
                               >
                                 <Volume2 size={14} /> 정답 발음
                               </button>
@@ -490,7 +522,6 @@ export function AuthenticWorksheetExam({
                               해설: {item.explanationKo}
                             </p>
 
-                            {/* TWIN CLINIC FOR MISSED ITEMS */}
                             {!correct && (
                               <div className="twin-clinic-card no-print">
                                 <div style={{ fontWeight: 800, color: 'var(--coral)', fontSize: '0.92rem' }}>

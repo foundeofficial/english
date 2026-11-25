@@ -1,4 +1,13 @@
-import { BookOpenCheck, Flame, Home, Layers, PlayCircle, SlidersHorizontal } from 'lucide-react';
+import {
+  BookOpenCheck,
+  Flame,
+  Home,
+  Layers,
+  PlayCircle,
+  Search,
+  SlidersHorizontal
+} from 'lucide-react';
+import { LEVEL_INFO_MAP } from '../data/levels.ts';
 import type { LearnerSettings, MainRoute } from '../types/course.ts';
 
 interface TopNavHeaderProps {
@@ -8,13 +17,8 @@ interface TopNavHeaderProps {
   reviewDueCount: number;
   settings: LearnerSettings;
   onOpenSettings: () => void;
+  onOpenDictionary: (word?: string) => void;
 }
-
-const LEVEL_LABELS: Record<LearnerSettings['levelTier'], string> = {
-  basic: 'Lv.1 기초 코어',
-  standard: 'Lv.2 실전 표준',
-  advanced: 'Lv.3 비즈니스 심화'
-};
 
 export function TopNavHeader({
   activeRoute,
@@ -22,7 +26,8 @@ export function TopNavHeader({
   streakDays,
   reviewDueCount,
   settings,
-  onOpenSettings
+  onOpenSettings,
+  onOpenDictionary
 }: TopNavHeaderProps) {
   const navItems: Array<{
     id: MainRoute;
@@ -31,17 +36,19 @@ export function TopNavHeader({
     icon: typeof Home;
     badge?: number;
   }> = [
-    { id: 'home', label: '오늘의 학습', shortLabel: '홈·로드맵', icon: Home },
-    { id: 'lecture', label: '인강 & 1:1 과외', shortLabel: '인강·과외', icon: PlayCircle },
-    { id: 'worksheet', label: '학습지 & 시험지', shortLabel: '시험지', icon: BookOpenCheck },
+    { id: 'home', label: '30일 로드맵', shortLabel: '홈·30일', icon: Home },
+    { id: 'lecture', label: '유튜브·인강', shortLabel: '영상·인강', icon: PlayCircle },
+    { id: 'worksheet', label: '학습지·시험지', shortLabel: '시험지', icon: BookOpenCheck },
     {
       id: 'vocab-review',
-      label: '단어장 & 오답노트',
+      label: '단어·오답노트',
       shortLabel: '단어·복습',
       icon: Layers,
       badge: reviewDueCount > 0 ? reviewDueCount : undefined
     }
   ];
+
+  const levelMeta = LEVEL_INFO_MAP[settings.levelTier];
 
   return (
     <>
@@ -82,9 +89,21 @@ export function TopNavHeader({
           </nav>
 
           <div className="header-right-actions">
+            <button
+              id="open-dictionary-header-btn"
+              type="button"
+              className="dict-trigger-btn"
+              onClick={() => onOpenDictionary('')}
+              title="실시간 영한·영영 영어사전 열기 (단축키 /)"
+            >
+              <Search size={15} />
+              <span>영한사전</span>
+              <kbd className="kbd-hint">/</kbd>
+            </button>
+
             <div className="streak-badge" title="연속 학습 스트릭">
               <Flame size={15} />
-              <span>{streakDays}일 연속</span>
+              <span>{streakDays}일</span>
             </div>
 
             <button
@@ -92,9 +111,10 @@ export function TopNavHeader({
               type="button"
               className="settings-trigger-btn"
               onClick={onOpenSettings}
+              title="레벨(Lv.1~6) 및 학습 환경 변경"
             >
               <SlidersHorizontal size={15} />
-              <span>{LEVEL_LABELS[settings.levelTier]}</span>
+              <span>{levelMeta.shortLabel}</span>
             </button>
           </div>
         </div>
@@ -117,6 +137,15 @@ export function TopNavHeader({
             </button>
           );
         })}
+        <button
+          id="mobile-nav-dictionary"
+          type="button"
+          className="mobile-tab-btn"
+          onClick={() => onOpenDictionary('')}
+        >
+          <Search size={19} />
+          <span>영한사전</span>
+        </button>
       </nav>
     </>
   );

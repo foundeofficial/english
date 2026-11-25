@@ -1,7 +1,10 @@
 import type { DayLessonModule } from '../../types/course.ts';
+import { DAY_YOUTUBE_VIDEOS } from '../youtubeLibrary.ts';
 
 export const day4Module: DayLessonModule = {
   dayNumber: 4,
+  weekNumber: 1,
+  cefrLevel: 'a2',
   dayBadge: 'DAY 04 · 마감 기한 & 글로벌 협업 싱크',
   categoryLabel: '실무 이메일 · 화상회의 필수 영어',
   title: '금요일까지 마무리해서 공유드릴게요',
@@ -9,12 +12,69 @@ export const day4Module: DayLessonModule = {
   heroImage: 'assets/scene_video_call.jpg',
   secondaryImage: 'assets/office_sitcom_scene.jpg',
   estimatedSprintMin: 7,
-  estimatedLectureMin: 40,
+  estimatedLectureMin: 42,
   keyExpression: 'wrap ~ up by Friday and keep you in the loop',
   keySentenceByTier: {
-    basic: 'I will finish the draft by Friday and share it with you.',
-    standard: "I'll wrap up the first draft by Friday afternoon and keep you in the loop.",
-    advanced: "We're right on track to wrap up the final deliverables by EOD Friday, and I'll be sure to keep everyone in the loop."
+    a1: 'I will finish the work by Friday and send it to you.',
+    a2: 'I will finish the draft by Friday and share it with you.',
+    b1: "I'll wrap up the first draft by Friday afternoon and keep you in the loop.",
+    b2: "We're right on track to wrap up the final deliverables by EOD Friday, and I'll be sure to keep everyone in the loop.",
+    c1: 'All workstreams are tracking smoothly toward our EOD Friday milestone, and I will circulate a concise progress summary as soon as we finalize QA.',
+    c2: 'We remain squarely on track to sign off on the final deliverables by EOD Friday; rest assured I’ll keep all stakeholders closely apprised of any developments.'
+  },
+  youtubeVideo: DAY_YOUTUBE_VIDEOS[4],
+  readingPassage: {
+    titleEn: 'Why "By Friday" and "Until Friday" Change Everything at Work',
+    titleKo: '직장에서 "by Friday"와 "until Friday"가 완전히 다른 이유',
+    genreBadge: '글로벌 오피스 실무 노트 · Lv.2',
+    estimatedMin: 6,
+    paragraphsEn: [
+      'In Korean, a single word "까지" covers both deadlines and continuous states. In English, however, mixing up "by" and "until" can cause instant confusion on a global project.',
+      'Use "by" whenever a task finishes at or before a deadline: "I will submit the report by 5 PM." Use "until" only when an activity continues steadily up to that point: "I will be in Seoul until Friday."',
+      'Pairing the right preposition with clear status phrases like "on track", "wrap it up", and "keep you in the loop" helps remote teams trust your timeline without sending constant follow-up messages.'
+    ],
+    paragraphsSlash: [
+      'In Korean, / a single word "까지" covers both deadlines / and continuous states. / In English, however, / mixing up "by" and "until" / can cause instant confusion on a global project.',
+      'Use "by" / whenever a task finishes at or before a deadline: / "I will submit the report by 5 PM." / Use "until" only when an activity continues steadily / up to that point: / "I will be in Seoul until Friday."',
+      'Pairing the right preposition / with clear status phrases like "on track", "wrap it up", and "keep you in the loop" / helps remote teams trust your timeline / without sending constant follow-up messages.'
+    ],
+    paragraphsKo: [
+      '한국어에서는 “까지”라는 한 단어가 마감 기한과 상태의 지속을 모두 나타냅니다. 하지만 영어에서 by와 until을 혼동하면 글로벌 프로젝트에서 즉각 오해가 생깁니다.',
+      '업무가 특정 기한 전에 완료되어야 할 때는 반드시 by를 씁니다: “오후 5시까지 보고서를 제출하겠습니다.” 반대로 상태나 행동이 그 시점까지 쭉 이어질 때만 until을 씁니다: “금요일까지 서울에 머물 예정입니다.”',
+      '정확한 전치사에 on track(순조롭게 진행 중), wrap it up(마무리하다), keep you in the loop(계속 공유하다) 같은 명확한 표현을 결합하면, 원격 팀원들이 재촉 메시지를 보내지 않아도 당신의 일정을 신뢰하게 됩니다.'
+    ],
+    keyExpressions: ['by vs until', 'wrap it up', 'on track', 'keep you in the loop', 'EOD Friday'],
+    comprehensionQuiz: [
+      {
+        id: 'd4-rq01',
+        questionKo: '보고서 제출처럼 특정 기한 전에 끝나는 “마감”에 써야 하는 전치사는?',
+        options: ['by', 'until', 'during'],
+        answer: 'by',
+        explanationKo: '둘째 문단 "Use by whenever a task finishes at or before a deadline"이 정답 근거입니다.'
+      },
+      {
+        id: 'd4-rq02',
+        questionKo: '다음 중 전치사 until이 가장 자연스럽게 쓰인 문장은?',
+        options: [
+          'I will submit the report until 5 PM.',
+          'I will stay in Seoul until Friday.',
+          'Please reply until tomorrow morning.'
+        ],
+        answer: 'I will stay in Seoul until Friday.',
+        explanationKo: '머무르는 상태가 금요일까지 계속 이어지므로 stay ~ until Friday가 정확합니다.'
+      },
+      {
+        id: 'd4-rq03',
+        questionKo: '원격 팀원들이 불필요한 재촉 메시지를 줄이고 일정을 신뢰하게 만드는 핵심 습관은?',
+        options: [
+          '답장을 최대한 늦게 보내기',
+          '정확한 전치사와 명확한 진행 상태 표현(on track, keep in the loop)을 함께 사용하기',
+          '마감일을 일부러 말하지 않기'
+        ],
+        answer: '정확한 전치사와 명확한 진행 상태 표현(on track, keep in the loop)을 함께 사용하기',
+        explanationKo: '셋째 문단 내용을 확인하세요.'
+      }
+    ]
   },
   vocabList: [
     {

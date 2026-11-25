@@ -1,9 +1,88 @@
+import type { AccentPreference } from '../types/course.ts';
+
+let preferredAccent: AccentPreference = 'en-US';
+
+export const ACCENT_LABELS: Record<AccentPreference, string> = {
+  'en-US': '미국식 (US)',
+  'en-GB': '영국식 (UK)',
+  'en-AU': '호주식 (AU)'
+};
+
+export function setDefaultSpeechAccent(accent: AccentPreference): void {
+  preferredAccent = accent;
+}
+
+export function getDefaultSpeechAccent(): AccentPreference {
+  return preferredAccent;
+}
+
+// Warm up voices list asynchronously when browser loads TTS voices
+if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
+
 export function speakEnglish(
   text: string,
   rate = 1.0,
   onEnd?: () => void,
-  pitch = 1.0
+  pitch = 1.0,
+  accentOverride?: AccentPreference
 ): void {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    onEnd?.();
+    return;
+  }
+
+  const targetAccent = accentOverride ?? preferredAccent;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = targetAccent;
+  utterance.rate = rate;
+  utterance.pitch = pitch;
+
+  const voices = window.speechSynthesis.getVoices();
+  const enVoices = voices.filter((v) => v.lang.toLowerCase().startsWith('en'));
+  const accentVoices = enVoices.filter(
+    (v) => v.lang.toLowerCase().replace('_', '-') === targetAccent.toLowerCase()
+  );
+  const pool = accentVoices.length > 0 ? accentVoices : enVoices;
+
+  let chosenVoice =
+    pool.find(
+      (v) =>
+        v.name.includes('Natural') ||
+        v.name.includes('Google') ||
+        v.name.includes('Samantha') ||
+        v.name.includes('Daniel') ||
+        v.name.includes('Karen')
+    ) || pool[0];
+
+  if (pitch < 0.96 && pool.length > 1) {
+    const maleCandidate = pool.find(
+      (v) =>
+        v.name.includes('Guy') ||
+        v.name.includes('Daniel') ||
+        v.name.includes('Alex') ||
+        v.name.includes('Arthur') ||
+        v.name.includes('Male')
+    );
+    if (maleCandidate) chosenVoice = maleCandidate;
+  }
+
+  if (chosenVoice) {
+    utterance.voice = chosenVoice;
+  }
+
+  utterance.onend = () => onEnd?.();
+  utterance.onerror = () => onEnd?.();
+
+  window.speechSynthesis.speak(utterance);
+}
+
+export function speakKorean(text: string, rate = 1.02, onEnd?: () => void): void {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     onEnd?.();
     return;
@@ -11,36 +90,14 @@ export function speakEnglish(
 
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = 'en-US';
+  utterance.lang = 'ko-KR';
   utterance.rate = rate;
-  utterance.pitch = pitch;
 
   const voices = window.speechSynthesis.getVoices();
-  const enVoices = voices.filter((v) => v.lang.startsWith('en'));
-
-  let preferredVoice =
-    enVoices.find(
-      (v) =>
-        v.lang === 'en-US' &&
-        (v.name.includes('Natural') || v.name.includes('Google') || v.name.includes('Samantha'))
-    ) ||
-    enVoices.find((v) => v.lang.startsWith('en-US')) ||
-    enVoices[0];
-
-  if (pitch < 0.96 && enVoices.length > 1) {
-    const maleCandidate = enVoices.find(
-      (v) =>
-        v.name.includes('Guy') ||
-        v.name.includes('Daniel') ||
-        v.name.includes('Alex') ||
-        v.name.includes('Male')
-    );
-    if (maleCandidate) preferredVoice = maleCandidate;
-  }
-
-  if (preferredVoice) {
-    utterance.voice = preferredVoice;
-  }
+  const koVoice =
+    voices.find((v) => v.lang.startsWith('ko') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Yuna'))) ||
+    voices.find((v) => v.lang.startsWith('ko'));
+  if (koVoice) utterance.voice = koVoice;
 
   utterance.onend = () => onEnd?.();
   utterance.onerror = () => onEnd?.();
@@ -74,7 +131,8 @@ export function isSpeechRecognitionSupported(): boolean {
 export function startSpeechRecognition(
   onTranscript: (text: string) => void,
   onError: (message: string) => void,
-  onEnd?: () => void
+  onEnd?: () => void,
+  accentOverride?: AccentPreference
 ): (() => void) | null {
   if (typeof window === 'undefined') return null;
   const win = window as unknown as {
@@ -89,7 +147,7 @@ export function startSpeechRecognition(
   }
 
   const recognition = new RecognitionCtor();
-  recognition.lang = 'en-US';
+  recognition.lang = accentOverride ?? preferredAccent;
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
 
@@ -112,4 +170,56 @@ export function startSpeechRecognition(
 
   recognition.start();
   return () => recognition.stop();
+}
+
+export function isAudioRecordingSupported(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    typeof navigator !== 'undefined' &&
+    Boolean(navigator.mediaDevices?.getUserMedia) &&
+    typeof MediaRecorder !== 'undefined'
+  );
+}
+
+/**
+ * Records learner microphone audio into a playable Blob URL so learners can
+ * immediately compare their own voice side-by-side against native audio.
+ */
+export async function startVoiceRecorder(
+  onRecordedUrl: (blobUrl: string) => void,
+  onError: (msg: string) => void
+): Promise<(() => void) | null> {
+  if (!isAudioRecordingSupported()) {
+    onError('현재 브라우저 환경에서는 음성 녹음을 지원하지 않습니다.');
+    return null;
+  }
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const chunks: BlobPart[] = [];
+    const recorder = new MediaRecorder(stream);
+
+    recorder.ondataavailable = (ev) => {
+      if (ev.data.size > 0) chunks.push(ev.data);
+    };
+
+    recorder.onstop = () => {
+      stream.getTracks().forEach((t) => t.stop());
+      const blob = new Blob(chunks, { type: recorder.mimeType || 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+      onRecordedUrl(url);
+    };
+
+    recorder.start();
+    return () => {
+      if (recorder.state !== 'inactive') {
+        recorder.stop();
+      } else {
+        stream.getTracks().forEach((t) => t.stop());
+      }
+    };
+  } catch {
+    onError('마이크 접근 권한이 거부되었거나 마이크 장치를 찾을 수 없습니다.');
+    return null;
+  }
 }

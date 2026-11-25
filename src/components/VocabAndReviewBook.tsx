@@ -5,6 +5,7 @@ import {
   Check,
   Eye,
   EyeOff,
+  Headphones,
   Layers,
   Search,
   Sparkles,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 import { LEVEL_INFO_MAP } from '../data/levels.ts';
 import type {
+  AccentPreference,
   DayCompletionRecord,
   DayLessonModule,
   SavedDictionaryWord,
@@ -20,11 +22,13 @@ import type {
   VocabEntry
 } from '../types/course.ts';
 import { speakEnglish } from '../utils/speech.ts';
+import { CommuteAudioPlayer } from './CommuteAudioPlayer.tsx';
 import { DayNavigatorBar } from './DayNavigatorBar.tsx';
 
 interface VocabAndReviewBookProps {
   module: DayLessonModule;
   dayRecords: Record<number, DayCompletionRecord>;
+  accent: AccentPreference;
   masteredVocabIds: string[];
   savedDictionaryWords: SavedDictionaryWord[];
   reviewDeck: SpacedReviewCard[];
@@ -36,7 +40,7 @@ interface VocabAndReviewBookProps {
 }
 
 type MaskMode = 'none' | 'hide-ko' | 'hide-en';
-type VocabTab = 'sheet' | 'popquiz' | 'my-dict' | 'review';
+type VocabTab = 'sheet' | 'popquiz' | 'commute' | 'my-dict' | 'review';
 
 function maskHeadwordInExample(example: string, word: string): string {
   const firstToken = word.split(/[\s~-]+/)[0];
@@ -49,6 +53,7 @@ function maskHeadwordInExample(example: string, word: string): string {
 export function VocabAndReviewBook({
   module,
   dayRecords,
+  accent,
   masteredVocabIds,
   savedDictionaryWords,
   reviewDeck,
@@ -121,10 +126,10 @@ export function VocabAndReviewBook({
             </span>
           </div>
           <h1 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 1.95rem)', marginTop: '8px' }}>
-            단어장 · 내 영한사전 보관함 &amp; 오답 복습함
+            단어장 · 출퇴근 자동재생 &amp; 오답 복습함
           </h1>
           <p style={{ color: 'var(--text-sub)', marginTop: '6px' }}>
-            30일 코스 450단어 암기, 실시간 영한사전에서 직접 저장한 나만의 단어장, 그리고 에빙하우스 오답 복습을 한곳에서 관리합니다.
+            30일 코스 450단어 암기, 핸즈프리 출퇴근 귀트임 자동재생, 영한사전 저장 단어장, 그리고 에빙하우스 오답 복습을 한곳에서 관리합니다.
           </p>
         </div>
 
@@ -144,7 +149,7 @@ export function VocabAndReviewBook({
         </div>
       </div>
 
-      {/* 4 SUB-TABS */}
+      {/* 5 SUB-TABS */}
       <div className="submode-tab-bar" style={{ marginBottom: '24px' }}>
         <button
           id="vocab-tab-sheet"
@@ -153,7 +158,7 @@ export function VocabAndReviewBook({
           onClick={() => setSubTab('sheet')}
         >
           <Layers size={16} />
-          <span>Day {dayPad} 15단어 암기장</span>
+          <span>Day {dayPad} 15단어</span>
         </button>
 
         <button
@@ -163,7 +168,17 @@ export function VocabAndReviewBook({
           onClick={() => setSubTab('popquiz')}
         >
           <Sparkles size={16} />
-          <span>15문항 스펠링 팝퀴즈</span>
+          <span>스펠링 팝퀴즈</span>
+        </button>
+
+        <button
+          id="vocab-tab-commute"
+          type="button"
+          className={`submode-tab-btn ${subTab === 'commute' ? 'active' : ''}`}
+          onClick={() => setSubTab('commute')}
+        >
+          <Headphones size={16} />
+          <span>출퇴근 귀트임 재생</span>
         </button>
 
         <button
@@ -173,7 +188,7 @@ export function VocabAndReviewBook({
           onClick={() => setSubTab('my-dict')}
         >
           <BookMarked size={16} />
-          <span>내 사전 저장 단어 ({savedDictionaryWords.length})</span>
+          <span>내 사전 ({savedDictionaryWords.length})</span>
         </button>
 
         <button
@@ -183,9 +198,19 @@ export function VocabAndReviewBook({
           onClick={() => setSubTab('review')}
         >
           <Brain size={16} />
-          <span>망각곡선 오답 복습함 ({reviewDeck.filter((c) => !c.mastered).length})</span>
+          <span>오답 복습 ({reviewDeck.filter((c) => !c.mastered).length})</span>
         </button>
       </div>
+
+      {subTab === 'commute' && (
+        <CommuteAudioPlayer
+          dayNumber={module.dayNumber}
+          vocabList={module.vocabList}
+          savedDictionaryWords={savedDictionaryWords}
+          reviewDeck={reviewDeck}
+          defaultAccent={accent}
+        />
+      )}
 
       {/* =======================================================
           SUB-TAB 1: 15-WORD CELLOPHANE VOCAB SHEET

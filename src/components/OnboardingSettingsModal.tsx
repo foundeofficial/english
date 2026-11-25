@@ -207,7 +207,26 @@ export function OnboardingSettingsModal({
         </div>
 
         <div className="settings-section">
-          <span className="field-label">3. 직독직해 &amp; 출퇴근 보조 설정</span>
+          <span className="field-label">3. 기본 원어민 발음 억양 · 직독직해 &amp; 출퇴근 설정</span>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            {(
+              [
+                ['en-US', '🇺🇸 미국식 (US 표준)'],
+                ['en-GB', '🇬🇧 영국식 (UK · BBC)'],
+                ['en-AU', '🇦🇺 호주식 (AU)']
+              ] as const
+            ).map(([ac, label]) => (
+              <button
+                key={ac}
+                id={`select-accent-${ac}`}
+                type="button"
+                className={`day-switch-chip ${draft.accent === ac ? 'active' : ''}`}
+                onClick={() => setDraft({ ...draft, accent: ac })}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
           <div className="toggle-list">
             <label className="toggle-row" htmlFor="toggle-slashes-checkbox">
               <div>

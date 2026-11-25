@@ -20,6 +20,7 @@ import type {
 } from '../types/course.ts';
 import { analyzeWithOptionalGemini } from '../utils/paraphraseEngine.ts';
 import { speakEnglish } from '../utils/speech.ts';
+import { isEquivalentEnglishAnswer } from '../utils/speechScoring.ts';
 import { DayNavigatorBar } from './DayNavigatorBar.tsx';
 import { InteractiveText } from './InteractiveText.tsx';
 
@@ -29,18 +30,12 @@ interface AuthenticWorksheetExamProps {
   dayRecords: Record<number, DayCompletionRecord>;
   previousBestScore: number | null;
   onSelectDay: (dayNumber: number) => void;
-  onSubmitExamScore: (score: number, missedCards: SpacedReviewCard[]) => void;
+  onSubmitExamScore: (
+    score: number,
+    missedCards: SpacedReviewCard[],
+    missedGrammarTags: string[]
+  ) => void;
   onOpenDictionary: (word?: string) => void;
-}
-
-function normalizeExamAnswer(raw: string): string {
-  return raw
-    .toLowerCase()
-    .replace(/[’‘]/g, "'")
-    .replace(/[“”]/g, '"')
-    .replace(/[.!?]+$/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 function isItemCorrect(item: WorksheetExamItem, userRaw: string): boolean {
@@ -48,9 +43,7 @@ function isItemCorrect(item: WorksheetExamItem, userRaw: string): boolean {
   if (item.options) {
     return userRaw.trim() === item.answer.trim();
   }
-  const normalizedUser = normalizeExamAnswer(userRaw);
-  const candidates = [item.answer, ...(item.acceptableAlt ?? [])].map(normalizeExamAnswer);
-  return candidates.includes(normalizedUser);
+  return isEquivalentEnglishAnswer(userRaw, item.answer, item.acceptableAlt);
 }
 
 function gradeLetter(score: number): string {
@@ -91,12 +84,14 @@ export function AuthenticWorksheetExam({
   const handleGradePaper = () => {
     let correctCount = 0;
     const missedCards: SpacedReviewCard[] = [];
+    const missedTags: string[] = [];
 
     for (const item of module.worksheetExam) {
       const userAns = answers[item.id] ?? '';
       if (isItemCorrect(item, userAns)) {
         correctCount += 1;
       } else {
+        missedTags.push(item.grammarTag);
         missedCards.push({
           id: `rev-exam-${item.id}-${Date.now()}`,
           promptKo: `[단원평가 #${item.number}] ${item.questionKo}`,
@@ -112,7 +107,7 @@ export function AuthenticWorksheetExam({
     const computedScore = Math.round((correctCount / module.worksheetExam.length) * 100);
     setScore(computedScore);
     setGraded(true);
-    onSubmitExamScore(computedScore, missedCards);
+    onSubmitExamScore(computedScore, missedCards, missedTags);
     window.scrollTo({ top: 140, behavior: 'smooth' });
   };
 
@@ -134,7 +129,7 @@ export function AuthenticWorksheetExam({
 
   const handleCheckTwin = (item: WorksheetExamItem) => {
     const raw = twinInputs[item.id] ?? '';
-    const ok = normalizeExamAnswer(raw) === normalizeExamAnswer(item.twinClinic.answer);
+    const ok = isEquivalentEnglishAnswer(raw, item.twinClinic.answer);
     setTwinChecked((prev) => ({ ...prev, [item.id]: ok ? 'correct' : 'wrong' }));
   };
 

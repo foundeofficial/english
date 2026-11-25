@@ -1,12 +1,30 @@
-import { useEffect, useState } from 'react';
-import { AuthenticWorksheetExam } from './components/AuthenticWorksheetExam.tsx';
-import { CinematicLectureStudio } from './components/CinematicLectureStudio.tsx';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { DictionaryDrawer } from './components/DictionaryDrawer.tsx';
 import { HomeDashboard } from './components/HomeDashboard.tsx';
 import { OnboardingSettingsModal } from './components/OnboardingSettingsModal.tsx';
 import { SprintFocusOverlay } from './components/SprintFocusOverlay.tsx';
 import { TopNavHeader } from './components/TopNavHeader.tsx';
-import { VocabAndReviewBook } from './components/VocabAndReviewBook.tsx';
+
+const AuthenticWorksheetExam = lazy(() =>
+  import('./components/AuthenticWorksheetExam.tsx').then((m) => ({
+    default: m.AuthenticWorksheetExam
+  }))
+);
+const CinematicLectureStudio = lazy(() =>
+  import('./components/CinematicLectureStudio.tsx').then((m) => ({
+    default: m.CinematicLectureStudio
+  }))
+);
+const GrowthReportDashboard = lazy(() =>
+  import('./components/GrowthReportDashboard.tsx').then((m) => ({
+    default: m.GrowthReportDashboard
+  }))
+);
+const VocabAndReviewBook = lazy(() =>
+  import('./components/VocabAndReviewBook.tsx').then((m) => ({
+    default: m.VocabAndReviewBook
+  }))
+);
 import { INITIAL_REVIEW_CARDS } from './data/courseCatalog.ts';
 import {
   buildLoadedLexicon,
@@ -16,7 +34,9 @@ import {
 import { day1Module } from './data/days/day1.ts';
 import { normalizeLegacyLevelTier } from './data/levels.ts';
 import type {
+  AccentPreference,
   AppPersistState,
+  DayCompletionRecord,
   DayLessonModule,
   LearnerSettings,
   MainRoute,
@@ -25,25 +45,34 @@ import type {
   SpacedReviewCard
 } from './types/course.ts';
 import type { CourseLexiconEntry } from './utils/dictionaryApi.ts';
+import { setDefaultSpeechAccent } from './utils/speech.ts';
 
 const STORAGE_KEY = 'korebridge_commercial_v4';
 const LEGACY_STORAGE_KEY = 'korebridge_commercial_v3';
 
+function getTodayKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 const DEFAULT_STATE: AppPersistState = {
   onboarded: false,
   streakDays: 3,
+  lastStudyDate: getTodayKey(),
   totalSentencesSpoken: 12,
   selectedDay: 1,
   settings: {
     learnerName: '김민준',
     levelTier: 'b1',
     studyPace: 'standard',
+    accent: 'en-US',
     showStructureSlashes: true,
     guideLanguage: 'bilingual',
     silentMode: false,
     geminiApiKey: ''
   },
   dayRecords: {},
+  studyMinutesByDate: { [getTodayKey()]: 1 },
+  weakGrammarTags: {},
   lectureNotes: {},
   masteredVocabIds: ['d1-v01', 'd1-v03', 'd1-v04'],
   savedDictionaryWords: [],
@@ -51,34 +80,64 @@ const DEFAULT_STATE: AppPersistState = {
   savedParaphrases: []
 };
 
+function normalizeAccent(raw: unknown): AccentPreference {
+  if (raw === 'en-US' || raw === 'en-GB' || raw === 'en-AU') return raw;
+  return 'en-US';
+}
+
+function hydrateState(parsed: Partial<AppPersistState>): AppPersistState {
+  const normalizedLevel = normalizeLegacyLevelTier(parsed.settings?.levelTier);
+  const clampedDay =
+    typeof parsed.selectedDay === 'number' && parsed.selectedDay >= 1 && parsed.selectedDay <= 30
+      ? parsed.selectedDay
+      : 1;
+  return {
+    ...DEFAULT_STATE,
+    ...parsed,
+    selectedDay: clampedDay,
+    studyMinutesByDate:
+      parsed.studyMinutesByDate && typeof parsed.studyMinutesByDate === 'object'
+        ? parsed.studyMinutesByDate
+        : DEFAULT_STATE.studyMinutesByDate,
+    weakGrammarTags:
+      parsed.weakGrammarTags && typeof parsed.weakGrammarTags === 'object'
+        ? parsed.weakGrammarTags
+        : {},
+    savedDictionaryWords: Array.isArray(parsed.savedDictionaryWords)
+      ? parsed.savedDictionaryWords
+      : [],
+    settings: {
+      ...DEFAULT_STATE.settings,
+      ...(parsed.settings ?? {}),
+      levelTier: normalizedLevel,
+      accent: normalizeAccent(parsed.settings?.accent)
+    }
+  };
+}
+
 function loadInitialState(): AppPersistState {
   try {
     const raw =
       window.localStorage.getItem(STORAGE_KEY) ??
       window.localStorage.getItem(LEGACY_STORAGE_KEY);
     if (!raw) return DEFAULT_STATE;
-    const parsed = JSON.parse(raw) as Partial<AppPersistState>;
-    const normalizedLevel = normalizeLegacyLevelTier(parsed.settings?.levelTier);
-    const clampedDay =
-      typeof parsed.selectedDay === 'number' && parsed.selectedDay >= 1 && parsed.selectedDay <= 30
-        ? parsed.selectedDay
-        : 1;
-    return {
-      ...DEFAULT_STATE,
-      ...parsed,
-      selectedDay: clampedDay,
-      savedDictionaryWords: Array.isArray(parsed.savedDictionaryWords)
-        ? parsed.savedDictionaryWords
-        : [],
-      settings: {
-        ...DEFAULT_STATE.settings,
-        ...(parsed.settings ?? {}),
-        levelTier: normalizedLevel
-      }
-    };
+    return hydrateState(JSON.parse(raw) as Partial<AppPersistState>);
   } catch {
     return DEFAULT_STATE;
   }
+}
+
+function emptyDayRec(): DayCompletionRecord {
+  return {
+    sprintCompleted: false,
+    lectureCompleted: false,
+    videoWatched: false,
+    readingCompleted: false,
+    shadowingBestAccuracy: null,
+    dictationBestScore: null,
+    examScore: null,
+    vocabMasteredCount: 0
+  };
 }
 
 function nextInterval(current: 1 | 3 | 7 | 14 | 30): {
@@ -109,6 +168,28 @@ export default function App() {
   const [courseLexicon, setCourseLexicon] = useState<CourseLexiconEntry[]>(() =>
     buildLoadedLexicon()
   );
+
+  // Keep global TTS/ASR default accent synchronized with learner preference
+  useEffect(() => {
+    setDefaultSpeechAccent(state.settings.accent);
+  }, [state.settings.accent]);
+
+  // Real active study timer: increments today's study minutes while tab is active
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      if (document.visibilityState !== 'visible') return;
+      const today = getTodayKey();
+      setState((prev) => ({
+        ...prev,
+        lastStudyDate: today,
+        studyMinutesByDate: {
+          ...prev.studyMinutesByDate,
+          [today]: (prev.studyMinutesByDate?.[today] ?? 0) + 1
+        }
+      }));
+    }, 60_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -155,14 +236,7 @@ export default function App() {
     }
   }, [state]);
 
-  const currentDayRec = state.dayRecords[currentModule.dayNumber] ?? {
-    sprintCompleted: false,
-    lectureCompleted: false,
-    videoWatched: false,
-    readingCompleted: false,
-    examScore: null,
-    vocabMasteredCount: 0
-  };
+  const currentDayRec = state.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
 
   const handleOpenDictionary = (word = '') => {
     setDictInitialQuery(word);
@@ -189,15 +263,7 @@ export default function App() {
 
   const handleCompleteSprint = (spokenCount: number, missedCards: SpacedReviewCard[]) => {
     setState((prev) => {
-      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
-        sprintCompleted: false,
-        lectureCompleted: false,
-        videoWatched: false,
-        readingCompleted: false,
-        examScore: null,
-        vocabMasteredCount: 0
-      };
-
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
       return {
         ...prev,
         streakDays: prevRec.sprintCompleted ? prev.streakDays : prev.streakDays + 1,
@@ -217,14 +283,7 @@ export default function App() {
 
   const handleMarkLectureComplete = () => {
     setState((prev) => {
-      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
-        sprintCompleted: false,
-        lectureCompleted: false,
-        videoWatched: false,
-        readingCompleted: false,
-        examScore: null,
-        vocabMasteredCount: 0
-      };
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
       return {
         ...prev,
         dayRecords: {
@@ -240,14 +299,7 @@ export default function App() {
 
   const handleMarkVideoWatched = () => {
     setState((prev) => {
-      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
-        sprintCompleted: false,
-        lectureCompleted: false,
-        videoWatched: false,
-        readingCompleted: false,
-        examScore: null,
-        vocabMasteredCount: 0
-      };
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
       return {
         ...prev,
         dayRecords: {
@@ -263,14 +315,7 @@ export default function App() {
 
   const handleMarkReadingComplete = () => {
     setState((prev) => {
-      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
-        sprintCompleted: false,
-        lectureCompleted: false,
-        videoWatched: false,
-        readingCompleted: false,
-        examScore: null,
-        vocabMasteredCount: 0
-      };
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
       return {
         ...prev,
         dayRecords: {
@@ -278,6 +323,47 @@ export default function App() {
           [currentModule.dayNumber]: {
             ...prevRec,
             readingCompleted: true
+          }
+        }
+      };
+    });
+  };
+
+  const handleRecordShadowingScore = (accuracyPct: number, spokenDelta: number) => {
+    setState((prev) => {
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
+      const best =
+        typeof prevRec.shadowingBestAccuracy === 'number'
+          ? Math.max(prevRec.shadowingBestAccuracy, accuracyPct)
+          : accuracyPct;
+      return {
+        ...prev,
+        totalSentencesSpoken: prev.totalSentencesSpoken + spokenDelta,
+        dayRecords: {
+          ...prev.dayRecords,
+          [currentModule.dayNumber]: {
+            ...prevRec,
+            shadowingBestAccuracy: best
+          }
+        }
+      };
+    });
+  };
+
+  const handleRecordDictationScore = (accuracyPct: number) => {
+    setState((prev) => {
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
+      const best =
+        typeof prevRec.dictationBestScore === 'number'
+          ? Math.max(prevRec.dictationBestScore, accuracyPct)
+          : accuracyPct;
+      return {
+        ...prev,
+        dayRecords: {
+          ...prev.dayRecords,
+          [currentModule.dayNumber]: {
+            ...prevRec,
+            dictationBestScore: best
           }
         }
       };
@@ -310,21 +396,23 @@ export default function App() {
     });
   };
 
-  const handleSubmitExamScore = (score: number, missedCards: SpacedReviewCard[]) => {
+  const handleSubmitExamScore = (
+    score: number,
+    missedCards: SpacedReviewCard[],
+    missedGrammarTags: string[]
+  ) => {
     setState((prev) => {
-      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
-        sprintCompleted: false,
-        lectureCompleted: false,
-        videoWatched: false,
-        readingCompleted: false,
-        examScore: null,
-        vocabMasteredCount: 0
-      };
-      const best =
-        prevRec.examScore !== null ? Math.max(prevRec.examScore, score) : score;
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
+      const best = prevRec.examScore !== null ? Math.max(prevRec.examScore, score) : score;
+
+      const nextWeakTags = { ...(prev.weakGrammarTags ?? {}) };
+      for (const tag of missedGrammarTags) {
+        nextWeakTags[tag] = (nextWeakTags[tag] ?? 0) + 1;
+      }
 
       return {
         ...prev,
+        weakGrammarTags: nextWeakTags,
         dayRecords: {
           ...prev.dayRecords,
           [currentModule.dayNumber]: {
@@ -391,6 +479,10 @@ export default function App() {
     }));
   };
 
+  const handleImportState = (imported: AppPersistState) => {
+    setState(hydrateState(imported));
+  };
+
   const reviewDueCount = state.reviewDeck.filter((c) => !c.mastered).length;
 
   return (
@@ -428,55 +520,81 @@ export default function App() {
         />
       )}
 
-      {activeRoute === 'lecture' && (
-        <CinematicLectureStudio
-          key={`lecture-${currentModule.dayNumber}-${state.settings.showStructureSlashes}-${state.settings.levelTier}`}
-          module={currentModule}
-          settings={state.settings}
-          dayRecords={state.dayRecords}
-          lectureCompleted={currentDayRec.lectureCompleted}
-          videoWatched={Boolean(currentDayRec.videoWatched)}
-          readingCompleted={Boolean(currentDayRec.readingCompleted)}
-          savedNote={state.lectureNotes[currentModule.dayNumber] ?? ''}
-          savedParaphrases={state.savedParaphrases}
-          onSelectDay={handleSelectDay}
-          onMarkLectureComplete={handleMarkLectureComplete}
-          onMarkVideoWatched={handleMarkVideoWatched}
-          onMarkReadingComplete={handleMarkReadingComplete}
-          onSaveNote={handleSaveNote}
-          onSaveParaphrase={handleSaveParaphrase}
-          onOpenDictionary={handleOpenDictionary}
-        />
-      )}
+      <Suspense
+        fallback={
+          <main className="page-wrap">
+            <div className="surface-card" style={{ textAlign: 'center', padding: '48px 24px' }}>
+              학습 스튜디오를 준비하고 있습니다...
+            </div>
+          </main>
+        }
+      >
+        {activeRoute === 'lecture' && (
+          <CinematicLectureStudio
+            key={`lecture-${currentModule.dayNumber}-${state.settings.showStructureSlashes}-${state.settings.levelTier}-${state.settings.accent}`}
+            module={currentModule}
+            settings={state.settings}
+            dayRecords={state.dayRecords}
+            lectureCompleted={currentDayRec.lectureCompleted}
+            videoWatched={Boolean(currentDayRec.videoWatched)}
+            readingCompleted={Boolean(currentDayRec.readingCompleted)}
+            savedNote={state.lectureNotes[currentModule.dayNumber] ?? ''}
+            savedParaphrases={state.savedParaphrases}
+            onSelectDay={handleSelectDay}
+            onMarkLectureComplete={handleMarkLectureComplete}
+            onMarkVideoWatched={handleMarkVideoWatched}
+            onMarkReadingComplete={handleMarkReadingComplete}
+            onRecordShadowingScore={handleRecordShadowingScore}
+            onRecordDictationScore={handleRecordDictationScore}
+            onAddReviewCard={handleAddReviewCard}
+            onSaveNote={handleSaveNote}
+            onSaveParaphrase={handleSaveParaphrase}
+            onOpenDictionary={handleOpenDictionary}
+          />
+        )}
 
-      {activeRoute === 'worksheet' && (
-        <AuthenticWorksheetExam
-          key={`worksheet-${currentModule.dayNumber}`}
-          module={currentModule}
-          settings={state.settings}
-          dayRecords={state.dayRecords}
-          previousBestScore={currentDayRec.examScore}
-          onSelectDay={handleSelectDay}
-          onSubmitExamScore={handleSubmitExamScore}
-          onOpenDictionary={handleOpenDictionary}
-        />
-      )}
+        {activeRoute === 'worksheet' && (
+          <AuthenticWorksheetExam
+            key={`worksheet-${currentModule.dayNumber}`}
+            module={currentModule}
+            settings={state.settings}
+            dayRecords={state.dayRecords}
+            previousBestScore={currentDayRec.examScore}
+            onSelectDay={handleSelectDay}
+            onSubmitExamScore={handleSubmitExamScore}
+            onOpenDictionary={handleOpenDictionary}
+          />
+        )}
 
-      {activeRoute === 'vocab-review' && (
-        <VocabAndReviewBook
-          key={`vocab-${currentModule.dayNumber}`}
-          module={currentModule}
-          dayRecords={state.dayRecords}
-          masteredVocabIds={state.masteredVocabIds}
-          savedDictionaryWords={state.savedDictionaryWords}
-          reviewDeck={state.reviewDeck}
-          onSelectDay={handleSelectDay}
-          onToggleVocabMastered={handleToggleVocabMastered}
-          onRemoveSavedDictionaryWord={handleRemoveSavedDictionaryWord}
-          onPromoteReviewCard={handlePromoteReviewCard}
-          onOpenDictionary={handleOpenDictionary}
-        />
-      )}
+        {activeRoute === 'vocab-review' && (
+          <VocabAndReviewBook
+            key={`vocab-${currentModule.dayNumber}`}
+            module={currentModule}
+            dayRecords={state.dayRecords}
+            accent={state.settings.accent}
+            masteredVocabIds={state.masteredVocabIds}
+            savedDictionaryWords={state.savedDictionaryWords}
+            reviewDeck={state.reviewDeck}
+            onSelectDay={handleSelectDay}
+            onToggleVocabMastered={handleToggleVocabMastered}
+            onRemoveSavedDictionaryWord={handleRemoveSavedDictionaryWord}
+            onPromoteReviewCard={handlePromoteReviewCard}
+            onOpenDictionary={handleOpenDictionary}
+          />
+        )}
+
+        {activeRoute === 'report' && (
+          <GrowthReportDashboard
+            state={state}
+            onJumpToDay={(day, route) => {
+              handleSelectDay(day);
+              setActiveRoute(route ?? 'lecture');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            onImportState={handleImportState}
+          />
+        )}
+      </Suspense>
 
       {sprintOpen && (
         <SprintFocusOverlay
@@ -510,7 +628,7 @@ export default function App() {
       />
 
       <OnboardingSettingsModal
-        key={`settings-${settingsModalOpen ? 'open' : 'closed'}-${state.settings.levelTier}`}
+        key={`settings-${settingsModalOpen ? 'open' : 'closed'}-${state.settings.levelTier}-${state.settings.accent}`}
         isOpen={settingsModalOpen}
         isFirstVisit={!state.onboarded}
         settings={state.settings}

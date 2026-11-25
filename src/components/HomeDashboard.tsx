@@ -98,14 +98,24 @@ export function HomeDashboard({
       ? null
       : WEEK_THEMES.find((w) => w.weekNumber === selectedWeekTab) ?? WEEK_THEMES[0];
 
+  const [todayKey] = useState(() => new Date().toISOString().slice(0, 10));
+  const todayStudyMin = state.studyMinutesByDate?.[todayKey] ?? 0;
+  const targetDailyMin =
+    state.settings.studyPace === 'light'
+      ? 10
+      : state.settings.studyPace === 'intensive'
+        ? 50
+        : 25;
+  const dailyGoalPct = Math.min(100, Math.round((todayStudyMin / targetDailyMin) * 100));
+
   return (
     <main className="page-wrap">
-      {/* TOP INTRO + STATS + QUICK DICTIONARY BAR */}
+      {/* TOP INTRO + STATS + DAILY GOAL BAR */}
       <div className="track-intro-row">
         <div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
             <span className="pill-tag pill-brand">{COURSE_METADATA.trackTitle}</span>
-            <span className="pill-tag pill-amber">30일 완성 · 유튜브 40편 · 실시간 영한사전</span>
+            <span className="pill-tag pill-amber">유튜브 A–B 반복 · 쉐도잉 · 딕테이션 · 영한사전</span>
           </div>
           <p style={{ marginTop: '8px', color: 'var(--text-sub)', fontSize: '0.94rem' }}>
             <strong>{state.settings.learnerName}</strong> 님 ({learnerLevelMeta.shortLabel}) ·{' '}
@@ -137,6 +147,28 @@ export function HomeDashboard({
             </strong>
           </div>
         </div>
+      </div>
+
+      {/* DAILY ACTIVE STUDY GOAL BAR */}
+      <div className="daily-goal-strip">
+        <div className="daily-goal-text">
+          <strong>오늘의 집중 학습 목표</strong>
+          <span>
+            {todayStudyMin}분 / {targetDailyMin}분 ({dailyGoalPct}%)
+          </span>
+        </div>
+        <div className="daily-goal-track">
+          <div className="daily-goal-fill" style={{ width: `${Math.max(4, dailyGoalPct)}%` }} />
+        </div>
+        <button
+          id="home-open-report-btn"
+          type="button"
+          className="text-action-btn"
+          style={{ whiteSpace: 'nowrap' }}
+          onClick={() => onNavigate('report')}
+        >
+          성장 리포트 &amp; 취약점 클리닉 →
+        </button>
       </div>
 
       {/* QUICK LIVE ENGLISH-KOREAN DICTIONARY BAR */}

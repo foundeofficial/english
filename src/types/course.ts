@@ -1,4 +1,4 @@
-export type MainRoute = 'home' | 'lecture' | 'worksheet' | 'vocab-review';
+export type MainRoute = 'home' | 'lecture' | 'worksheet' | 'vocab-review' | 'report';
 
 /**
  * 6-Tier CEFR-aligned Korean learner level system (Lv.1 A1 ~ Lv.6 C2)
@@ -6,13 +6,15 @@ export type MainRoute = 'home' | 'lecture' | 'worksheet' | 'vocab-review';
 export type LevelTier = 'a1' | 'a2' | 'b1' | 'b2' | 'c1' | 'c2';
 export type StudyPace = 'light' | 'standard' | 'intensive';
 export type GuideLanguage = 'bilingual' | 'english-only';
+export type AccentPreference = 'en-US' | 'en-GB' | 'en-AU';
 
 export type KeySentenceLadder = Record<LevelTier, string>;
 
 export interface LearnerSettings {
   learnerName: string;
   levelTier: LevelTier; // Lv.1 A1 입문 ~ Lv.6 C2 마스터
-  studyPace: StudyPace; // 가볍게(7분) / 표준(25분) / 집중(50분)
+  studyPace: StudyPace; // 가볍게(10분) / 표준(25분) / 집중(50분)
+  accent: AccentPreference; // en-US 미국 / en-GB 영국 / en-AU 호주
   showStructureSlashes: boolean; // S/V/O 직독직해 끊어읽기 표시 여부
   guideLanguage: GuideLanguage;
   silentMode: boolean;
@@ -226,6 +228,8 @@ export interface DayCompletionRecord {
   lectureCompleted: boolean;
   videoWatched?: boolean;
   readingCompleted?: boolean;
+  shadowingBestAccuracy?: number | null;
+  dictationBestScore?: number | null;
   examScore: number | null;
   vocabMasteredCount: number;
 }
@@ -233,10 +237,13 @@ export interface DayCompletionRecord {
 export interface AppPersistState {
   onboarded: boolean;
   streakDays: number;
+  lastStudyDate?: string;
   totalSentencesSpoken: number;
   selectedDay: number;
   settings: LearnerSettings;
   dayRecords: Record<number, DayCompletionRecord>;
+  studyMinutesByDate: Record<string, number>;
+  weakGrammarTags: Record<string, number>;
   lectureNotes: Record<number, string>;
   masteredVocabIds: string[];
   savedDictionaryWords: SavedDictionaryWord[];

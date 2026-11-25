@@ -1,4 +1,5 @@
 import {
+  BarChart3,
   BookOpenCheck,
   Flame,
   Home,
@@ -38,14 +39,15 @@ export function TopNavHeader({
   }> = [
     { id: 'home', label: '30일 로드맵', shortLabel: '홈·30일', icon: Home },
     { id: 'lecture', label: '유튜브·인강', shortLabel: '영상·인강', icon: PlayCircle },
-    { id: 'worksheet', label: '학습지·시험지', shortLabel: '시험지', icon: BookOpenCheck },
+    { id: 'worksheet', label: '시험지', shortLabel: '시험지', icon: BookOpenCheck },
     {
       id: 'vocab-review',
-      label: '단어·오답노트',
+      label: '단어·복습',
       shortLabel: '단어·복습',
       icon: Layers,
       badge: reviewDueCount > 0 ? reviewDueCount : undefined
-    }
+    },
+    { id: 'report', label: '리포트', shortLabel: '리포트', icon: BarChart3 }
   ];
 
   const levelMeta = LEVEL_INFO_MAP[settings.levelTier];

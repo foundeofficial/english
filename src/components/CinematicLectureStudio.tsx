@@ -33,6 +33,7 @@ import {
 } from '../utils/speech.ts';
 import { DayNavigatorBar } from './DayNavigatorBar.tsx';
 import { InteractiveText } from './InteractiveText.tsx';
+import { ShadowingDictationLab } from './ShadowingDictationLab.tsx';
 import { YouTubeStudyPlayer } from './YouTubeStudyPlayer.tsx';
 
 interface CinematicLectureStudioProps {
@@ -48,12 +49,16 @@ interface CinematicLectureStudioProps {
   onMarkLectureComplete: () => void;
   onMarkVideoWatched: () => void;
   onMarkReadingComplete: () => void;
+  onRecordShadowingScore: (accuracyPct: number, spokenDelta: number) => void;
+  onRecordDictationScore: (accuracyPct: number) => void;
+  onAddReviewCard: (card: SpacedReviewCard) => void;
   onSaveNote: (note: string) => void;
   onSaveParaphrase: (item: ParaphraseResult, reviewCard?: SpacedReviewCard) => void;
   onOpenDictionary: (word?: string) => void;
 }
 
 type StudioTab = 'youtube' | 'sitcom' | 'chalkboard' | 'reading' | 'tutor';
+type SitcomSubMode = 'watch' | 'shadowing' | 'dictation';
 type SubtitleMode = 'both' | 'en' | 'off';
 
 export function CinematicLectureStudio({
@@ -69,11 +74,15 @@ export function CinematicLectureStudio({
   onMarkLectureComplete,
   onMarkVideoWatched,
   onMarkReadingComplete,
+  onRecordShadowingScore,
+  onRecordDictationScore,
+  onAddReviewCard,
   onSaveNote,
   onSaveParaphrase,
   onOpenDictionary
 }: CinematicLectureStudioProps) {
   const [studioTab, setStudioTab] = useState<StudioTab>('youtube');
+  const [sitcomSubMode, setSitcomSubMode] = useState<SitcomSubMode>('watch');
 
   const defaultRate = LEVEL_INFO_MAP[settings.levelTier].defaultSpeechRate;
 
@@ -347,9 +356,67 @@ export function CinematicLectureStudio({
       )}
 
       {/* =======================================================
-          TAB 2: CINEMATIC SITCOM VIDEO PLAYER & CLICKABLE SCRIPT
+          TAB 2: CINEMATIC SITCOM + SHADOWING LAB + DICTATION LAB
          ======================================================= */}
       {studioTab === 'sitcom' && (
+        <div>
+          <div className="sitcom-mode-bar" role="tablist" aria-label="2교시 훈련 모드 선택">
+            <button
+              id="sitcom-mode-watch"
+              type="button"
+              className={`day-switch-chip ${sitcomSubMode === 'watch' ? 'active' : ''}`}
+              onClick={() => {
+                stopSpeaking();
+                setSitcomSubMode('watch');
+              }}
+            >
+              🎬 시트콤 스토리 &amp; 자막 감상
+            </button>
+            <button
+              id="sitcom-mode-shadowing"
+              type="button"
+              className={`day-switch-chip ${sitcomSubMode === 'shadowing' ? 'active' : ''}`}
+              onClick={() => {
+                stopSpeaking();
+                setIsPlaying(false);
+                isPlayingRef.current = false;
+                setSitcomSubMode('shadowing');
+              }}
+            >
+              🎙️ 실시간 쉐도잉 · 발음 채점 &amp; 내 목소리 비교
+            </button>
+            <button
+              id="sitcom-mode-dictation"
+              type="button"
+              className={`day-switch-chip ${sitcomSubMode === 'dictation' ? 'active' : ''}`}
+              onClick={() => {
+                stopSpeaking();
+                setIsPlaying(false);
+                isPlayingRef.current = false;
+                setSitcomSubMode('dictation');
+              }}
+            >
+              🎧 블라인드 받아쓰기 (딕테이션)
+            </button>
+          </div>
+
+          {(sitcomSubMode === 'shadowing' || sitcomSubMode === 'dictation') && (
+            <ShadowingDictationLab
+              key={`lab-${module.dayNumber}-${sitcomSubMode}`}
+              dayNumber={module.dayNumber}
+              mode={sitcomSubMode}
+              dialogue={module.dialogue}
+              defaultRate={defaultRate}
+              accent={settings.accent}
+              silentMode={settings.silentMode}
+              onRecordShadowingScore={onRecordShadowingScore}
+              onRecordDictationScore={onRecordDictationScore}
+              onAddReviewCard={onAddReviewCard}
+              onOpenDictionary={onOpenDictionary}
+            />
+          )}
+
+          {sitcomSubMode === 'watch' && (
         <section className="lecture-two-col" aria-label="시트콤 스토리 영상 플레이어">
           <div className="cinema-player-shell">
             <div className="cinema-viewport">
@@ -530,6 +597,8 @@ export function CinematicLectureStudio({
             </div>
           </div>
         </section>
+          )}
+        </div>
       )}
 
       {/* =======================================================

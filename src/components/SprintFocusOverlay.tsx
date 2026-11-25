@@ -20,6 +20,10 @@ import {
   startSpeechRecognition,
   stopSpeaking
 } from '../utils/speech.ts';
+import {
+  evaluateSpeechOrDictation,
+  isEquivalentEnglishAnswer
+} from '../utils/speechScoring.ts';
 
 interface SprintFocusOverlayProps {
   module: DayLessonModule;
@@ -27,14 +31,6 @@ interface SprintFocusOverlayProps {
   onToggleSilentMode: () => void;
   onCompleteSprint: (spokenCount: number, missedCards: SpacedReviewCard[]) => void;
   onClose: () => void;
-}
-
-function normalizeText(str: string): string {
-  return str
-    .toLowerCase()
-    .replace(/[.,!?;:'"’”-]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
 }
 
 function deterministicShuffle<T>(arr: T[], seedStr: string): T[] {
@@ -141,14 +137,16 @@ export function SprintFocusOverlay({
     let isCorrect = false;
 
     if (voiceTranscript.trim()) {
-      isCorrect = normalizeText(voiceTranscript) === normalizeText(currentDrill.targetEn);
+      const voiceEval = evaluateSpeechOrDictation(voiceTranscript, currentDrill.targetEn, 84);
+      isCorrect = voiceEval.passed;
+      setMicNote(`음성 인식 정확도 ${voiceEval.accuracyPct}% — ${voiceEval.coachingTipKo}`);
     } else if (currentDrill.drillType === 'chunk-build') {
       const assembled = pickedChunkIndices.map((idx) => shuffledChunks[idx]).join(' ');
-      isCorrect = normalizeText(assembled) === normalizeText(currentDrill.targetEn);
+      isCorrect = isEquivalentEnglishAnswer(assembled, currentDrill.targetEn);
     } else if (currentDrill.drillType === 'active-blank' && currentDrill.blankData) {
       isCorrect =
-        normalizeText(blankInput) === normalizeText(currentDrill.blankData.answer) ||
-        normalizeText(blankInput) === normalizeText(currentDrill.targetEn);
+        isEquivalentEnglishAnswer(blankInput, currentDrill.blankData.answer) ||
+        isEquivalentEnglishAnswer(blankInput, currentDrill.targetEn);
     } else if (currentDrill.drillType === 'konglish-fix') {
       isCorrect = selectedChoice === currentDrill.targetEn;
     }

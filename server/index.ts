@@ -1,19 +1,11 @@
-import { createServer, IncomingMessage, ServerResponse } from 'node:http';
+import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import {
-  getLearnerProfileFromDB,
+  getLearnerStateFromDB,
   initializeDatabase,
-  listAllUnitsFromDB,
-  listDailyArticlesFromDB,
-  saveCustomUnitToDB,
-  saveDailyArticleToDB,
-  saveLearnerProfileToDB
+  listModulesFromDB,
+  saveLearnerStateToDB
 } from './db.ts';
-import {
-  generateDailyArticlePackage,
-  generateFlowAndUnitPackage,
-  gradeHandwritingWithGeminiVision
-} from './geminiFlowService.ts';
-import type { UserProgress } from '../src/types/learning.ts';
+import type { AppPersistState } from '../src/types/course.ts';
 
 initializeDatabase();
 
@@ -48,80 +40,29 @@ const server = createServer(async (req, res) => {
 
   try {
     if (req.method === 'GET' && url.pathname === '/api/health') {
-      const units = listAllUnitsFromDB();
-      const articles = listDailyArticlesFromDB();
+      const modules = listModulesFromDB();
       sendJson(res, 200, {
         status: 'ok',
         dbEngine: 'node:sqlite',
-        totalVerifiedUnits: units.length,
-        dailyArticlesCount: articles.length
+        verifiedModulesCount: modules.length
       });
       return;
     }
 
-    if (req.method === 'GET' && url.pathname === '/api/units') {
-      sendJson(res, 200, { units: listAllUnitsFromDB() });
-      return;
-    }
-
-    if (req.method === 'GET' && url.pathname === '/api/daily-articles') {
-      sendJson(res, 200, { articles: listDailyArticlesFromDB() });
-      return;
-    }
-
-    if (req.method === 'POST' && url.pathname === '/api/creator/generate-unit') {
-      const body = await readBody<{
-        topicKo: string;
-        targetKLevel: number;
-        apiKey?: string;
-      }>(req);
-
-      const pkg = await generateFlowAndUnitPackage({
-        topicKo: body.topicKo || '글로벌 실무 협업 커뮤니케이션',
-        targetKLevel: Number(body.targetKLevel || 5),
-        apiKey: body.apiKey
-      });
-
-      if (pkg.qaReport.verified) {
-        saveCustomUnitToDB(pkg.unit, pkg.qaReport.overallScore);
-      }
-
-      sendJson(res, 200, pkg);
-      return;
-    }
-
-    if (req.method === 'POST' && url.pathname === '/api/daily-articles/generate') {
-      const body = await readBody<{ topicKo: string; apiKey?: string }>(req);
-      const article = await generateDailyArticlePackage({
-        topicKo: body.topicKo || '글로벌 테크 & 커리어 트렌드',
-        apiKey: body.apiKey
-      });
-      saveDailyArticleToDB(article);
-      sendJson(res, 200, { article });
-      return;
-    }
-
-    if (req.method === 'POST' && url.pathname === '/api/vision/grade') {
-      const body = await readBody<{
-        imageBase64?: string;
-        mimeType?: string;
-        extractedText: string;
-        apiKey?: string;
-      }>(req);
-      const results = await gradeHandwritingWithGeminiVision(body);
-      sendJson(res, 200, { results });
+    if (req.method === 'GET' && url.pathname === '/api/modules') {
+      sendJson(res, 200, { modules: listModulesFromDB() });
       return;
     }
 
     if (req.method === 'GET' && url.pathname === '/api/progress') {
-      sendJson(res, 200, { progress: getLearnerProfileFromDB('default') });
+      sendJson(res, 200, { state: getLearnerStateFromDB('default') });
       return;
     }
 
     if (req.method === 'PUT' && url.pathname === '/api/progress') {
-      const body = await readBody<{ progress: UserProgress }>(req);
-      if (body.progress) {
-        saveLearnerProfileToDB(body.progress, 'default');
+      const body = await readBody<{ state?: AppPersistState }>(req);
+      if (body.state) {
+        saveLearnerStateToDB(body.state, 'default');
       }
       sendJson(res, 200, { saved: true });
       return;
@@ -136,5 +77,5 @@ const server = createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`KoreBridge SQLite + Gemini/Flow API Server running on http://localhost:${PORT}`);
+  console.log(`KoreBridge SQLite API Server running on http://localhost:${PORT}`);
 });

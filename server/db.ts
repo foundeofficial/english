@@ -1,127 +1,76 @@
 import { mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
-import { ALL_90_DAY_UNITS } from '../src/data/full90DayUnits.ts';
-import { DAILY_LIVE_ARTICLES } from '../src/data/semester90Days.ts';
-import { verifyUnitPedagogicalQuality } from '../src/utils/pedagogicalQA.ts';
-import type { CurriculumUnit, DailyLiveArticle, UserProgress } from '../src/types/learning.ts';
+import { WEEK1_MODULES } from '../src/data/week1MasterCourse.ts';
+import type { AppPersistState, DayLessonModule } from '../src/types/course.ts';
+import { validateWeekModule } from '../src/utils/courseQA.ts';
 
-const DB_PATH = resolve(process.cwd(), 'data/korebridge.sqlite');
+const DB_PATH = resolve(process.cwd(), 'data', 'korebridge.sqlite');
 mkdirSync(dirname(DB_PATH), { recursive: true });
 
-export const db = new DatabaseSync(DB_PATH);
+const db = new DatabaseSync(DB_PATH);
 
 export function initializeDatabase(): void {
   db.exec(`
-    CREATE TABLE IF NOT EXISTS curriculum_units (
-      id TEXT PRIMARY KEY,
-      day_num INTEGER,
-      k_level INTEGER NOT NULL,
-      qa_score REAL NOT NULL,
-      is_custom INTEGER NOT NULL DEFAULT 0,
+    CREATE TABLE IF NOT EXISTS week_modules (
+      day_number INTEGER PRIMARY KEY,
+      title TEXT NOT NULL,
+      qa_passed INTEGER NOT NULL,
       payload_json TEXT NOT NULL,
-      created_at TEXT NOT NULL
+      updated_at TEXT NOT NULL
     );
 
-    CREATE TABLE IF NOT EXISTS daily_live_articles (
-      id TEXT PRIMARY KEY,
-      topic_ko TEXT NOT NULL,
-      published_date TEXT NOT NULL,
-      payload_json TEXT NOT NULL,
-      created_at TEXT NOT NULL
-    );
-
-    CREATE TABLE IF NOT EXISTS learner_profiles (
+    CREATE TABLE IF NOT EXISTS learner_state (
       profile_id TEXT PRIMARY KEY,
-      payload_json TEXT NOT NULL,
+      state_json TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
   `);
 
-  const countRow = db
-    .prepare('SELECT COUNT(*) as cnt FROM curriculum_units WHERE is_custom = 0')
-    .get() as { cnt: number };
+  const upsertStmt = db.prepare(`
+    INSERT INTO week_modules (day_number, title, qa_passed, payload_json, updated_at)
+    VALUES (?, ?, ?, ?, ?)
+    ON CONFLICT(day_number) DO UPDATE SET
+      title = excluded.title,
+      qa_passed = excluded.qa_passed,
+      payload_json = excluded.payload_json,
+      updated_at = excluded.updated_at;
+  `);
 
-  if (countRow.cnt < ALL_90_DAY_UNITS.length) {
-    const insertStmt = db.prepare(`
-      INSERT OR REPLACE INTO curriculum_units (id, day_num, k_level, qa_score, is_custom, payload_json, created_at)
-      VALUES (?, ?, ?, ?, 0, ?, ?)
-    `);
-
-    const now = new Date().toISOString();
-    ALL_90_DAY_UNITS.forEach((unit, idx) => {
-      const qa = verifyUnitPedagogicalQuality(unit);
-      insertStmt.run(
-        unit.id,
-        idx + 1,
-        unit.kLevelNum,
-        qa.overallScore,
-        JSON.stringify(unit),
-        now
-      );
-    });
-  }
-
-  const articleCount = db
-    .prepare('SELECT COUNT(*) as cnt FROM daily_live_articles')
-    .get() as { cnt: number };
-
-  if (articleCount.cnt === 0) {
-    const insertArticle = db.prepare(`
-      INSERT OR REPLACE INTO daily_live_articles (id, topic_ko, published_date, payload_json, created_at)
-      VALUES (?, ?, ?, ?, ?)
-    `);
-    const now = new Date().toISOString();
-    for (const art of DAILY_LIVE_ARTICLES) {
-      insertArticle.run(art.id, art.topicTitleKo, art.publishedDate, JSON.stringify(art), now);
-    }
+  const now = new Date().toISOString();
+  for (const mod of WEEK1_MODULES) {
+    const qa = validateWeekModule(mod);
+    upsertStmt.run(
+      mod.dayNumber,
+      mod.title,
+      qa.passed ? 1 : 0,
+      JSON.stringify(mod),
+      now
+    );
   }
 }
 
-export function listAllUnitsFromDB(): CurriculumUnit[] {
+export function listModulesFromDB(): DayLessonModule[] {
   const rows = db
-    .prepare('SELECT payload_json FROM curriculum_units ORDER BY is_custom DESC, day_num ASC')
+    .prepare('SELECT payload_json FROM week_modules ORDER BY day_number ASC')
     .all() as Array<{ payload_json: string }>;
-  return rows.map((r) => JSON.parse(r.payload_json) as CurriculumUnit);
+  return rows.map((r) => JSON.parse(r.payload_json) as DayLessonModule);
 }
 
-export function saveCustomUnitToDB(unit: CurriculumUnit, qaScore: number): void {
-  db.prepare(
-    `INSERT OR REPLACE INTO curriculum_units (id, day_num, k_level, qa_score, is_custom, payload_json, created_at)
-     VALUES (?, NULL, ?, ?, 1, ?, ?)`
-  ).run(unit.id, unit.kLevelNum, qaScore, JSON.stringify(unit), new Date().toISOString());
-}
-
-export function listDailyArticlesFromDB(): DailyLiveArticle[] {
-  const rows = db
-    .prepare('SELECT payload_json FROM daily_live_articles ORDER BY created_at DESC')
-    .all() as Array<{ payload_json: string }>;
-  return rows.map((r) => JSON.parse(r.payload_json) as DailyLiveArticle);
-}
-
-export function saveDailyArticleToDB(article: DailyLiveArticle): void {
-  db.prepare(
-    `INSERT OR REPLACE INTO daily_live_articles (id, topic_ko, published_date, payload_json, created_at)
-     VALUES (?, ?, ?, ?, ?)`
-  ).run(
-    article.id,
-    article.topicTitleKo,
-    article.publishedDate,
-    JSON.stringify(article),
-    new Date().toISOString()
-  );
-}
-
-export function getLearnerProfileFromDB(profileId = 'default'): UserProgress | null {
+export function getLearnerStateFromDB(profileId = 'default'): AppPersistState | null {
   const row = db
-    .prepare('SELECT payload_json FROM learner_profiles WHERE profile_id = ?')
-    .get(profileId) as { payload_json: string } | undefined;
-  return row ? (JSON.parse(row.payload_json) as UserProgress) : null;
+    .prepare('SELECT state_json FROM learner_state WHERE profile_id = ?')
+    .get(profileId) as { state_json: string } | undefined;
+  if (!row) return null;
+  return JSON.parse(row.state_json) as AppPersistState;
 }
 
-export function saveLearnerProfileToDB(progress: UserProgress, profileId = 'default'): void {
-  db.prepare(
-    `INSERT OR REPLACE INTO learner_profiles (profile_id, payload_json, updated_at)
-     VALUES (?, ?, ?)`
-  ).run(profileId, JSON.stringify(progress), new Date().toISOString());
+export function saveLearnerStateToDB(state: AppPersistState, profileId = 'default'): void {
+  db.prepare(`
+    INSERT INTO learner_state (profile_id, state_json, updated_at)
+    VALUES (?, ?, ?)
+    ON CONFLICT(profile_id) DO UPDATE SET
+      state_json = excluded.state_json,
+      updated_at = excluded.updated_at;
+  `).run(profileId, JSON.stringify(state), new Date().toISOString());
 }

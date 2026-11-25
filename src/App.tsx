@@ -1,590 +1,327 @@
-import { useEffect, useMemo, useState } from 'react';
-import {
-  ACADEMY_DIVISIONS,
-  CORE_VOCAB_DECK,
-  LEARNER_PERSONA_PRESETS
-} from './data/academyDivisions';
-import {
-  DIAGNOSTIC_QUESTIONS,
-  INITIAL_REVIEW_ITEMS
-} from './data/curriculum';
-import { ALL_90_DAY_UNITS } from './data/full90DayUnits';
-import { DAILY_LIVE_ARTICLES, SEMESTER_90_DAYS } from './data/semester90Days';
+import { useEffect, useState } from 'react';
+import { AuthenticWorksheetExam } from './components/AuthenticWorksheetExam.tsx';
+import { CinematicLectureStudio } from './components/CinematicLectureStudio.tsx';
+import { HomeDashboard } from './components/HomeDashboard.tsx';
+import { OnboardingSettingsModal } from './components/OnboardingSettingsModal.tsx';
+import { SprintFocusOverlay } from './components/SprintFocusOverlay.tsx';
+import { TopNavHeader } from './components/TopNavHeader.tsx';
+import { VocabAndReviewBook } from './components/VocabAndReviewBook.tsx';
+import { getDayModule, INITIAL_REVIEW_CARDS } from './data/week1MasterCourse.ts';
 import type {
-  AcademyDivisionId,
-  ActiveTab,
-  CurriculumUnit,
-  DailyLiveArticle,
-  ExamAttemptRecord,
-  FiveSkillRadar,
-  LearnerCalibration,
-  LearnerPersonaPreset,
+  AppPersistState,
+  LearnerSettings,
+  MainRoute,
   ParaphraseResult,
-  ReviewItem,
-  SpacedStage,
-  UserProgress
-} from './types/learning';
-import { HeaderNav } from './components/HeaderNav';
-import { CalibrationBar } from './components/CalibrationBar';
-import { TodayHub } from './components/TodayHub';
-import { SemesterSyllabusView } from './components/SemesterSyllabusView';
-import { VocabPopQuizView } from './components/VocabPopQuizView';
-import { SprintSession } from './components/SprintSession';
-import { DeepClassStudio } from './components/DeepClassStudio';
-import { LegacyWorkbookCenter } from './components/LegacyWorkbookCenter';
-import { CreatorFlowStudio } from './components/CreatorFlowStudio';
-import { ReviewVaultView } from './components/ReviewVaultView';
-import { AcademicReportCardView } from './components/AcademicReportCardView';
+  SpacedReviewCard
+} from './types/course.ts';
 
-const STORAGE_KEY = 'korebridge_complete_v1';
+const STORAGE_KEY = 'korebridge_commercial_v3';
 
-const DEFAULT_PERSONA = LEARNER_PERSONA_PRESETS[0];
-
-const DEFAULT_PROGRESS: UserProgress = {
-  activePersonaId: DEFAULT_PERSONA.id,
-  learnerName: DEFAULT_PERSONA.nameKo,
-  division: DEFAULT_PERSONA.division,
-  streakDays: 6,
-  totalOutputSentences: 94,
-  sprintMinutesToday: 0,
-  deepMinutesToday: 0,
-  vocabQuizBestScore: 88,
-  completedSprintIds: [],
-  completedDeepIds: [],
-  completedSemesterDays: [1, 2, 3, 4, 5, 6],
-  masteredVocabIds: ['voc-1', 'voc-7'],
-  skillRadar: DEFAULT_PERSONA.radar,
-  calibration: DEFAULT_PERSONA.calibration,
-  diagnosed: true,
-  silentCommuteMode: false,
+const DEFAULT_STATE: AppPersistState = {
+  onboarded: false,
+  streakDays: 3,
+  totalSentencesSpoken: 12,
+  selectedDay: 1,
+  settings: {
+    learnerName: '김민준',
+    levelTier: 'standard',
+    studyPace: 'standard',
+    showStructureSlashes: true,
+    guideLanguage: 'bilingual',
+    silentMode: false,
+    geminiApiKey: ''
+  },
+  dayRecords: {},
   lectureNotes: {},
-  paraphraseHistory: [],
-  examHistory: [],
-  reviewVault: INITIAL_REVIEW_ITEMS
+  masteredVocabIds: ['d1-v01', 'd1-v03', 'd1-v04'],
+  reviewDeck: INITIAL_REVIEW_CARDS,
+  savedParaphrases: []
 };
 
-const STAGE_NEXT: Record<SpacedStage, SpacedStage> = {
-  'D+1': 'D+3',
-  'D+3': 'D+7',
-  'D+7': 'D+14',
-  'D+14': 'Mastered',
-  Mastered: 'Mastered'
-};
-
-export function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('today');
-  const [units, setUnits] = useState<CurriculumUnit[]>(ALL_90_DAY_UNITS);
-  const [dailyArticles, setDailyArticles] = useState<DailyLiveArticle[]>(DAILY_LIVE_ARTICLES);
-  const [selectedUnit, setSelectedUnit] = useState<CurriculumUnit>(
-    ALL_90_DAY_UNITS.find((u) => u.id === 'day-unit-24') ?? ALL_90_DAY_UNITS[0]
-  );
-
-  const [progress, setProgress] = useState<UserProgress>(() => {
-    try {
-      const saved = window.localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          ...DEFAULT_PROGRESS,
-          ...parsed,
-          skillRadar: { ...DEFAULT_PROGRESS.skillRadar, ...(parsed.skillRadar || {}) },
-          calibration: { ...DEFAULT_PROGRESS.calibration, ...(parsed.calibration || {}) }
-        };
+function loadInitialState(): AppPersistState {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return DEFAULT_STATE;
+    const parsed = JSON.parse(raw) as Partial<AppPersistState>;
+    return {
+      ...DEFAULT_STATE,
+      ...parsed,
+      settings: {
+        ...DEFAULT_STATE.settings,
+        ...(parsed.settings ?? {})
       }
-    } catch {
-      // Fallback
-    }
-    return DEFAULT_PROGRESS;
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const [uRes, aRes, pRes] = await Promise.all([
-          fetch('/api/units'),
-          fetch('/api/daily-articles'),
-          fetch('/api/progress')
-        ]);
-        if (cancelled) return;
-        if (uRes.ok) {
-          const data = (await uRes.json()) as { units?: CurriculumUnit[] };
-          if (data.units && data.units.length >= 90) {
-            setUnits(data.units);
-          }
-        }
-        if (aRes.ok) {
-          const data = (await aRes.json()) as { articles?: DailyLiveArticle[] };
-          if (data.articles && data.articles.length > 0) {
-            setDailyArticles(data.articles);
-          }
-        }
-        if (pRes.ok) {
-          const data = (await pRes.json()) as { progress?: UserProgress | null };
-          if (data.progress && data.progress.learnerName) {
-            setProgress(data.progress);
-          }
-        }
-      } catch {
-        // Static / Offline seamless fallback
-      }
-    })();
-    return () => {
-      cancelled = true;
     };
-  }, []);
+  } catch {
+    return DEFAULT_STATE;
+  }
+}
+
+function nextInterval(current: 1 | 3 | 7 | 14 | 30): { next: 1 | 3 | 7 | 14 | 30; graduated: boolean } {
+  if (current === 1) return { next: 3, graduated: false };
+  if (current === 3) return { next: 7, graduated: false };
+  if (current === 7) return { next: 14, graduated: false };
+  if (current === 14) return { next: 30, graduated: false };
+  return { next: 30, graduated: true };
+}
+
+export default function App() {
+  const [state, setState] = useState<AppPersistState>(loadInitialState);
+  const [activeRoute, setActiveRoute] = useState<MainRoute>('home');
+  const [sprintOpen, setSprintOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(!state.onboarded);
 
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
-      // Ignore quota issues
+      // Ignore storage quota errors
     }
+
+    // Best-effort sync with optional Node SQLite backend if running
     fetch('/api/progress', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ progress })
+      body: JSON.stringify({ state })
     }).catch(() => {});
-  }, [progress]);
+  }, [state]);
 
-  // Showcase representative units across all 4 divisions on TodayHub
-  const featuredHubUnits = useMemo(() => {
-    const showcaseIds = [
-      'unit-foundation-starter',
-      'unit-school-csat-master',
-      'day-unit-02',
-      'day-unit-24',
-      'day-unit-49',
-      'day-unit-76'
-    ];
-    const picked = showcaseIds
-      .map((id) => units.find((u) => u.id === id))
-      .filter((u): u is CurriculumUnit => Boolean(u));
-    const customOnes = units.filter((u) => u.id.startsWith('custom-'));
-    return [...customOnes, ...picked];
-  }, [units]);
+  const currentModule = getDayModule(state.selectedDay);
+  const currentDayRec = state.dayRecords[currentModule.dayNumber] ?? {
+    sprintCompleted: false,
+    lectureCompleted: false,
+    examScore: null,
+    vocabMasteredCount: 0
+  };
 
-  const dueReviewCount = progress.reviewVault.filter(
-    (item) => item.dueToday && item.stage !== 'Mastered'
-  ).length;
-
-  const handleUpdateCalibration = (next: Partial<LearnerCalibration>) => {
-    setProgress((prev) => ({
+  const handleSaveSettings = (nextSettings: LearnerSettings) => {
+    setState((prev) => ({
       ...prev,
-      calibration: {
-        ...prev.calibration,
-        ...next
-      }
+      onboarded: true,
+      settings: nextSettings
     }));
+    setSettingsModalOpen(false);
   };
 
-  const handleSwitchPersona = (preset: LearnerPersonaPreset) => {
-    setProgress((prev) => ({
-      ...prev,
-      activePersonaId: preset.id,
-      learnerName: preset.nameKo,
-      division: preset.division,
-      skillRadar: preset.radar,
-      calibration: preset.calibration
-    }));
-    const divInfo = ACADEMY_DIVISIONS.find((d) => d.id === preset.division);
-    if (divInfo) {
-      const target = units.find((u) => u.id === divInfo.recommendedUnitId);
-      if (target) setSelectedUnit(target);
-    }
+  const handleSelectDay = (dayNumber: number) => {
+    setState((prev) => ({ ...prev, selectedDay: dayNumber }));
   };
 
-  const handleChangeDivision = (division: AcademyDivisionId) => {
-    setProgress((prev) => ({ ...prev, division }));
-    const divInfo = ACADEMY_DIVISIONS.find((d) => d.id === division);
-    if (divInfo) {
-      const target = units.find((u) => u.id === divInfo.recommendedUnitId);
-      if (target) setSelectedUnit(target);
-    }
-  };
+  const handleCompleteSprint = (spokenCount: number, missedCards: SpacedReviewCard[]) => {
+    setState((prev) => {
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
+        sprintCompleted: false,
+        lectureCompleted: false,
+        examScore: null,
+        vocabMasteredCount: 0
+      };
 
-  const handleLaunchUnitMode = (
-    unit: CurriculumUnit,
-    mode: 'sprint' | 'deep-class' | 'workbook'
-  ) => {
-    setSelectedUnit(unit);
-    setActiveTab(mode);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleRegisterGeneratedUnit = (
-    newUnit: CurriculumUnit,
-    launchMode: 'sprint' | 'deep-class' | 'workbook'
-  ) => {
-    setUnits((prev) =>
-      prev.some((u) => u.id === newUnit.id) ? prev : [newUnit, ...prev]
-    );
-    setSelectedUnit(newUnit);
-    setActiveTab(launchMode);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleToggleMasteredVocab = (vocabId: string) => {
-    setProgress((prev) => {
-      const exists = prev.masteredVocabIds.includes(vocabId);
       return {
         ...prev,
-        masteredVocabIds: exists
-          ? prev.masteredVocabIds.filter((id) => id !== vocabId)
-          : [...prev.masteredVocabIds, vocabId]
+        streakDays: prevRec.sprintCompleted ? prev.streakDays : prev.streakDays + 1,
+        totalSentencesSpoken: prev.totalSentencesSpoken + spokenCount,
+        dayRecords: {
+          ...prev.dayRecords,
+          [currentModule.dayNumber]: {
+            ...prevRec,
+            sprintCompleted: true
+          }
+        },
+        reviewDeck: [...missedCards, ...prev.reviewDeck]
+      };
+    });
+    setSprintOpen(false);
+  };
+
+  const handleMarkLectureComplete = () => {
+    setState((prev) => {
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
+        sprintCompleted: false,
+        lectureCompleted: false,
+        examScore: null,
+        vocabMasteredCount: 0
+      };
+      return {
+        ...prev,
+        dayRecords: {
+          ...prev.dayRecords,
+          [currentModule.dayNumber]: {
+            ...prevRec,
+            lectureCompleted: !prevRec.lectureCompleted
+          }
+        }
       };
     });
   };
 
-  const handleCompleteVocabQuiz = (
-    scorePercent: number,
-    wrongItems: Omit<ReviewItem, 'id' | 'stage' | 'dueToday'>[]
-  ) => {
-    setProgress((prev) => {
-      const existing = new Set(prev.reviewVault.map((v) => v.targetEnglish));
-      const added: ReviewItem[] = wrongItems
-        .filter((w) => !existing.has(w.targetEnglish))
-        .map((w, idx) => ({
-          ...w,
-          id: `rev-voc-${Date.now()}-${idx}`,
-          stage: 'D+1',
-          dueToday: true
-        }));
-
-      return {
-        ...prev,
-        vocabQuizBestScore: Math.max(prev.vocabQuizBestScore, scorePercent),
-        totalOutputSentences: prev.totalOutputSentences + 4,
-        reviewVault: [...added, ...prev.reviewVault]
-      };
-    });
-  };
-
-  const handleGenerateDailyTopic = async (topicKo: string) => {
-    try {
-      const resp = await fetch('/api/daily-articles/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topicKo })
-      });
-      if (resp.ok) {
-        const data = (await resp.json()) as { article: DailyLiveArticle };
-        setDailyArticles((prev) => [data.article, ...prev]);
-        return;
-      }
-    } catch {
-      // Fallback
-    }
-  };
-
-  const handleToggleDayComplete = (dayNum: number) => {
-    setProgress((prev) => {
-      const exists = prev.completedSemesterDays.includes(dayNum);
-      return {
-        ...prev,
-        completedSemesterDays: exists
-          ? prev.completedSemesterDays.filter((d) => d !== dayNum)
-          : [...prev.completedSemesterDays, dayNum]
-      };
-    });
-  };
-
-  const handleToggleSilentMode = () => {
-    setProgress((prev) => ({
-      ...prev,
-      silentCommuteMode: !prev.silentCommuteMode
-    }));
-  };
-
-  const handleCompleteSprint = (
-    unitId: string,
-    minutesSpent: number,
-    outputCount: number,
-    wrongItems: Omit<ReviewItem, 'id' | 'stage' | 'dueToday'>[]
-  ) => {
-    setProgress((prev) => {
-      const isFirstToday = prev.sprintMinutesToday === 0 && prev.deepMinutesToday === 0;
-      const existingTargets = new Set(prev.reviewVault.map((r) => r.targetEnglish));
-      const newVaultItems: ReviewItem[] = wrongItems
-        .filter((w) => !existingTargets.has(w.targetEnglish))
-        .map((w, idx) => ({
-          ...w,
-          id: `rev-sp-${Date.now()}-${idx}`,
-          stage: 'D+1',
-          dueToday: true
-        }));
-
-      return {
-        ...prev,
-        streakDays: isFirstToday ? prev.streakDays + 1 : prev.streakDays,
-        sprintMinutesToday: prev.sprintMinutesToday + minutesSpent,
-        totalOutputSentences: prev.totalOutputSentences + outputCount,
-        completedSprintIds: prev.completedSprintIds.includes(unitId)
-          ? prev.completedSprintIds
-          : [...prev.completedSprintIds, unitId],
-        reviewVault: [...newVaultItems, ...prev.reviewVault]
-      };
-    });
-  };
-
-  const handleSaveNote = (unitId: string, note: string) => {
-    setProgress((prev) => ({
+  const handleSaveNote = (note: string) => {
+    setState((prev) => ({
       ...prev,
       lectureNotes: {
         ...prev.lectureNotes,
-        [unitId]: note
+        [currentModule.dayNumber]: note
       }
     }));
   };
 
-  const handleRecordParaphrase = (result: ParaphraseResult, addToVault: boolean) => {
-    setProgress((prev) => {
-      const alreadyInHistory = prev.paraphraseHistory.some((p) => p.id === result.id);
-      const nextHistory = alreadyInHistory
-        ? prev.paraphraseHistory
-        : [result, ...prev.paraphraseHistory];
-
-      let nextVault = prev.reviewVault;
-      if (
-        addToVault &&
-        !prev.reviewVault.some((v) => v.targetEnglish === result.businessNative)
-      ) {
-        const vaultItem: ReviewItem = {
-          id: `rev-para-${Date.now()}`,
-          koreanPrompt: `내 표현 업그레이드: "${result.originalInput}"`,
-          targetEnglish: result.businessNative,
-          explanationKo: result.tutorExplanationKo,
-          sourceMode: result.unitTitle.includes('클리닉') ? 'clinic' : 'deep-tutor',
-          stage: 'D+1',
-          dueToday: true
-        };
-        nextVault = [vaultItem, ...prev.reviewVault];
-      }
-
+  const handleSaveParaphrase = (item: ParaphraseResult, reviewCard?: SpacedReviewCard) => {
+    setState((prev) => {
+      const alreadyExists = prev.savedParaphrases.some((p) => p.id === item.id);
       return {
         ...prev,
-        totalOutputSentences: alreadyInHistory
-          ? prev.totalOutputSentences
-          : prev.totalOutputSentences + 1,
-        paraphraseHistory: nextHistory,
-        reviewVault: nextVault
+        totalSentencesSpoken: alreadyExists
+          ? prev.totalSentencesSpoken
+          : prev.totalSentencesSpoken + 1,
+        savedParaphrases: alreadyExists
+          ? prev.savedParaphrases
+          : [item, ...prev.savedParaphrases],
+        reviewDeck: reviewCard ? [reviewCard, ...prev.reviewDeck] : prev.reviewDeck
       };
     });
   };
 
-  const handleCompleteDeepClass = (
-    unitId: string,
-    minutesSpent: number,
-    outputCount: number
-  ) => {
-    setProgress((prev) => {
-      const isFirstToday = prev.sprintMinutesToday === 0 && prev.deepMinutesToday === 0;
-      return {
-        ...prev,
-        streakDays: isFirstToday ? prev.streakDays + 1 : prev.streakDays,
-        deepMinutesToday: prev.deepMinutesToday + minutesSpent,
-        totalOutputSentences: prev.totalOutputSentences + outputCount,
-        completedDeepIds: prev.completedDeepIds.includes(unitId)
-          ? prev.completedDeepIds
-          : [...prev.completedDeepIds, unitId]
+  const handleSubmitExamScore = (score: number, missedCards: SpacedReviewCard[]) => {
+    setState((prev) => {
+      const prevRec = prev.dayRecords[currentModule.dayNumber] ?? {
+        sprintCompleted: false,
+        lectureCompleted: false,
+        examScore: null,
+        vocabMasteredCount: 0
       };
-    });
-  };
-
-  const handleRecordExamResult = (
-    record: ExamAttemptRecord,
-    wrongReviewItems: Omit<ReviewItem, 'id' | 'stage' | 'dueToday'>[]
-  ) => {
-    setProgress((prev) => {
-      const existingTargets = new Set(prev.reviewVault.map((v) => v.targetEnglish));
-      const newItems: ReviewItem[] = wrongReviewItems
-        .filter((w) => !existingTargets.has(w.targetEnglish))
-        .map((w, idx) => ({
-          ...w,
-          id: `rev-exam-${Date.now()}-${idx}`,
-          stage: 'D+1',
-          dueToday: true
-        }));
+      const best =
+        prevRec.examScore !== null ? Math.max(prevRec.examScore, score) : score;
 
       return {
         ...prev,
-        totalOutputSentences: prev.totalOutputSentences + 3,
-        examHistory: [record, ...prev.examHistory],
-        reviewVault: [...newItems, ...prev.reviewVault]
-      };
-    });
-  };
-
-  const handleAddHandwritingReview = (
-    item: Omit<ReviewItem, 'id' | 'stage' | 'dueToday'>
-  ) => {
-    setProgress((prev) => ({
-      ...prev,
-      totalOutputSentences: prev.totalOutputSentences + 1,
-      reviewVault: [
-        {
-          ...item,
-          id: `rev-ocr-${Date.now()}-${Math.random().toString(36).slice(2, 5)}`,
-          stage: 'D+1',
-          dueToday: true
+        dayRecords: {
+          ...prev.dayRecords,
+          [currentModule.dayNumber]: {
+            ...prevRec,
+            examScore: best
+          }
         },
-        ...prev.reviewVault
-      ]
-    }));
+        reviewDeck: [...missedCards, ...prev.reviewDeck]
+      };
+    });
   };
 
-  const handleAdvanceReviewStage = (itemId: string, remembered: boolean) => {
-    setProgress((prev) => ({
+  const handleToggleVocabMastered = (vocabId: string) => {
+    setState((prev) => {
+      const exists = prev.masteredVocabIds.includes(vocabId);
+      const nextIds = exists
+        ? prev.masteredVocabIds.filter((id) => id !== vocabId)
+        : [...prev.masteredVocabIds, vocabId];
+      return {
+        ...prev,
+        masteredVocabIds: nextIds
+      };
+    });
+  };
+
+  const handlePromoteReviewCard = (cardId: string) => {
+    setState((prev) => ({
       ...prev,
-      totalOutputSentences: prev.totalOutputSentences + 1,
-      reviewVault: prev.reviewVault.map((item) => {
-        if (item.id !== itemId) return item;
-        if (!remembered) {
-          return { ...item, stage: 'D+1', dueToday: true };
-        }
+      reviewDeck: prev.reviewDeck.map((c) => {
+        if (c.id !== cardId) return c;
+        const { next, graduated } = nextInterval(c.intervalDays);
         return {
-          ...item,
-          stage: STAGE_NEXT[item.stage],
-          dueToday: false
+          ...c,
+          intervalDays: next,
+          mastered: graduated
         };
       })
     }));
   };
 
-  const handleSaveDiagnosis = (radar: FiveSkillRadar, recommendedBaseKLevel: number) => {
-    setProgress((prev) => ({
-      ...prev,
-      skillRadar: radar,
-      calibration: {
-        ...prev.calibration,
-        baseKLevel: recommendedBaseKLevel
-      },
-      diagnosed: true
-    }));
-  };
+  const reviewDueCount = state.reviewDeck.filter((c) => !c.mastered).length;
 
   return (
-    <div className="app-shell">
-      <HeaderNav
-        activeTab={activeTab}
-        onSelectTab={setActiveTab}
-        progress={progress}
-        dueReviewCount={dueReviewCount}
+    <div>
+      <TopNavHeader
+        activeRoute={activeRoute}
+        onNavigate={(route) => {
+          setActiveRoute(route);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        streakDays={state.streakDays}
+        reviewDueCount={reviewDueCount}
+        settings={state.settings}
+        onOpenSettings={() => setSettingsModalOpen(true)}
       />
 
-      <main className="container-main">
-        <CalibrationBar
-          calibration={progress.calibration}
-          onChange={handleUpdateCalibration}
+      {activeRoute === 'home' && (
+        <HomeDashboard
+          state={state}
+          currentModule={currentModule}
+          onSelectDay={handleSelectDay}
+          onStartSprint={() => setSprintOpen(true)}
+          onNavigate={(route) => {
+            setActiveRoute(route);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }}
         />
+      )}
 
-        {activeTab === 'today' && (
-          <TodayHub
-            units={featuredHubUnits}
-            selectedUnit={selectedUnit}
-            progress={progress}
-            dueReviewCount={dueReviewCount}
-            onStartSprint={(u) => handleLaunchUnitMode(u, 'sprint')}
-            onStartDeepClass={(u) => handleLaunchUnitMode(u, 'deep-class')}
-            onNavigateTab={setActiveTab}
-            onToggleSilentMode={handleToggleSilentMode}
-            onSaveParaphraseToVault={(res) => handleRecordParaphrase(res, true)}
-          />
-        )}
+      {activeRoute === 'lecture' && (
+        <CinematicLectureStudio
+          key={`lecture-${currentModule.dayNumber}-${state.settings.showStructureSlashes}`}
+          module={currentModule}
+          settings={state.settings}
+          lectureCompleted={currentDayRec.lectureCompleted}
+          savedNote={state.lectureNotes[currentModule.dayNumber] ?? ''}
+          savedParaphrases={state.savedParaphrases}
+          onSelectDay={handleSelectDay}
+          onMarkLectureComplete={handleMarkLectureComplete}
+          onSaveNote={handleSaveNote}
+          onSaveParaphrase={handleSaveParaphrase}
+        />
+      )}
 
-        {activeTab === 'syllabus' && (
-          <SemesterSyllabusView
-            days={SEMESTER_90_DAYS}
-            dailyArticles={dailyArticles}
-            units={units}
-            calibration={progress.calibration}
-            completedDays={progress.completedSemesterDays}
-            onToggleDayComplete={handleToggleDayComplete}
-            onLaunchUnitMode={handleLaunchUnitMode}
-            onGenerateDailyTopic={handleGenerateDailyTopic}
-          />
-        )}
+      {activeRoute === 'worksheet' && (
+        <AuthenticWorksheetExam
+          key={`worksheet-${currentModule.dayNumber}`}
+          module={currentModule}
+          settings={state.settings}
+          previousBestScore={currentDayRec.examScore}
+          onSelectDay={handleSelectDay}
+          onSubmitExamScore={handleSubmitExamScore}
+        />
+      )}
 
-        {activeTab === 'vocab-quiz' && (
-          <VocabPopQuizView
-            vocabDeck={CORE_VOCAB_DECK}
-            activeDivision={progress.division}
-            calibration={progress.calibration}
-            masteredIds={progress.masteredVocabIds}
-            bestScore={progress.vocabQuizBestScore}
-            onToggleMastered={handleToggleMasteredVocab}
-            onCompletePopQuiz={handleCompleteVocabQuiz}
-          />
-        )}
+      {activeRoute === 'vocab-review' && (
+        <VocabAndReviewBook
+          key={`vocab-${currentModule.dayNumber}`}
+          module={currentModule}
+          masteredVocabIds={state.masteredVocabIds}
+          reviewDeck={state.reviewDeck}
+          onSelectDay={handleSelectDay}
+          onToggleVocabMastered={handleToggleVocabMastered}
+          onPromoteReviewCard={handlePromoteReviewCard}
+        />
+      )}
 
-        {activeTab === 'sprint' && (
-          <SprintSession
-            units={units}
-            unit={selectedUnit}
-            silentMode={progress.silentCommuteMode}
-            onSelectUnit={setSelectedUnit}
-            onToggleSilentMode={handleToggleSilentMode}
-            onCompleteSprint={handleCompleteSprint}
-            onSwitchToDeepClass={(u) => handleLaunchUnitMode(u, 'deep-class')}
-            onBackHome={() => setActiveTab('today')}
-          />
-        )}
+      {sprintOpen && (
+        <SprintFocusOverlay
+          key={`sprint-${currentModule.dayNumber}`}
+          module={currentModule}
+          silentMode={state.settings.silentMode}
+          onToggleSilentMode={() =>
+            setState((prev) => ({
+              ...prev,
+              settings: { ...prev.settings, silentMode: !prev.settings.silentMode }
+            }))
+          }
+          onCompleteSprint={handleCompleteSprint}
+          onClose={() => setSprintOpen(false)}
+        />
+      )}
 
-        {activeTab === 'deep-class' && (
-          <DeepClassStudio
-            units={units}
-            unit={selectedUnit}
-            progress={progress}
-            onSelectUnit={setSelectedUnit}
-            onSaveNote={handleSaveNote}
-            onRecordParaphrase={handleRecordParaphrase}
-            onCompleteDeepClass={handleCompleteDeepClass}
-            onBackHome={() => setActiveTab('today')}
-          />
-        )}
-
-        {activeTab === 'workbook' && (
-          <LegacyWorkbookCenter
-            units={units}
-            unit={selectedUnit}
-            calibration={progress.calibration}
-            examHistory={progress.examHistory}
-            onSelectUnit={setSelectedUnit}
-            onRecordExamResult={handleRecordExamResult}
-            onAddHandwritingReview={handleAddHandwritingReview}
-          />
-        )}
-
-        {activeTab === 'creator-studio' && (
-          <CreatorFlowStudio
-            defaultKLevel={progress.calibration.baseKLevel}
-            onRegisterGeneratedUnit={handleRegisterGeneratedUnit}
-          />
-        )}
-
-        {activeTab === 'vault' && (
-          <ReviewVaultView
-            units={units}
-            progress={progress}
-            onAdvanceStage={handleAdvanceReviewStage}
-          />
-        )}
-
-        {activeTab === 'report-card' && (
-          <AcademicReportCardView
-            progress={progress}
-            questions={DIAGNOSTIC_QUESTIONS}
-            units={units}
-            onSwitchPersona={handleSwitchPersona}
-            onChangeDivision={handleChangeDivision}
-            onSaveDiagnosis={handleSaveDiagnosis}
-            onUpdateCalibration={handleUpdateCalibration}
-            onStartUnitMode={handleLaunchUnitMode}
-          />
-        )}
-      </main>
+      <OnboardingSettingsModal
+        isOpen={settingsModalOpen}
+        isFirstVisit={!state.onboarded}
+        settings={state.settings}
+        onSave={handleSaveSettings}
+        onClose={() => setSettingsModalOpen(false)}
+      />
     </div>
   );
 }
-
-export default App;

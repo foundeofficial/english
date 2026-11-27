@@ -2027,6 +2027,1058 @@ export const HIGH_SCHOOL_PASSAGES: HighSchoolPassage[] = [
       },
     ],
   },
+
+  /* =========================================================================
+   * HS11 — [예술철학 · B2] Aesthetics and Empathic Imagination
+   * ========================================================================= */
+  {
+    id: 'hs11',
+    number: 11,
+    cefrLevel: 'b2',
+    csatGradeTag: '고3 모의평가 · 1등급',
+    topicBadge: '예술철학',
+    titleEn: 'Aesthetics and Empathic Imagination',
+    titleKo: '예술 감상과 공감적 상상력',
+    estimatedMin: 9,
+    sentences: [
+      {
+        id: 'hs11-s1',
+        english:
+          'Many spectators initially assume that appreciating a painting or symphony is merely a detached exercise in judging technical skill or visual harmony.',
+        slashBroken:
+          'Many spectators initially assume / that appreciating a painting or symphony / is merely a detached exercise / in judging technical skill or visual harmony.',
+        korean:
+          '많은 감상자들은 회화나 교향곡을 감상하는 일이 단순히 기교적 숙련도나 시각적 조화를 평가하는 초연한 활동일 뿐이라고 처음에 가정한다.',
+        segments: [
+          { text: 'Many spectators', role: 'S', labelKo: '주어(S)' },
+          { text: 'initially', role: 'M', labelKo: '부사' },
+          { text: 'assume', role: 'V', labelKo: '동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'appreciating a painting or symphony', role: 'S', labelKo: '동명사 주어(S′)' },
+          { text: 'is', role: 'V', labelKo: '종속절 동사(V′)' },
+          { text: 'merely a detached exercise', role: 'C', labelKo: '주격 보어(C′)' },
+          { text: 'in judging technical skill or visual harmony.', role: 'M', labelKo: '전치사+동명사 수식' },
+        ],
+      },
+      {
+        id: 'hs11-s2',
+        english:
+          'Yet philosophers of aesthetics argue that meaningful artistic engagement relies far more heavily on empathic imagination than on passive visual inspection.',
+        slashBroken:
+          'Yet philosophers of aesthetics argue / that meaningful artistic engagement / relies far more heavily / on empathic imagination / than on passive visual inspection.',
+        korean:
+          '그러나 예술철학자들은 의미 있는 예술적 참여가 수동적인 시각적 관찰보다는 공감적 상상력에 훨씬 더 크게 의존한다고 주장한다.',
+        segments: [
+          { text: 'Yet', role: 'CONN', labelKo: '역접 접속사' },
+          { text: 'philosophers of aesthetics', role: 'S', labelKo: '주어(S)' },
+          { text: 'argue', role: 'V', labelKo: '동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'meaningful artistic engagement', role: 'S', labelKo: '종속절 주어(S′)' },
+          { text: 'relies', role: 'V', labelKo: '종속절 동사(V′)' },
+          { text: 'far more heavily on empathic imagination', role: 'M', labelKo: '비교급 강조+전치사구' },
+          { text: 'than on passive visual inspection.', role: 'M', labelKo: '비교 병렬(on A than on B)' },
+        ],
+      },
+      {
+        id: 'hs11-s3',
+        english:
+          'When viewers stand before a weathered portrait or listen to a mournful cello passage, they do not simply register pigment or sound waves; they mentally inhabit the emotional posture implied by the work.',
+        slashBroken:
+          'When viewers stand before a weathered portrait / or listen to a mournful cello passage, / they do not simply register pigment or sound waves; / they mentally inhabit the emotional posture / implied by the work.',
+        korean:
+          '감상자들이 세월이 묻어난 초상화 앞에 서거나 애절한 첼로 선율을 들을 때, 그들은 단순히 물감이나 음파를 지각하는 데 그치지 않고 작품이 암시하는 정서적 태도 속으로 마음속 깊이 들어간다.',
+        segments: [
+          { text: 'When', role: 'CONN', labelKo: '시간 접속사' },
+          { text: 'viewers stand before a weathered portrait or listen to a mournful cello passage,', role: 'M', labelKo: '종속절(병렬 동사)' },
+          { text: 'they', role: 'S', labelKo: '주어(S)' },
+          { text: 'do not simply register', role: 'V', labelKo: '부정 동사구(V)' },
+          { text: 'pigment or sound waves;', role: 'O', labelKo: '목적어(O)' },
+          { text: 'they', role: 'S', labelKo: '주어(S)' },
+          { text: 'mentally', role: 'M', labelKo: '부사' },
+          { text: 'inhabit', role: 'V', labelKo: '동사(V)' },
+          { text: 'the emotional posture', role: 'O', labelKo: '목적어(O)' },
+          { text: 'implied by the work.', role: 'M', labelKo: '과거분사 후치수식' },
+        ],
+      },
+      {
+        id: 'hs11-s4',
+        english:
+          "Far from demanding that we share the artist's exact biography, aesthetic empathy invites us to bridge the distance between unfamiliar perspectives and our own lived memory.",
+        slashBroken:
+          "Far from demanding / that we share the artist's exact biography, / aesthetic empathy invites us / to bridge the distance / between unfamiliar perspectives and our own lived memory.",
+        korean:
+          '우리가 예술가와 똑같은 생애를 공유해야 한다고 요구하기는커녕, 미적 공감은 낯선 관점과 우리 자신의 살아온 기억 사이의 거리를 잇도록 우리를 초대한다.',
+        segments: [
+          { text: "Far from demanding that we share the artist's exact biography,", role: 'M', labelKo: 'Far from -ing+당위절' },
+          { text: 'aesthetic empathy', role: 'S', labelKo: '주어(S)' },
+          { text: 'invites', role: 'V', labelKo: '5형식 동사(V)' },
+          { text: 'us', role: 'O', labelKo: '목적어(O)' },
+          { text: 'to bridge the distance between unfamiliar perspectives and our own lived memory.', role: 'C', labelKo: '목적격 보어(to V)' },
+        ],
+      },
+      {
+        id: 'hs11-s5',
+        english:
+          'What makes a great novel or canvas enduring is therefore not its ability to mirror reality with photographic precision, but its power to awaken subtle feelings that ordinary language struggles to articulate.',
+        slashBroken:
+          'What makes a great novel or canvas enduring / is therefore / not its ability to mirror reality with photographic precision, / but its power to awaken subtle feelings / that ordinary language struggles to articulate.',
+        korean:
+          '따라서 위대한 소설이나 그림을 오래도록 남게 만드는 것은 현실을 사진처럼 정밀하게 비추는 능력이 아니라, 일상 언어가 표현하기 어려워하는 미묘한 감정을 깨우는 힘이다.',
+        segments: [
+          { text: 'What makes a great novel or canvas enduring', role: 'S', labelKo: 'what 명사절 주어(5형식)' },
+          { text: 'is', role: 'V', labelKo: '단수 동사(V)' },
+          { text: 'therefore', role: 'CONN', labelKo: '인과 연결어' },
+          { text: 'not its ability to mirror reality with photographic precision,', role: 'C', labelKo: '보어1(not A)' },
+          { text: 'but its power to awaken subtle feelings', role: 'C', labelKo: '보어2(but B)' },
+          { text: 'that ordinary language struggles to articulate.', role: 'M', labelKo: '목적격 관계절' },
+        ],
+      },
+      {
+        id: 'hs11-s6',
+        english:
+          'In this sense, encountering art serves as a quiet rehearsal for moral perception, expanding our capacity to recognize dignity in lives very different from our own.',
+        slashBroken:
+          'In this sense, / encountering art serves as a quiet rehearsal / for moral perception, / expanding our capacity / to recognize dignity in lives very different from our own.',
+        korean:
+          '이런 의미에서 예술과의 만남은 도덕적 지각을 위한 조용한 예행연습 역할을 하며, 우리 자신과 매우 다른 삶 속에서도 존엄성을 알아보는 우리의 역량을 확장한다.',
+        segments: [
+          { text: 'In this sense,', role: 'M', labelKo: '요약 부사구' },
+          { text: 'encountering art', role: 'S', labelKo: '동명사 주어(S)' },
+          { text: 'serves as', role: 'V', labelKo: '동사구(V)' },
+          { text: 'a quiet rehearsal for moral perception,', role: 'O', labelKo: '전치사 목적어' },
+          { text: 'expanding our capacity to recognize dignity in lives very different from our own.', role: 'M', labelKo: '결과 분사구문+형용사 후치수식' },
+        ],
+      },
+    ],
+    syntaxNotes: [
+      {
+        expression: 'the emotional posture implied by the work',
+        grammarPointKo: '과거분사(p.p.) 후치수식',
+        explanationKo:
+          '정서적 태도(posture)는 작품에 의해 "암시되는" 수동 대상이므로 which is가 생략된 과거분사구 implied by the work가 뒤에서 수식합니다.',
+      },
+      {
+        expression: "Far from demanding that we share the artist's exact biography",
+        grammarPointKo: 'Far from + 동명사 + 당위성 demand that S + 동사원형',
+        explanationKo:
+          '"~하기는커녕"을 뜻하는 Far from 뒤에는 동명사 demanding이 오며, 요구 동사 demand의 목적어 that절에는 should가 생략된 동사원형 share가 쓰입니다.',
+      },
+      {
+        expression: 'What makes a great novel or canvas enduring is ~ not A, but B',
+        grammarPointKo: 'What 명사절 단수 주어 + 5형식 make O C + not A but B',
+        explanationKo:
+          '관계대명사 What이 이끄는 명사절이 주어이므로 본동사는 단수 is와 수일치합니다. 내부의 enduring은 목적격 보어 자리의 형용사입니다.',
+      },
+      {
+        expression: 'serves as a quiet rehearsal ~, expanding our capacity to recognize ~',
+        grammarPointKo: '연속·결과 분사구문 + 형용사구 후치수식',
+        explanationKo:
+          '주어 encountering art가 역량을 "확장한다"는 능동 관계이므로 현재분사 expanding이 쓰였고, lives 뒤의 very different from our own이 명사를 뒤에서 꾸며 줍니다.',
+      },
+    ],
+    keyVocab: [
+      { word: 'detached', phonetic: '/dɪˈtætʃt/', meaningKo: '초연한, 거리감을 둔' },
+      { word: 'aesthetics', phonetic: '/iːsˈθet.ɪks/', meaningKo: '미학, 예술철학' },
+      { word: 'inhabit', phonetic: '/ɪnˈhæb.ɪt/', meaningKo: '거주하다, (감정·역할에) 몰입하다' },
+      { word: 'enduring', phonetic: '/ɪnˈdjʊə.rɪŋ/', meaningKo: '오래 지속되는, 영속적인' },
+      { word: 'articulate', phonetic: '/ɑːˈtɪk.jʊ.leɪt/', meaningKo: '분명히 표현하다, 언어화하다' },
+      { word: 'dignity', phonetic: '/ˈdɪɡ.nə.ti/', meaningKo: '존엄성, 품위' },
+    ],
+    questions: [
+      {
+        id: 'hs11-q1',
+        questionType: '빈칸 추론',
+        questionKo: '다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.',
+        stimulusBox:
+          'What makes a great novel or canvas enduring is therefore not its ability to mirror reality with photographic precision, but its power to ________.',
+        options: [
+          'preserve exact historical dates for future archivists',
+          'awaken subtle feelings that ordinary language struggles to articulate',
+          'standardize aesthetic judgment across every artistic movement',
+          'replace personal memory with objective technical rules',
+          "restrict interpretation to the creator's original biography",
+        ],
+        answer: 'awaken subtle feelings that ordinary language struggles to articulate',
+        explanationKo:
+          '앞 문장들에서 예술 감상은 단순한 기교 평가나 작가의 전기 공유가 아니라 "공감적 상상력으로 작품의 정서적 태도에 몰입하고 낯선 관점과 기억을 잇는 일"이라고 밝혔습니다. 따라서 사진 같은 현실 복제(not A)에 대비되는 영속성의 원천은 일상 언어로 담아내기 힘든 미묘한 감정을 깨우는 힘입니다.',
+        grammarTag: 'not A but B 대조 추론',
+      },
+      {
+        id: 'hs11-q2',
+        questionType: '주제·요지',
+        questionKo: '윗글의 요지로 가장 적절한 것을 고르시오.',
+        options: [
+          '위대한 예술 작품을 제대로 이해하려면 작가의 생애와 시대적 배경을 빠짐없이 암기해야 한다.',
+          '현대 회화와 음악은 객관적 사실 묘사 기술이 발전할수록 대중에게 더 오래 기억된다.',
+          '예술 감상은 수동적 기교 평가가 아니라 공감적 상상력을 통해 타인의 삶과 도덕적 감수성을 확장하는 과정이다.',
+          '도덕적 판단력은 예술 교육보다 논리적 토론과 언어 훈련을 통해서만 길러질 수 있다.',
+          '초상화나 첼로 연주 같은 전통 예술은 시각적 조화를 중시하기 때문에 감정 몰입을 배제한다.',
+        ],
+        answer:
+          '예술 감상은 수동적 기교 평가가 아니라 공감적 상상력을 통해 타인의 삶과 도덕적 감수성을 확장하는 과정이다.',
+        explanationKo:
+          '첫 문장의 통념(초연한 기술·조화 평가)을 Yet으로 반박한 뒤, 예술 감상의 본질이 공감적 상상력(empathic imagination)과 낯선 삶 속 존엄성 인식(도덕적 지각의 예행연습)에 있음을 일관되게 전개하고 있습니다.',
+        grammarTag: '통념 반박(Yet) 요지 파악',
+      },
+      {
+        id: 'hs11-q3',
+        questionType: '어법성 판단',
+        questionKo: '다음 밑줄 친 ①~⑤ 중 어법상 틀린 것을 고르시오.',
+        stimulusBox:
+          "Many spectators assume that appreciating art is merely an exercise in ① judging technical skill. Yet viewers mentally inhabit the emotional posture ② implied by the work. Far from demanding that we ③ share the artist's biography, aesthetic empathy bridges unfamiliar perspectives. What makes a great novel or canvas enduring ④ are its power to awaken subtle feelings, ⑤ expanding our capacity to recognize human dignity.",
+        options: [
+          '① judging',
+          '② implied',
+          '③ share',
+          '④ are',
+          '⑤ expanding',
+        ],
+        answer: '④ are',
+        explanationKo:
+          '④ are는 틀렸습니다. 문장의 주어가 선행사를 포함한 관계대명사절 "What makes a great novel or canvas enduring"이므로 절 전체는 단수 취급하여 단수 동사 is로 써야 합니다. ① 전치사 in 뒤 동명사 judging 정답, ② posture를 수식하는 수동 과거분사 implied 정답, ③ demanding that 뒤 동사원형 share 정답, ⑤ 결과 분사구문 expanding 정답입니다.',
+        grammarTag: 'What 명사절 주어 단수 수일치',
+      },
+    ],
+  },
+
+  /* =========================================================================
+   * HS12 — [천체물리학 · C1] Dark Matter and Scientific Humility
+   * ========================================================================= */
+  {
+    id: 'hs12',
+    number: 12,
+    cefrLevel: 'c1',
+    csatGradeTag: '수능 실전 · 1등급 킬러',
+    topicBadge: '천체물리학',
+    titleEn: 'Dark Matter and Scientific Humility',
+    titleKo: '암흑물질과 과학적 겸손',
+    estimatedMin: 10,
+    sentences: [
+      {
+        id: 'hs12-s1',
+        english:
+          'Throughout the early modern era, astronomers took for granted that everything constituting the cosmos could eventually be observed directly, provided that telescopes grew powerful enough.',
+        slashBroken:
+          'Throughout the early modern era, / astronomers took for granted / that everything constituting the cosmos / could eventually be observed directly, / provided that telescopes grew powerful enough.',
+        korean:
+          '근대 초기 내내 천문학자들은 망원경이 충분히 강력해진다는 조건이라면 우주를 구성하는 모든 것이 결국 직접 관측될 수 있다고 당연하게 여겼다.',
+        segments: [
+          { text: 'Throughout the early modern era,', role: 'M', labelKo: '기간 부사구' },
+          { text: 'astronomers', role: 'S', labelKo: '주어(S)' },
+          { text: 'took for granted', role: 'V', labelKo: '관용 동사구(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'everything constituting the cosmos', role: 'S', labelKo: '종속절 주어+현재분사 수식' },
+          { text: 'could eventually be observed directly,', role: 'V', labelKo: '조동사 수동태 동사구' },
+          { text: 'provided that', role: 'CONN', labelKo: '조건 접속사' },
+          { text: 'telescopes grew powerful enough.', role: 'M', labelKo: '조건 부사절' },
+        ],
+      },
+      {
+        id: 'hs12-s2',
+        english:
+          'That confident assumption was shattered in the late twentieth century when Vera Rubin measured the rotation speeds of spiral galaxies and discovered that outer stars orbited far too rapidly to remain bound by visible matter alone.',
+        slashBroken:
+          'That confident assumption was shattered / in the late twentieth century / when Vera Rubin measured the rotation speeds of spiral galaxies / and discovered / that outer stars orbited far too rapidly / to remain bound by visible matter alone.',
+        korean:
+          '그 자신만만한 가정은 20세기 후반 베라 루빈이 나선 은하들의 회전 속도를 측정하고, 외곽의 별들이 눈에 보이는 물질만으로는 결코 붙잡혀 있을 수 없을 만큼 훨씬 지나치게 빠르게 공전한다는 사실을 발견하면서 산산조각 났다.',
+        segments: [
+          { text: 'That confident assumption', role: 'S', labelKo: '주어(S)' },
+          { text: 'was shattered', role: 'V', labelKo: '수동태 동사(V)' },
+          { text: 'in the late twentieth century', role: 'M', labelKo: '시간 부사구' },
+          { text: 'when', role: 'CONN', labelKo: '시간 접속사' },
+          { text: 'Vera Rubin measured the rotation speeds of spiral galaxies and discovered', role: 'M', labelKo: '시간절(병렬 동사)' },
+          { text: 'that outer stars orbited far too rapidly to remain bound by visible matter alone.', role: 'O', labelKo: '목적어 that절(too~to V)' },
+        ],
+      },
+      {
+        id: 'hs12-s3',
+        english:
+          'Were galaxies composed solely of the glowing stars and gas clouds captured by optical instruments, centrifugal force would long ago have flung their outermost stars into intergalactic space.',
+        slashBroken:
+          'Were galaxies composed solely of / the glowing stars and gas clouds captured by optical instruments, / centrifugal force would long ago have flung / their outermost stars / into intergalactic space.',
+        korean:
+          '만약 은하들이 광학 장비에 포착되는 빛나는 별들과 가스 구름만으로 이루어져 있다면, 원심력이 오래전에 가장 바깥쪽 별들을 은하 간 공간으로 내던져 버렸을 것이다.',
+        segments: [
+          { text: 'Were', role: 'V', labelKo: '가정법 if 생략 도치동사' },
+          { text: 'galaxies', role: 'S', labelKo: '조건절 주어(S′)' },
+          { text: 'composed solely of the glowing stars and gas clouds captured by optical instruments,', role: 'C', labelKo: '수동 보어+과거분사 수식' },
+          { text: 'centrifugal force', role: 'S', labelKo: '주절 주어(S)' },
+          { text: 'would long ago have flung', role: 'V', labelKo: '가정법 과거완료 동사구' },
+          { text: 'their outermost stars', role: 'O', labelKo: '목적어(O)' },
+          { text: 'into intergalactic space.', role: 'M', labelKo: '방향 부사구' },
+        ],
+      },
+      {
+        id: 'hs12-s4',
+        english:
+          'To reconcile these measurements with gravitational theory, astrophysicists inferred the existence of dark matter — an invisible scaffolding that neither emits nor absorbs light yet accounts for roughly eighty-five percent of all cosmic mass.',
+        slashBroken:
+          'To reconcile these measurements with gravitational theory, / astrophysicists inferred the existence of dark matter / — an invisible scaffolding / that neither emits nor absorbs light / yet accounts for roughly eighty-five percent of all cosmic mass.',
+        korean:
+          '이러한 측정 결과를 중력 이론과 조화시키기 위해 천체물리학자들은 암흑물질의 존재를 추론했는데, 그것은 빛을 방출하지도 흡수하지도 않지만 전체 우주 질량의 약 85퍼센트를 차지하는 보이지 않는 뼈대이다.',
+        segments: [
+          { text: 'To reconcile these measurements with gravitational theory,', role: 'M', labelKo: '목적 to부정사구' },
+          { text: 'astrophysicists', role: 'S', labelKo: '주어(S)' },
+          { text: 'inferred', role: 'V', labelKo: '동사(V)' },
+          { text: 'the existence of dark matter', role: 'O', labelKo: '목적어(O)' },
+          { text: '—', role: 'PLAIN' },
+          { text: 'an invisible scaffolding', role: 'M', labelKo: '동격 명사구' },
+          { text: 'that neither emits nor absorbs light yet accounts for roughly eighty-five percent of all cosmic mass.', role: 'M', labelKo: '주격 관계절(neither A nor B)' },
+        ],
+      },
+      {
+        id: 'hs12-s5',
+        english:
+          'Remarkably, despite decades of subterranean detectors and particle-collider experiments, scientists still have not isolated the exact particle responsible for this elusive substance.',
+        slashBroken:
+          'Remarkably, / despite decades of subterranean detectors and particle-collider experiments, / scientists still have not isolated / the exact particle / responsible for this elusive substance.',
+        korean:
+          '놀랍게도 수십 년간 지하 검출기와 입자 가속기 실험을 거듭했음에도 불구하고, 과학자들은 이 포착하기 힘든 물질을 이루는 정확한 입자를 아직 분리해 내지 못했다.',
+        segments: [
+          { text: 'Remarkably,', role: 'M', labelKo: '문장 부사' },
+          { text: 'despite decades of subterranean detectors and particle-collider experiments,', role: 'M', labelKo: '양보 전치사구' },
+          { text: 'scientists', role: 'S', labelKo: '주어(S)' },
+          { text: 'still', role: 'M', labelKo: '부사' },
+          { text: 'have not isolated', role: 'V', labelKo: '현재완료 부정 동사구' },
+          { text: 'the exact particle', role: 'O', labelKo: '목적어(O)' },
+          { text: 'responsible for this elusive substance.', role: 'M', labelKo: '형용사구 후치수식' },
+        ],
+      },
+      {
+        id: 'hs12-s6',
+        english:
+          'Rather than signaling a failure of empirical inquiry, however, dark matter embodies the finest virtue of science: the willingness to let stubborn evidence overturn human intuition and expose how much remains unknown.',
+        slashBroken:
+          'Rather than signaling a failure of empirical inquiry, however, / dark matter embodies the finest virtue of science: / the willingness to let stubborn evidence overturn human intuition / and expose how much remains unknown.',
+        korean:
+          '그러나 실증적 탐구의 실패를 뜻하기는커녕, 암흑물질은 과학의 가장 고귀한 미덕—완고한 증거가 인간의 직관을 뒤집고 아직 알려지지 않은 영역이 얼마나 큰지 드러내도록 기꺼이 허용하는 태도—을 구현한다.',
+        segments: [
+          { text: 'Rather than signaling a failure of empirical inquiry,', role: 'M', labelKo: 'Rather than -ing 대조구' },
+          { text: 'however,', role: 'CONN', labelKo: '역접 연결어' },
+          { text: 'dark matter', role: 'S', labelKo: '주어(S)' },
+          { text: 'embodies', role: 'V', labelKo: '동사(V)' },
+          { text: 'the finest virtue of science:', role: 'O', labelKo: '목적어(O)' },
+          { text: 'the willingness to let stubborn evidence overturn human intuition and expose how much remains unknown.', role: 'M', labelKo: '콜론 동격+사역동사 let 병렬' },
+        ],
+      },
+    ],
+    syntaxNotes: [
+      {
+        expression: 'took for granted that everything constituting the cosmos could ~, provided that ~',
+        grammarPointKo: 'take ~ for granted + 현재분사 수식 + 조건 접속사 provided that',
+        explanationKo:
+          '원래 take it for granted that ~ 구조에서 it이 생략된 형태이며, everything을 능동 현재분사 constituting이 꾸며 줍니다. provided that은 "~라는 조건이라면"을 뜻합니다.',
+      },
+      {
+        expression: 'orbited far too rapidly to remain bound by visible matter alone',
+        grammarPointKo: 'too ~ to V + 2형식 remain + 과거분사 보어',
+        explanationKo:
+          '"너무 ~해서 ~할 수 없다"는 too ~ to 구문과, "묶인 채로 남다"라는 수동 상태를 나타내는 remain bound(bind의 과거분사)가 결합된 고급 구문입니다.',
+      },
+      {
+        expression: 'Were galaxies composed solely of ~, centrifugal force would long ago have flung ~',
+        grammarPointKo: 'if 생략 가정법 도치 (Were S ~)',
+        explanationKo:
+          'If galaxies were composed ~에서 접속사 If를 생략하면서 동사 Were가 주어 앞으로 도치되었습니다. 현재의 일반적 조건과 과거의 귀결(would have p.p.)이 맞물린 혼합 가정법입니다.',
+      },
+      {
+        expression: 'an invisible scaffolding that neither emits nor absorbs light yet accounts for ~',
+        grammarPointKo: '단수 선행사 + neither A nor B 동사 병렬 수일치',
+        explanationKo:
+          '선행사 an invisible scaffolding이 단수이므로 주격 관계절 안의 세 동사 emits, absorbs, accounts가 모두 3인칭 단수형으로 정밀하게 수일치됩니다.',
+      },
+    ],
+    keyVocab: [
+      { word: 'constitute', phonetic: '/ˈkɒn.stɪ.tjuːt/', meaningKo: '구성하다, 이루다' },
+      { word: 'centrifugal', phonetic: '/ˌsen.trɪˈfjuː.ɡəl/', meaningKo: '원심의, 중심에서 멀어지는' },
+      { word: 'reconcile', phonetic: '/ˈrek.ən.saɪl/', meaningKo: '조화시키다, 일치시키다' },
+      { word: 'infer', phonetic: '/ɪnˈfɜːr/', meaningKo: '추론하다, 미루어 알다' },
+      { word: 'elusive', phonetic: '/ɪˈluː.sɪv/', meaningKo: '포착하기 어려운, 규명하기 힘든' },
+      { word: 'empirical', phonetic: '/ɪmˈpɪr.ɪ.kəl/', meaningKo: '경험적인, 실증적인' },
+    ],
+    questions: [
+      {
+        id: 'hs12-q1',
+        questionType: '빈칸 추론',
+        questionKo: '다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.',
+        stimulusBox:
+          'Rather than signaling a failure of empirical inquiry, however, dark matter embodies the finest virtue of science: the willingness to ________.',
+        options: [
+          'discard gravitational laws whenever optical telescopes reach their limit',
+          'let stubborn evidence overturn human intuition and expose how much remains unknown',
+          'assume that invisible phenomena lie permanently outside rational study',
+          'treat unverified hypotheses as settled facts before testing them',
+          'limit cosmological research strictly to matter that emits light',
+        ],
+        answer: 'let stubborn evidence overturn human intuition and expose how much remains unknown',
+        explanationKo:
+          '보이는 물질만으로 우주를 설명할 수 있다는 직관(assumption)이 은하 회전 관측 증거에 의해 깨졌고, 아직 입자를 분리하지 못했음에도 증거를 따라 미지의 존재를 인정한다는 흐름입니다. 따라서 과학의 미덕은 "완고한 증거가 인간의 직관을 뒤집고 미지의 영역을 드러내게 허용하는 겸손한 태도"입니다.',
+        grammarTag: '콜론(:) 핵심 정의 빈칸 추론',
+      },
+      {
+        id: 'hs12-q2',
+        questionType: '문장 삽입',
+        questionKo: '글의 흐름으로 보아, 주어진 문장이 들어가기에 가장 적절한 곳을 고르시오.',
+        stimulusBox:
+          '[주어진 문장]\nWere galaxies composed solely of the glowing stars and gas clouds captured by optical instruments, centrifugal force would long ago have flung their outermost stars into intergalactic space.\n\nThroughout the early modern era, astronomers took for granted that everything constituting the cosmos could eventually be observed directly, provided that telescopes grew powerful enough. ( ① ) That confident assumption was shattered in the late twentieth century when Vera Rubin measured the rotation speeds of spiral galaxies and discovered that outer stars orbited far too rapidly to remain bound by visible matter alone. ( ② ) To reconcile these measurements with gravitational theory, astrophysicists inferred the existence of dark matter — an invisible scaffolding that neither emits nor absorbs light yet accounts for roughly eighty-five percent of all cosmic mass. ( ③ ) Remarkably, despite decades of subterranean detectors and particle-collider experiments, scientists still have not isolated the exact particle responsible for this elusive substance. ( ④ ) Rather than signaling a failure of empirical inquiry, however, dark matter embodies the finest virtue of science. ( ⑤ )',
+        options: ['①', '②', '③', '④', '⑤'],
+        answer: '②',
+        explanationKo:
+          '주어진 문장은 ② 앞의 베라 루빈의 발견("외곽 별들이 눈에 보이는 물질만으로는 붙잡혀 있을 수 없을 만큼 빠르게 공전한다")을 물리적으로 부연 설명("보이는 별·가스뿐이라면 원심력이 외곽 별들을 날려 버렸을 것")하며, ② 뒤의 "To reconcile these measurements(이 측정치들을 조화시키기 위해)"로 이어지는 완벽한 교량 역할을 합니다.',
+        grammarTag: '인과·물리적 부연 + 지시어(these measurements)',
+      },
+      {
+        id: 'hs12-q3',
+        questionType: '어법성 판단',
+        questionKo: '다음 밑줄 친 ①~⑤ 중 어법상 틀린 것을 고르시오.',
+        stimulusBox:
+          'Astronomers assumed that everything ① constituting the cosmos could be observed directly. Yet outer stars orbited far too rapidly to ② remain bound by visible matter alone. ③ Were galaxies composed solely of glowing stars, centrifugal force would have flung them outward. Astrophysicists therefore inferred an invisible scaffolding that neither emits nor ④ absorb light, though scientists still have not ⑤ isolated the exact particle.',
+        options: [
+          '① constituting',
+          '② remain',
+          '③ Were',
+          '④ absorb',
+          '⑤ isolated',
+        ],
+        answer: '④ absorb',
+        explanationKo:
+          '④ absorb는 틀렸습니다. 주격 관계대명사 that의 선행사가 단수명사구 an invisible scaffolding이고 앞의 병렬 동사도 단수 emits이므로, neither A nor B 병렬 구조에 맞춰 단수 동사 absorbs로 고쳐야 합니다. ① 능동 현재분사 constituting 정답, ② too ~ to 동사원형 remain 정답, ③ if 생략 가정법 도치 Were 정답, ⑤ 현재완료 과거분사 isolated 정답입니다.',
+        grammarTag: '관계절 병렬 동사 단수 수일치 (neither emits nor absorbs)',
+      },
+    ],
+  },
+
+  /* =========================================================================
+   * HS13 — [경제사 · B2] Money as a Shared Social Fiction
+   * ========================================================================= */
+  {
+    id: 'hs13',
+    number: 13,
+    cefrLevel: 'b2',
+    csatGradeTag: '고2·고3 학평 · 1등급',
+    topicBadge: '경제사',
+    titleEn: 'Money as a Shared Social Fiction',
+    titleKo: '신뢰의 산물로서의 화폐 역사',
+    estimatedMin: 8,
+    sentences: [
+      {
+        id: 'hs13-s1',
+        english:
+          'People tend to think of money as a tangible object whose worth stems from the physical material out of which it is made.',
+        slashBroken:
+          'People tend to think of money / as a tangible object / whose worth stems from the physical material / out of which it is made.',
+        korean:
+          '사람들은 화폐를 그것이 만들어진 물리적 재료에서 가치가 비롯되는 유형의 물건으로 생각하는 경향이 있다.',
+        segments: [
+          { text: 'People', role: 'S', labelKo: '주어(S)' },
+          { text: 'tend to think of', role: 'V', labelKo: '동사구(V)' },
+          { text: 'money', role: 'O', labelKo: '목적어(O)' },
+          { text: 'as a tangible object', role: 'M', labelKo: 'think of A as B' },
+          { text: 'whose worth stems from the physical material', role: 'M', labelKo: '소유격 관계절' },
+          { text: 'out of which it is made.', role: 'M', labelKo: '전치사+관계대명사절' },
+        ],
+      },
+      {
+        id: 'hs13-s2',
+        english:
+          'Yet economic historians emphasize that from Mesopotamian clay tablets to modern digital ledgers, currency has always functioned primarily as an agreed-upon system of mutual trust.',
+        slashBroken:
+          'Yet economic historians emphasize / that from Mesopotamian clay tablets to modern digital ledgers, / currency has always functioned primarily / as an agreed-upon system of mutual trust.',
+        korean:
+          '그러나 경제사학자들은 메소포타미아의 점토판에서 현대의 디지털 장부에 이르기까지 화폐는 언제나 주로 상호 신뢰에 기반한 합의된 체계로 기능해 왔다고 강조한다.',
+        segments: [
+          { text: 'Yet', role: 'CONN', labelKo: '역접 접속사' },
+          { text: 'economic historians', role: 'S', labelKo: '주어(S)' },
+          { text: 'emphasize', role: 'V', labelKo: '동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'from Mesopotamian clay tablets to modern digital ledgers,', role: 'M', labelKo: '범위 부사구(from A to B)' },
+          { text: 'currency', role: 'S', labelKo: '종속절 주어(S′)' },
+          { text: 'has always functioned', role: 'V', labelKo: '현재완료 동사(V′)' },
+          { text: 'primarily as an agreed-upon system of mutual trust.', role: 'M', labelKo: '역할 부사구(as)' },
+        ],
+      },
+      {
+        id: 'hs13-s3',
+        english:
+          'Even gold coins owed much of their purchasing power not to their metallic utility, but to the widespread conviction that strangers in distant markets would willingly accept them in return for food and shelter.',
+        slashBroken:
+          'Even gold coins owed much of their purchasing power / not to their metallic utility, / but to the widespread conviction / that strangers in distant markets would willingly accept them / in return for food and shelter.',
+        korean:
+          '심지어 금화조차 구매력의 상당 부분을 금속 자체의 실용성이 아니라, 먼 시장의 낯선 이들이 식량과 거처의 대가로 그것을 기꺼이 받아 줄 것이라는 널리 퍼진 확신에 힘입고 있었다.',
+        segments: [
+          { text: 'Even gold coins', role: 'S', labelKo: '주어(S)' },
+          { text: 'owed', role: 'V', labelKo: '동사(V)' },
+          { text: 'much of their purchasing power', role: 'O', labelKo: '목적어(O)' },
+          { text: 'not to their metallic utility,', role: 'M', labelKo: 'owe A not to B' },
+          { text: 'but to the widespread conviction', role: 'M', labelKo: 'but to C' },
+          { text: 'that strangers in distant markets would willingly accept them in return for food and shelter.', role: 'M', labelKo: '동격 접속사 that절' },
+        ],
+      },
+      {
+        id: 'hs13-s4',
+        english:
+          'Once sovereign states replaced precious metals with paper banknotes backed solely by institutional credibility, this collective belief became even more unmistakably visible.',
+        slashBroken:
+          'Once sovereign states replaced precious metals / with paper banknotes backed solely by institutional credibility, / this collective belief became / even more unmistakably visible.',
+        korean:
+          '주권 국가들이 귀금속을 오직 제도적 신뢰성만으로 뒷받침되는 지폐로 대체하자, 이러한 집단적 믿음은 더욱더 명백하게 눈에 띄게 되었다.',
+        segments: [
+          { text: 'Once', role: 'CONN', labelKo: '시간·조건 접속사' },
+          { text: 'sovereign states replaced precious metals with paper banknotes backed solely by institutional credibility,', role: 'M', labelKo: '종속절(replace A with B+과거분사)' },
+          { text: 'this collective belief', role: 'S', labelKo: '주어(S)' },
+          { text: 'became', role: 'V', labelKo: '2형식 동사(V)' },
+          { text: 'even more unmistakably visible.', role: 'C', labelKo: '비교급 강조 보어(C)' },
+        ],
+      },
+      {
+        id: 'hs13-s5',
+        english:
+          'Whenever runaway inflation or political collapse erodes faith in the issuing authority, banknotes that once commanded immense value can rapidly deteriorate into worthless scraps of paper.',
+        slashBroken:
+          'Whenever runaway inflation or political collapse / erodes faith in the issuing authority, / banknotes that once commanded immense value / can rapidly deteriorate / into worthless scraps of paper.',
+        korean:
+          '통제 불능의 인플레이션이나 정치적 붕괴가 발행 당국에 대한 믿음을 갉아먹을 때마다, 한때 막대한 가치를 지휘하던 지폐도 순식간에 가치 없는 종잇조각으로 전락할 수 있다.',
+        segments: [
+          { text: 'Whenever', role: 'CONN', labelKo: '복합관계부사' },
+          { text: 'runaway inflation or political collapse erodes faith in the issuing authority,', role: 'M', labelKo: '조건 부사절(단수 수일치)' },
+          { text: 'banknotes', role: 'S', labelKo: '주어(S)' },
+          { text: 'that once commanded immense value', role: 'M', labelKo: '주격 관계절' },
+          { text: 'can rapidly deteriorate', role: 'V', labelKo: '동사구(V)' },
+          { text: 'into worthless scraps of paper.', role: 'M', labelKo: '결과 전치사구' },
+        ],
+      },
+      {
+        id: 'hs13-s6',
+        english:
+          "Money is therefore best understood not as an intrinsic property of coins or pixels, but as humanity's most successful shared social fiction — a story that works precisely because nearly everyone agrees to believe in it.",
+        slashBroken:
+          "Money is therefore best understood / not as an intrinsic property of coins or pixels, / but as humanity's most successful shared social fiction / — a story that works precisely / because nearly everyone agrees to believe in it.",
+        korean:
+          '따라서 화폐는 동전이나 픽셀의 고유한 속성이 아니라 인류가 만든 가장 성공적인 공유된 사회적 허구—거의 모든 사람이 그것을 믿기로 합의했기 때문에 정확히 작동하는 이야기—로 이해할 때 가장 잘 파악된다.',
+        segments: [
+          { text: 'Money', role: 'S', labelKo: '주어(S)' },
+          { text: 'is', role: 'Aux', labelKo: '수동태 조동사' },
+          { text: 'therefore', role: 'CONN', labelKo: '인과 연결어' },
+          { text: 'best understood', role: 'V', labelKo: '수동태 본동사(V)' },
+          { text: 'not as an intrinsic property of coins or pixels,', role: 'M', labelKo: 'not as A' },
+          { text: "but as humanity's most successful shared social fiction", role: 'M', labelKo: 'but as B' },
+          { text: '—', role: 'PLAIN' },
+          { text: 'a story that works precisely because nearly everyone agrees to believe in it.', role: 'M', labelKo: '동격 명사구+관계절·이유절' },
+        ],
+      },
+    ],
+    syntaxNotes: [
+      {
+        expression: 'whose worth stems from the physical material out of which it is made',
+        grammarPointKo: '소유격 관계대명사 whose + 전치사구 + 관계대명사(out of which)',
+        explanationKo:
+          'whose worth는 "그 물건의 가치"를 뜻하는 소유격 관계절이며, be made out of(재료로 만들어지다)의 전치사구 out of가 관계대명사 which 앞으로 이동했습니다.',
+      },
+      {
+        expression: 'owed much of their purchasing power not to A, but to the widespread conviction that ~',
+        grammarPointKo: 'owe A to B + not ~ but ~ 병렬 + 동격 접속사 that',
+        explanationKo:
+          '"A를 B 덕분으로 돌리다"라는 owe A to B 구문이 not to A, but to B로 대조되었고, 추상명사 conviction 뒤에 완전한 절을 이끄는 동격의 that이 이어집니다.',
+      },
+      {
+        expression: 'paper banknotes backed solely by institutional credibility',
+        grammarPointKo: '과거분사구 후치수식 (backed by)',
+        explanationKo:
+          '지폐(paper banknotes)는 제도적 신뢰에 의해 "뒷받침되는" 수동 대상이므로 과거분사 backed가 뒤에서 명사를 수식합니다.',
+      },
+      {
+        expression: 'Whenever runaway inflation or political collapse erodes faith ~',
+        grammarPointKo: '복합관계부사 Whenever + A or B 단수 수일치',
+        explanationKo:
+          '"~할 때마다"를 뜻하는 Whenever절의 주어가 or로 연결된 두 단수명사(inflation / collapse)이므로 단수 동사 erodes로 일치시킵니다.',
+      },
+    ],
+    keyVocab: [
+      { word: 'tangible', phonetic: '/ˈtæn.dʒə.bəl/', meaningKo: '유형의, 만질 수 있는' },
+      { word: 'ledger', phonetic: '/ˈledʒ.ər/', meaningKo: '원장, 회계 장부' },
+      { word: 'conviction', phonetic: '/kənˈvɪk.ʃən/', meaningKo: '확신, 신념' },
+      { word: 'sovereign', phonetic: '/ˈsɒv.rɪn/', meaningKo: '주권의, 자주적인' },
+      { word: 'deteriorate', phonetic: '/dɪˈtɪə.ri.ə.reɪt/', meaningKo: '악화되다, (가치가) 떨어지다' },
+      { word: 'intrinsic', phonetic: '/ɪnˈtrɪn.zɪk/', meaningKo: '본질적인, 고유한' },
+    ],
+    questions: [
+      {
+        id: 'hs13-q1',
+        questionType: '글의 순서 (A-B-C)',
+        questionKo: '주어진 글 다음에 이어질 글의 순서로 가장 적절한 것을 고르시오.',
+        stimulusBox:
+          "[주어진 글]\nPeople tend to think of money as a tangible object whose worth stems from the physical material out of which it is made.\n\n(A) Once sovereign states replaced precious metals with paper banknotes backed solely by institutional credibility, this collective belief became even more unmistakably visible.\n(B) Whenever runaway inflation or political collapse erodes faith in the issuing authority, banknotes that once commanded immense value can rapidly deteriorate into worthless scraps of paper. Money is therefore best understood as humanity's most successful shared social fiction.\n(C) Yet economic historians emphasize that from Mesopotamian clay tablets to modern digital ledgers, currency has always functioned primarily as an agreed-upon system of mutual trust. Even gold coins owed much of their purchasing power to the widespread conviction that strangers would accept them.",
+        options: [
+          '(A) - (C) - (B)',
+          '(B) - (A) - (C)',
+          '(B) - (C) - (A)',
+          '(C) - (A) - (B)',
+          '(C) - (B) - (A)',
+        ],
+        answer: '(C) - (A) - (B)',
+        explanationKo:
+          '주어진 글의 통념(화폐의 가치는 물리적 재료에서 나온다)을 (C)가 Yet으로 정면 반박하며 금화조차 "널리 퍼진 확신(widespread conviction)"에 의존했음을 제시합니다. 이어 (A)의 "this collective belief"가 (C)의 확신을 받아 지폐 시대로 확장하고, (B)가 지폐의 신뢰 붕괴 사례와 therefore 결론으로 마무리하므로 (C)-(A)-(B)가 정답입니다.',
+        grammarTag: '역접(Yet) → 지시어(this belief) → 사례·결론(therefore)',
+      },
+      {
+        id: 'hs13-q2',
+        questionType: '요약문 완성',
+        questionKo: '윗글의 내용을 한 문장으로 요약하고자 한다. 빈칸 (A), (B)에 들어갈 말로 가장 적절한 것은?',
+        stimulusBox:
+          'Rather than deriving its value solely from its (A) ________ substance, money operates as a social convention sustained by collective (B) ________ in the institutions and communities that accept it.',
+        options: [
+          '(A) symbolic — (B) scarcity',
+          '(A) digital — (B) secrecy',
+          '(A) artistic — (B) competition',
+          '(A) temporary — (B) isolation',
+          '(A) physical — (B) trust',
+        ],
+        answer: '(A) physical — (B) trust',
+        explanationKo:
+          '본문은 화폐의 가치가 물리적 재료(physical material / intrinsic property)가 아니라 발행 주체와 거래 공동체에 대한 집단적 신뢰(mutual trust / collective belief)에 의해 유지된다고 설명하므로 (A) physical — (B) trust가 정확합니다.',
+        grammarTag: '핵심 대조 개념어 요약',
+      },
+      {
+        id: 'hs13-q3',
+        questionType: '주제·요지',
+        questionKo: '윗글의 제목으로 가장 적절한 것을 고르시오.',
+        options: [
+          'Why Ancient Societies Abandoned Clay Tablets for Gold Mining',
+          'Money: Not Intrinsic Substance, but Collective Trust',
+          'How Digital Ledgers Eliminated Political Inflation Forever',
+          'The Hidden Metallic Value Behind Modern Paper Banknotes',
+          'Competing Currencies: Why Distant Markets Reject Paper Money',
+        ],
+        answer: 'Money: Not Intrinsic Substance, but Collective Trust',
+        explanationKo:
+          '점토판·금화·지폐·디지털 장부를 관통하는 화폐의 본질이 물질 자체의 고유 가치(intrinsic substance)가 아니라 집단적 신뢰(collective trust)라는 주제를 가장 정확히 압축한 제목입니다.',
+        grammarTag: '핵심 대조 구조(not A but B) 제목 추론',
+      },
+    ],
+  },
+
+  /* =========================================================================
+   * HS14 — [사회심리학 · B2] The Bystander Effect and Moral Courage
+   * ========================================================================= */
+  {
+    id: 'hs14',
+    number: 14,
+    cefrLevel: 'b2',
+    csatGradeTag: '고3 모의평가 · 1등급',
+    topicBadge: '사회심리학',
+    titleEn: 'The Bystander Effect and Moral Courage',
+    titleKo: '방관자 효과와 책임의 분산',
+    estimatedMin: 9,
+    sentences: [
+      {
+        id: 'hs14-s1',
+        english:
+          'Common sense suggests that a person facing an emergency in a crowded public square is far safer than someone stranded on an empty street.',
+        slashBroken:
+          'Common sense suggests / that a person facing an emergency in a crowded public square / is far safer / than someone stranded on an empty street.',
+        korean:
+          '상식적으로 생각해 보면 붐비는 공공 광장에서 비상사태를 맞은 사람이 텅 빈 거리에 고립된 사람보다 훨씬 더 안전할 것 같다.',
+        segments: [
+          { text: 'Common sense', role: 'S', labelKo: '주어(S)' },
+          { text: 'suggests', role: 'V', labelKo: '동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'a person facing an emergency in a crowded public square', role: 'S', labelKo: '종속절 주어+현재분사 수식' },
+          { text: 'is', role: 'V', labelKo: '종속절 동사(V′)' },
+          { text: 'far safer', role: 'C', labelKo: '비교급 강조 보어(C′)' },
+          { text: 'than someone stranded on an empty street.', role: 'M', labelKo: '비교 대상+과거분사 수식' },
+        ],
+      },
+      {
+        id: 'hs14-s2',
+        english:
+          'Counterintuitively, classic experiments by social psychologists John Darley and Bibb Latane demonstrated that the presence of additional onlookers sharply reduces the likelihood that any single individual will intervene.',
+        slashBroken:
+          'Counterintuitively, / classic experiments by social psychologists John Darley and Bibb Latane / demonstrated / that the presence of additional onlookers / sharply reduces the likelihood / that any single individual will intervene.',
+        korean:
+          '직관에 반하게도 사회심리학자 존 달리와 비브 라타네의 고전적 실험들은 추가적인 구경꾼의 존재가 어느 한 개인이 개입할 가능성을 급격히 낮춘다는 점을 입증했다.',
+        segments: [
+          { text: 'Counterintuitively,', role: 'M', labelKo: '역설 부사' },
+          { text: 'classic experiments by social psychologists John Darley and Bibb Latane', role: 'S', labelKo: '주어(S)' },
+          { text: 'demonstrated', role: 'V', labelKo: '동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'the presence of additional onlookers', role: 'S', labelKo: '종속절 주어(단수)' },
+          { text: 'sharply reduces', role: 'V', labelKo: '단수 동사(V′)' },
+          { text: 'the likelihood', role: 'O', labelKo: '목적어(추상명사)' },
+          { text: 'that any single individual will intervene.', role: 'M', labelKo: '동격 접속사 that절' },
+        ],
+      },
+      {
+        id: 'hs14-s3',
+        english:
+          'Known as the bystander effect, this phenomenon arises from two reinforcing forces: diffusion of responsibility, which encourages each witness to assume someone else will act, and pluralistic ignorance, in which everyone scans calm faces around them and concludes that no genuine crisis exists.',
+        slashBroken:
+          'Known as the bystander effect, / this phenomenon arises from two reinforcing forces: / diffusion of responsibility, / which encourages each witness to assume someone else will act, / and pluralistic ignorance, / in which everyone scans calm faces around them / and concludes that no genuine crisis exists.',
+        korean:
+          '방관자 효과로 알려진 이 현상은 서로를 강화하는 두 가지 힘에서 비롯되는데, 각 목격자가 다른 누군가가 행동할 것이라고 가정하게 만드는 책임의 분산과, 모두가 주변의 침착한 표정을 훑어보고 진짜 위기가 없다고 결론 내리는 다원적 무지이다.',
+        segments: [
+          { text: 'Known as the bystander effect,', role: 'M', labelKo: '수동 분사구문' },
+          { text: 'this phenomenon', role: 'S', labelKo: '주어(S)' },
+          { text: 'arises from', role: 'V', labelKo: '동사구(V)' },
+          { text: 'two reinforcing forces:', role: 'O', labelKo: '전치사 목적어' },
+          { text: 'diffusion of responsibility, which encourages each witness to assume someone else will act,', role: 'M', labelKo: '요인1+계속적 관계절' },
+          { text: 'and pluralistic ignorance, in which everyone scans calm faces around them and concludes that no genuine crisis exists.', role: 'M', labelKo: '요인2+전치사+관계절' },
+        ],
+      },
+      {
+        id: 'hs14-s4',
+        english:
+          'Crucially, such hesitation rarely stems from coldhearted apathy; rather, it reflects our deep social sensitivity to ambiguity and fear of public embarrassment.',
+        slashBroken:
+          'Crucially, / such hesitation rarely stems from coldhearted apathy; / rather, it reflects / our deep social sensitivity to ambiguity / and fear of public embarrassment.',
+        korean:
+          '결정적으로 그러한 망설임은 냉혹한 무관심에서 비롯되는 경우가 드물며, 오히려 모호함에 대한 우리의 깊은 사회적 민감성과 공개적 망신에 대한 두려움을 반영한다.',
+        segments: [
+          { text: 'Crucially,', role: 'M', labelKo: '강조 부사' },
+          { text: 'such hesitation', role: 'S', labelKo: '주어(S)' },
+          { text: 'rarely stems from', role: 'V', labelKo: '준부정 동사구(V)' },
+          { text: 'coldhearted apathy;', role: 'O', labelKo: '전치사 목적어' },
+          { text: 'rather,', role: 'CONN', labelKo: '수정·대조 연결어' },
+          { text: 'it', role: 'S', labelKo: '주어(S)' },
+          { text: 'reflects', role: 'V', labelKo: '동사(V)' },
+          { text: 'our deep social sensitivity to ambiguity and fear of public embarrassment.', role: 'O', labelKo: '병렬 목적어(O)' },
+        ],
+      },
+      {
+        id: 'hs14-s5',
+        english:
+          'Yet once a single witness breaks the silence or a victim points directly at one individual and assigns a specific request, the spell of collective paralysis dissolves almost immediately.',
+        slashBroken:
+          'Yet once a single witness breaks the silence / or a victim points directly at one individual and assigns a specific request, / the spell of collective paralysis / dissolves almost immediately.',
+        korean:
+          '그러나 단 한 명의 목격자가 침묵을 깨거나 피해자가 한 개인을 직접 지목해 구체적인 요청을 부여하는 순간, 집단적 마비의 주술은 거의 즉시 풀린다.',
+        segments: [
+          { text: 'Yet', role: 'CONN', labelKo: '역접 접속사' },
+          { text: 'once', role: 'CONN', labelKo: '조건·시간 접속사' },
+          { text: 'a single witness breaks the silence or a victim points directly at one individual and assigns a specific request,', role: 'M', labelKo: '조건 부사절(병렬)' },
+          { text: 'the spell of collective paralysis', role: 'S', labelKo: '주어(S)' },
+          { text: 'dissolves', role: 'V', labelKo: '자동사(V)' },
+          { text: 'almost immediately.', role: 'M', labelKo: '부사구' },
+        ],
+      },
+      {
+        id: 'hs14-s6',
+        english:
+          'Understanding these psychological dynamics thus empowers ordinary citizens to transform passive crowds into responsive communities simply by stepping forward first.',
+        slashBroken:
+          'Understanding these psychological dynamics / thus empowers ordinary citizens / to transform passive crowds into responsive communities / simply by stepping forward first.',
+        korean:
+          '따라서 이러한 심리적 역학을 이해하는 것은 평범한 시민들이 먼저 한 걸음 나서는 것만으로도 수동적인 군중을 기민하게 응답하는 공동체로 탈바꿈시킬 힘을 준다.',
+        segments: [
+          { text: 'Understanding these psychological dynamics', role: 'S', labelKo: '동명사 주어(단수)' },
+          { text: 'thus', role: 'CONN', labelKo: '인과 연결어' },
+          { text: 'empowers', role: 'V', labelKo: '5형식 단수 동사(V)' },
+          { text: 'ordinary citizens', role: 'O', labelKo: '목적어(O)' },
+          { text: 'to transform passive crowds into responsive communities', role: 'C', labelKo: '목적격 보어(to V)' },
+          { text: 'simply by stepping forward first.', role: 'M', labelKo: '수단(by -ing)' },
+        ],
+      },
+    ],
+    syntaxNotes: [
+      {
+        expression: 'the likelihood that any single individual will intervene',
+        grammarPointKo: '추상명사 likelihood + 동격 접속사 that',
+        explanationKo:
+          '"~할 가능성"이라는 추상명사 likelihood의 구체적 내용을 완전한 절로 풀어 주는 동격 접속사 that입니다(관계대명사 which로 바꿀 수 없음).',
+      },
+      {
+        expression: 'Known as the bystander effect, this phenomenon arises from ~, in which ~',
+        grammarPointKo: '수동 분사구문 + 전치사+관계대명사 (in which)',
+        explanationKo:
+          '주어 this phenomenon이 방관자 효과로 "알려져 있는" 수동 관계이므로 Known as를 쓰며, pluralistic ignorance라는 상황 안에서 벌어지는 완전한 절을 in which가 연결합니다.',
+      },
+      {
+        expression: 'rarely stems from coldhearted apathy; rather, it reflects ~',
+        grammarPointKo: '준부정어 rarely + 수정 연결어 rather 대조',
+        explanationKo:
+          '앞 절을 부정·약화(rarely)한 뒤 세미콜론과 rather("오히려")를 통해 진짜 원인을 제시하는 논설문 핵심 전환 구조입니다.',
+      },
+      {
+        expression: 'empowers ordinary citizens to transform passive crowds into responsive communities',
+        grammarPointKo: '5형식 empower O to V + transform A into B',
+        explanationKo:
+          '동명사 주어 Understanding ~이 단수이므로 empowers와 수일치하며, empower는 목적격 보어로 to부정사(to transform)를 취합니다.',
+      },
+    ],
+    keyVocab: [
+      { word: 'stranded', phonetic: '/ˈstræn.dɪd/', meaningKo: '발이 묶인, 고립된' },
+      { word: 'counterintuitively', phonetic: '/ˌkaʊn.tər.ɪnˈtjuː.ɪ.tɪv.li/', meaningKo: '직관에 반하게도' },
+      { word: 'intervene', phonetic: '/ˌɪn.təˈviːn/', meaningKo: '개입하다, 나서다' },
+      { word: 'diffusion', phonetic: '/dɪˈfjuː.ʒən/', meaningKo: '확산, 분산' },
+      { word: 'apathy', phonetic: '/ˈæp.ə.θi/', meaningKo: '무관심, 냉담' },
+      { word: 'paralysis', phonetic: '/pəˈræl.ə.sɪs/', meaningKo: '마비, 무력 상태' },
+    ],
+    questions: [
+      {
+        id: 'hs14-q1',
+        questionType: '빈칸 추론',
+        questionKo: '다음 빈칸에 들어갈 말로 가장 적절한 것을 고르시오.',
+        stimulusBox:
+          'Yet once a single witness breaks the silence or a victim points directly at one individual and assigns a specific request, ________.',
+        options: [
+          'nearby onlookers become even more hesitant to speak up',
+          'pluralistic ignorance spreads more rapidly across the square',
+          'the spell of collective paralysis dissolves almost immediately',
+          'the crowd prefers to wait for official emergency guidelines',
+          'social sensitivity turns into permanent moral indifference',
+        ],
+        answer: 'the spell of collective paralysis dissolves almost immediately',
+        explanationKo:
+          '앞 문단에서 방관자 효과가 "모호함(누가 나설지 모름)"과 "책임 분산"에서 비롯된다고 설명했고, 빈칸 앞은 Yet으로 전환하며 "한 사람이 침묵을 깨거나 특정 개인에게 구체적 요청을 지정하면"이라고 조건을 걸었습니다. 따라서 그 결과는 집단적 마비(방관)가 즉시 풀린다는 내용이 들어가야 합니다.',
+        grammarTag: '전환(Yet once) 문제 해결 결과 추론',
+      },
+      {
+        id: 'hs14-q2',
+        questionType: '글의 순서 (A-B-C)',
+        questionKo: '주어진 글 다음에 이어질 글의 순서로 가장 적절한 것을 고르시오.',
+        stimulusBox:
+          '[주어진 글]\nCommon sense suggests that a person facing an emergency in a crowded public square is far safer than someone stranded on an empty street.\n\n(A) Known as the bystander effect, this phenomenon arises from diffusion of responsibility and pluralistic ignorance. Crucially, such hesitation rarely stems from coldhearted apathy; rather, it reflects our sensitivity to ambiguity and fear of embarrassment.\n(B) Counterintuitively, classic experiments by social psychologists John Darley and Bibb Latane demonstrated that the presence of additional onlookers sharply reduces the likelihood that any single individual will intervene.\n(C) Yet once a single witness breaks the silence or a victim assigns a specific request to one individual, the spell of collective paralysis dissolves almost immediately. Understanding these dynamics empowers citizens to step forward first.',
+        options: [
+          '(A) - (C) - (B)',
+          '(B) - (A) - (C)',
+          '(B) - (C) - (A)',
+          '(C) - (A) - (B)',
+          '(C) - (B) - (A)',
+        ],
+        answer: '(B) - (A) - (C)',
+        explanationKo:
+          '(B)의 "Counterintuitively(직관에 반하게도)"가 주어진 글의 "Common sense(상식)"를 뒤집으며 실험 결과를 제시합니다. 이어 (A)의 "this phenomenon"이 (B)의 개입 감소 현상을 방관자 효과로 명명하고 원인을 분석하며, (C)가 Yet으로 반전하며 집단적 마비를 깨는 해법으로 마무리하므로 (B)-(A)-(C)가 정답입니다.',
+        grammarTag: '통념 대조(Counterintuitively) → 원인 분석(this phenomenon) → 해결(Yet)',
+      },
+      {
+        id: 'hs14-q3',
+        questionType: '요약문 완성',
+        questionKo: '윗글의 내용을 한 문장으로 요약하고자 한다. 빈칸 (A), (B)에 들어갈 말로 가장 적절한 것은?',
+        stimulusBox:
+          'In emergencies, having more witnesses often delays help not because bystanders are inherently (A) ________, but because shared presence dilutes personal accountability — a barrier that breaks once responsibility is clearly (B) ________.',
+        options: [
+          '(A) impulsive — (B) hidden',
+          '(A) courageous — (B) avoided',
+          '(A) experienced — (B) delayed',
+          '(A) anxious — (B) forgotten',
+          '(A) indifferent — (B) assigned',
+        ],
+        answer: '(A) indifferent — (B) assigned',
+        explanationKo:
+          '본문의 "rarely stems from coldhearted apathy(냉혹한 무관심)"가 (A) indifferent(무관심한)에, "assigns a specific request(구체적 요청을 지정하다)"가 (B) assigned(부여된·지정된)에 정확히 대응됩니다.',
+        grammarTag: '원인 부정(not A but B) + 해결 조건 요약',
+      },
+    ],
+  },
+
+  /* =========================================================================
+   * HS15 — [의학·생명윤리 · C1] The Placebo Effect and Mind-Body Healing
+   * ========================================================================= */
+  {
+    id: 'hs15',
+    number: 15,
+    cefrLevel: 'c1',
+    csatGradeTag: '수능 실전 · 1등급 킬러',
+    topicBadge: '의학·생명윤리',
+    titleEn: 'The Placebo Effect and Mind-Body Healing',
+    titleKo: '플라시보 효과와 심신 의학',
+    estimatedMin: 10,
+    sentences: [
+      {
+        id: 'hs15-s1',
+        english:
+          'For much of modern medical history, the placebo effect was regarded as little more than an inconvenient statistical nuisance to be filtered out during clinical drug trials.',
+        slashBroken:
+          'For much of modern medical history, / the placebo effect was regarded / as little more than an inconvenient statistical nuisance / to be filtered out during clinical drug trials.',
+        korean:
+          '근대 의학사의 상당 기간 동안 플라시보 효과는 임상 약물 시험 과정에서 걸러 내야 할 성가신 통계적 방해 요소에 불과한 것으로 취급되었다.',
+        segments: [
+          { text: 'For much of modern medical history,', role: 'M', labelKo: '기간 부사구' },
+          { text: 'the placebo effect', role: 'S', labelKo: '주어(S)' },
+          { text: 'was regarded as', role: 'V', labelKo: '수동태 동사구(V)' },
+          { text: 'little more than an inconvenient statistical nuisance', role: 'C', labelKo: '보어(단지 ~에 불과한)' },
+          { text: 'to be filtered out during clinical drug trials.', role: 'M', labelKo: '수동 to부정사 형용사적 수식' },
+        ],
+      },
+      {
+        id: 'hs15-s2',
+        english:
+          'Recent breakthroughs in neuroimaging, however, have demonstrated that inert treatments paired with compassionate clinical rituals can trigger measurable biochemical changes, including the release of endogenous opioids and dopamine.',
+        slashBroken:
+          'Recent breakthroughs in neuroimaging, however, / have demonstrated / that inert treatments paired with compassionate clinical rituals / can trigger measurable biochemical changes, / including the release of endogenous opioids and dopamine.',
+        korean:
+          '그러나 최근 신경영상학의 획기적 진전은, 약리 성분이 없는 처치라도 따뜻한 임상적 의례와 결합되면 내인성 오피오이드와 도파민 분비를 포함한 측정 가능한 생화학적 변화를 촉발할 수 있음을 입증했다.',
+        segments: [
+          { text: 'Recent breakthroughs in neuroimaging,', role: 'S', labelKo: '주어(S)' },
+          { text: 'however,', role: 'CONN', labelKo: '역접 연결어' },
+          { text: 'have demonstrated', role: 'V', labelKo: '현재완료 동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'inert treatments paired with compassionate clinical rituals', role: 'S', labelKo: '종속절 주어+과거분사 수식' },
+          { text: 'can trigger', role: 'V', labelKo: '종속절 동사(V′)' },
+          { text: 'measurable biochemical changes,', role: 'O', labelKo: '목적어(O′)' },
+          { text: 'including the release of endogenous opioids and dopamine.', role: 'M', labelKo: '예시 전치사구' },
+        ],
+      },
+      {
+        id: 'hs15-s3',
+        english:
+          "Far from proving that a patient's pain was imaginary, these neural findings confirm that expectation and context actively recruit the central nervous system's own symptom-modulating pathways.",
+        slashBroken:
+          "Far from proving that a patient's pain was imaginary, / these neural findings confirm / that expectation and context / actively recruit / the central nervous system's own symptom-modulating pathways.",
+        korean:
+          '환자의 통증이 상상 속의 산물이었다는 사실을 증명하기는커녕, 이러한 신경학적 발견들은 기대와 맥락이 중추신경계 자체의 증상 조절 경로를 능동적으로 동원한다는 점을 확증한다.',
+        segments: [
+          { text: "Far from proving that a patient's pain was imaginary,", role: 'M', labelKo: 'Far from -ing 대조구' },
+          { text: 'these neural findings', role: 'S', labelKo: '주어(S)' },
+          { text: 'confirm', role: 'V', labelKo: '동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'expectation and context', role: 'S', labelKo: '종속절 주어(S′)' },
+          { text: 'actively recruit', role: 'V', labelKo: '종속절 동사(V′)' },
+          { text: "the central nervous system's own symptom-modulating pathways.", role: 'O', labelKo: '목적어(O′)' },
+        ],
+      },
+      {
+        id: 'hs15-s4',
+        english:
+          'Remarkably, controlled studies have even shown that open-label placebos — pills explicitly disclosed to patients as containing no active chemical — still alleviate chronic discomfort when accompanied by an empathetic explanation of how mind-body conditioning operates.',
+        slashBroken:
+          'Remarkably, / controlled studies have even shown / that open-label placebos / — pills explicitly disclosed to patients as containing no active chemical — / still alleviate chronic discomfort / when accompanied by an empathetic explanation / of how mind-body conditioning operates.',
+        korean:
+          '놀랍게도 대조 임상 연구들은 심지어 공개형 플라시보—활성 화학 성분이 전혀 들어 있지 않다고 환자에게 명시적으로 공개된 알약—조차 심신 조건화가 어떻게 작동하는지에 대한 공감적 설명이 동반될 때 만성적 불편감을 여전히 완화한다는 사실을 보여주었다.',
+        segments: [
+          { text: 'Remarkably,', role: 'M', labelKo: '문장 부사' },
+          { text: 'controlled studies', role: 'S', labelKo: '주어(S)' },
+          { text: 'have even shown', role: 'V', labelKo: '현재완료 동사(V)' },
+          { text: 'that', role: 'CONN', labelKo: '명사절 접속사' },
+          { text: 'open-label placebos', role: 'S', labelKo: '종속절 주어(S′)' },
+          { text: '—', role: 'PLAIN' },
+          { text: 'pills explicitly disclosed to patients as containing no active chemical', role: 'M', labelKo: '동격 삽입구(과거분사)' },
+          { text: '—', role: 'PLAIN' },
+          { text: 'still alleviate', role: 'V', labelKo: '종속절 동사(V′)' },
+          { text: 'chronic discomfort', role: 'O', labelKo: '목적어(O′)' },
+          { text: 'when accompanied by an empathetic explanation of how mind-body conditioning operates.', role: 'M', labelKo: '접속사+수동 분사구문+간접의문문' },
+        ],
+      },
+      {
+        id: 'hs15-s5',
+        english:
+          'This discovery poses a delicate bioethical challenge, because physicians must harness the therapeutic power of trust and communication without ever resorting to deception that would violate informed consent.',
+        slashBroken:
+          'This discovery poses a delicate bioethical challenge, / because physicians must harness / the therapeutic power of trust and communication / without ever resorting to deception / that would violate informed consent.',
+        korean:
+          '이 발견은 섬세한 생명윤리적 과제를 제기하는데, 의사들이 사전 동의 원칙을 위반할 기만에 결코 의존하지 않으면서도 신뢰와 소통이 지닌 치료적 힘을 활용해야 하기 때문이다.',
+        segments: [
+          { text: 'This discovery', role: 'S', labelKo: '주어(S)' },
+          { text: 'poses', role: 'V', labelKo: '동사(V)' },
+          { text: 'a delicate bioethical challenge,', role: 'O', labelKo: '목적어(O)' },
+          { text: 'because', role: 'CONN', labelKo: '이유 접속사' },
+          { text: 'physicians must harness the therapeutic power of trust and communication', role: 'M', labelKo: '이유 부사절' },
+          { text: 'without ever resorting to deception that would violate informed consent.', role: 'M', labelKo: 'without -ing+관계절' },
+        ],
+      },
+      {
+        id: 'hs15-s6',
+        english:
+          'Ultimately, the science of placebo healing reminds contemporary medicine that every clinical encounter delivers not only pharmacological molecules, but also a potent neurobiological signal of safety and care.',
+        slashBroken:
+          'Ultimately, / the science of placebo healing / reminds contemporary medicine / that every clinical encounter delivers / not only pharmacological molecules, / but also a potent neurobiological signal of safety and care.',
+        korean:
+          '궁극적으로 플라시보 치유 과학은 모든 임상적 만남이 약리학적 분자뿐만 아니라 안전과 돌봄이라는 강력한 신경생물학적 신호까지 함께 전달한다는 사실을 현대 의학에 일깨워 준다.',
+        segments: [
+          { text: 'Ultimately,', role: 'M', labelKo: '결론 부사' },
+          { text: 'the science of placebo healing', role: 'S', labelKo: '주어(S)' },
+          { text: 'reminds', role: 'V', labelKo: '4형식 동사(V)' },
+          { text: 'contemporary medicine', role: 'O', labelKo: '간접목적어' },
+          { text: 'that every clinical encounter delivers', role: 'O', labelKo: '직접목적어 that절(every 단수)' },
+          { text: 'not only pharmacological molecules,', role: 'O', labelKo: 'not only A' },
+          { text: 'but also a potent neurobiological signal of safety and care.', role: 'O', labelKo: 'but also B' },
+        ],
+      },
+    ],
+    syntaxNotes: [
+      {
+        expression: 'an inconvenient statistical nuisance to be filtered out',
+        grammarPointKo: 'to부정사의 수동 형용사적 용법 (to be p.p.)',
+        explanationKo:
+          '앞 명사 nuisance(방해 요소)가 임상 시험에서 "걸러져야 할" 수동 대상이므로 능동 to filter out이 아니라 수동 부정사 to be filtered out으로 수식합니다.',
+      },
+      {
+        expression: 'inert treatments paired with compassionate clinical rituals',
+        grammarPointKo: '과거분사 후치수식 (paired with)',
+        explanationKo:
+          '주어 inert treatments와 동사 can trigger 사이에 과거분사구 paired with ~가 길게 끼어들어 있으므로 진짜 본동사를 정확히 식별해야 합니다.',
+      },
+      {
+        expression: 'pills explicitly disclosed to patients as containing no active chemical',
+        grammarPointKo: '삽입 동격구 과거분사(disclosed) + 전치사 as + 동명사',
+        explanationKo:
+          '알약(pills)은 환자에게 "공개되는" 수동 대상이므로 과거분사 disclosed를 쓰며, 전치사 as 뒤에 동명사 containing이 결합해 성분이 없음을 밝힙니다.',
+      },
+      {
+        expression: 'without ever resorting to deception that would violate informed consent',
+        grammarPointKo: 'without -ing + resort to + 가정적 조동사 would',
+        explanationKo:
+          'resort to는 "~에 의지하다·호소하다"라는 전치사 to 결합 표현이며, 뒤의 would violate는 기만이 사용될 경우 발생할 윤리적 위반을 가정합니다.',
+      },
+    ],
+    keyVocab: [
+      { word: 'nuisance', phonetic: '/ˈnjuː.səns/', meaningKo: '골칫거리, 방해 요소' },
+      { word: 'inert', phonetic: '/ɪˈnɜːt/', meaningKo: '비활성의, 약리 작용이 없는' },
+      { word: 'endogenous', phonetic: '/enˈdɒdʒ.ə.nəs/', meaningKo: '내인성의, 체내에서 생성되는' },
+      { word: 'alleviate', phonetic: '/əˈliː.vi.eɪt/', meaningKo: '완화하다, 경감하다' },
+      { word: 'bioethical', phonetic: '/ˌbaɪ.əʊˈeθ.ɪ.kəl/', meaningKo: '생명윤리적인' },
+      { word: 'pharmacological', phonetic: '/ˌfɑː.mə.kəˈlɒdʒ.ɪ.kəl/', meaningKo: '약리학적인, 약물의' },
+    ],
+    questions: [
+      {
+        id: 'hs15-q1',
+        questionType: '문장 삽입',
+        questionKo: '글의 흐름으로 보아, 주어진 문장이 들어가기에 가장 적절한 곳을 고르시오.',
+        stimulusBox:
+          "[주어진 문장]\nFar from proving that a patient's pain was imaginary, these neural findings confirm that expectation and context actively recruit the central nervous system's own symptom-modulating pathways.\n\nFor much of modern medical history, the placebo effect was regarded as little more than an inconvenient statistical nuisance to be filtered out during clinical drug trials. ( ① ) Recent breakthroughs in neuroimaging, however, have demonstrated that inert treatments paired with compassionate clinical rituals can trigger measurable biochemical changes, including the release of endogenous opioids and dopamine. ( ② ) Remarkably, controlled studies have even shown that open-label placebos — pills explicitly disclosed to patients as containing no active chemical — still alleviate chronic discomfort when accompanied by an empathetic explanation of how mind-body conditioning operates. ( ③ ) This discovery poses a delicate bioethical challenge, because physicians must harness the therapeutic power of trust and communication without ever resorting to deception that would violate informed consent. ( ④ ) Ultimately, the science of placebo healing reminds contemporary medicine that every clinical encounter delivers not only pharmacological molecules, but also a potent neurobiological signal of safety and care. ( ⑤ )",
+        options: ['①', '②', '③', '④', '⑤'],
+        answer: '②',
+        explanationKo:
+          '주어진 문장의 "these neural findings(이러한 신경학적 발견들)"는 ② 앞 문장에서 신경영상학(neuroimaging)이 밝혀낸 내인성 오피오이드·도파민 분비 등 생화학적 변화를 정확히 지칭하며, 기대와 맥락이 중추신경계를 활성화한다는 해석이 ② 뒤의 "공개형 플라시보와 심신 조건화" 사례로 자연스럽게 확장됩니다.',
+        grammarTag: '지시어(these neural findings) + 개념 해석 연결',
+      },
+      {
+        id: 'hs15-q2',
+        questionType: '어법성 판단',
+        questionKo: '다음 밑줄 친 ①~⑤ 중 어법상 틀린 것을 고르시오.',
+        stimulusBox:
+          'The placebo effect was once regarded as a statistical nuisance ① to be filtered out during drug trials. Recent neuroimaging shows that inert treatments ② paired with compassionate clinical rituals trigger real biochemical changes, confirming ③ that expectation recruits neural pathways. Controlled studies even reveal that open-label placebos — pills explicitly ④ disclosing to patients as containing no active chemical — still relieve discomfort, challenging physicians to foster trust without ⑤ resorting to deception.',
+        options: [
+          '① to be filtered',
+          '② paired',
+          '③ that',
+          '④ disclosing',
+          '⑤ resorting',
+        ],
+        answer: '④ disclosing',
+        explanationKo:
+          '④ disclosing은 틀렸습니다. 타동사 disclose(공개하다)의 의미상 주어인 pills(알약)는 환자에게 "공개되는" 수동 대상이므로 현재분사 disclosing이 아니라 과거분사 disclosed로 고쳐야 합니다. ① 수동 부정사 to be filtered 정답, ② treatments를 수식하는 수동 과거분사 paired 정답, ③ 완전한 절을 이끄는 접속사 that 정답, ⑤ 전치사 without 뒤 동명사 resorting 정답입니다.',
+        grammarTag: '삽입 동격구 과거분사 수동태 (pills disclosed to ~)',
+      },
+      {
+        id: 'hs15-q3',
+        questionType: '요약문 완성',
+        questionKo: '윗글의 내용을 한 문장으로 요약하고자 한다. 빈칸 (A), (B)에 들어갈 말로 가장 적절한 것은?',
+        stimulusBox:
+          'Rather than being a mere statistical illusion, the placebo effect triggers real (A) ________ responses through patient expectation and supportive care, urging clinicians to cultivate therapeutic trust while upholding (B) ________ honesty.',
+        options: [
+          '(A) accidental — (B) financial',
+          '(A) imaginary — (B) strict',
+          '(A) biochemical — (B) ethical',
+          '(A) surgical — (B) private',
+          '(A) temporary — (B) legal',
+        ],
+        answer: '(A) biochemical — (B) ethical',
+        explanationKo:
+          '본문은 플라시보가 측정 가능한 생화학적(biochemical) 반응(오피오이드·도파민 분비)을 일으키며, 기만 없이 사전 동의를 지키는 생명윤리적(ethical) 정직성 안에서 신뢰의 치유력을 활용해야 한다고 결론짓고 있으므로 (A) biochemical — (B) ethical이 정답입니다.',
+        grammarTag: '의학·생명윤리 핵심 개념어 요약',
+      },
+    ],
+  },
 ];
 
 /* =========================================================================

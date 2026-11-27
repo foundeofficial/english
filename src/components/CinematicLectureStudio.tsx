@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import {
   BookOpen,
   BookmarkPlus,
@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   FileText,
+  Headphones,
   MessageSquareText,
   Mic,
   Pause,
@@ -37,6 +38,12 @@ import { RealTalkRoleplayStudio } from './RealTalkRoleplayStudio.tsx';
 import { ShadowingDictationLab } from './ShadowingDictationLab.tsx';
 import { YouTubeStudyPlayer } from './YouTubeStudyPlayer.tsx';
 
+const StorybookLibraryStudio = lazy(() =>
+  import('./StorybookLibraryStudio.tsx').then((m) => ({
+    default: m.StorybookLibraryStudio
+  }))
+);
+
 interface CinematicLectureStudioProps {
   module: DayLessonModule;
   settings: LearnerSettings;
@@ -47,6 +54,7 @@ interface CinematicLectureStudioProps {
   savedNote: string;
   savedParaphrases: ParaphraseResult[];
   completedRoleplayIds: string[];
+  completedStorybookIds: string[];
   initialTab?: StudioTab;
   onSelectDay: (dayNumber: number) => void;
   onMarkLectureComplete: () => void;
@@ -55,13 +63,21 @@ interface CinematicLectureStudioProps {
   onRecordShadowingScore: (accuracyPct: number, spokenDelta: number) => void;
   onRecordDictationScore: (accuracyPct: number) => void;
   onCompleteRoleplay: (scenarioId: string, spokenTurns: number) => void;
+  onCompleteStorybook: (bookId: string) => void;
   onAddReviewCard: (card: SpacedReviewCard) => void;
   onSaveNote: (note: string) => void;
   onSaveParaphrase: (item: ParaphraseResult, reviewCard?: SpacedReviewCard) => void;
   onOpenDictionary: (word?: string) => void;
 }
 
-export type StudioTab = 'youtube' | 'sitcom' | 'chalkboard' | 'reading' | 'tutor' | 'roleplay';
+export type StudioTab =
+  | 'youtube'
+  | 'sitcom'
+  | 'chalkboard'
+  | 'reading'
+  | 'tutor'
+  | 'roleplay'
+  | 'storybook';
 type SitcomSubMode = 'watch' | 'shadowing' | 'dictation';
 type SubtitleMode = 'both' | 'en' | 'off';
 
@@ -75,6 +91,7 @@ export function CinematicLectureStudio({
   savedNote,
   savedParaphrases,
   completedRoleplayIds,
+  completedStorybookIds,
   initialTab,
   onSelectDay,
   onMarkLectureComplete,
@@ -83,6 +100,7 @@ export function CinematicLectureStudio({
   onRecordShadowingScore,
   onRecordDictationScore,
   onCompleteRoleplay,
+  onCompleteStorybook,
   onAddReviewCard,
   onSaveNote,
   onSaveParaphrase,
@@ -352,6 +370,16 @@ export function CinematicLectureStudio({
         >
           <Mic size={16} />
           <span>6교시 · 프리토킹 ({completedRoleplayIds.length}/12)</span>
+        </button>
+
+        <button
+          id="studio-tab-storybook"
+          type="button"
+          className={`submode-tab-btn ${studioTab === 'storybook' ? 'active' : ''}`}
+          onClick={() => switchStudioTab('storybook')}
+        >
+          <Headphones size={16} />
+          <span>7교시 · 영어 원서 ({completedStorybookIds.length}/12)</span>
         </button>
       </div>
 
@@ -1297,6 +1325,26 @@ export function CinematicLectureStudio({
           onAddReviewCard={onAddReviewCard}
           onOpenDictionary={onOpenDictionary}
         />
+      )}
+
+      {/* =======================================================
+          TAB 7: GRADED ENGLISH STORYBOOK & AUDIOBOOK LIBRARY (12 BOOKS)
+         ======================================================= */}
+      {studioTab === 'storybook' && (
+        <Suspense
+          fallback={
+            <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+              영어 원서 스토리북 도서관을 여는 중...
+            </div>
+          }
+        >
+          <StorybookLibraryStudio
+            completedStorybookIds={completedStorybookIds}
+            onCompleteStorybook={onCompleteStorybook}
+            onAddReviewCard={onAddReviewCard}
+            onOpenDictionary={onOpenDictionary}
+          />
+        </Suspense>
       )}
     </main>
   );

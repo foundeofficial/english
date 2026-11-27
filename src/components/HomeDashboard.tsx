@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   Circle,
   GraduationCap,
+  Headphones,
   Layers,
   Mic,
   PlayCircle,
@@ -34,6 +35,7 @@ import type {
   LevelTier,
   MainRoute
 } from '../types/course.ts';
+import { computeDailyQuests } from '../utils/achievements.ts';
 import { speakEnglish } from '../utils/speech.ts';
 import { InteractiveText } from './InteractiveText.tsx';
 
@@ -43,7 +45,13 @@ interface HomeDashboardProps {
   onSelectDay: (dayNumber: number) => void;
   onSelectStage: (stage: MasteryStage) => void;
   onStartSprint: () => void;
-  onNavigate: (route: MainRoute, opts?: { lectureTab?: 'youtube' | 'roleplay' }) => void;
+  onNavigate: (
+    route: MainRoute,
+    opts?: {
+      lectureTab?: 'youtube' | 'roleplay' | 'storybook';
+      worksheetTab?: 'concept' | 'exam' | 'mock-exam';
+    }
+  ) => void;
   onOpenDictionary: (word?: string) => void;
 }
 
@@ -195,10 +203,6 @@ export function HomeDashboard({
   const dayLevelMeta = LEVEL_INFO_MAP[currentModule.cefrLevel];
   const targetKeySentence = currentModule.keySentenceByTier[state.settings.levelTier];
 
-  const completedDaysCount = Object.values(state.dayRecords).filter(
-    (r) => r.sprintCompleted || r.lectureCompleted || r.examScore !== null
-  ).length;
-
   // Real progress percentages across the 5 Zero-to-Mastery stages
   const stage0Pct = Math.min(
     100,
@@ -292,19 +296,19 @@ export function HomeDashboard({
           <div className="mini-stat-chip">
             <span className="mini-stat-label">문법·고등독해</span>
             <strong>
-              {state.grammarMasteredIds.length}/20 · {stage3PassagesDone}/10
+              {state.grammarMasteredIds.length}/20 · {stage3PassagesDone}/15
             </strong>
           </div>
           <div className="mini-stat-chip">
-            <span className="mini-stat-label">30일·롤플레이</span>
+            <span className="mini-stat-label">원서·롤플레이</span>
             <strong>
-              {completedDaysCount}/30 · {state.completedRoleplayIds.length}/12
+              {state.completedStorybookIds?.length ?? 0}/12 · {state.completedRoleplayIds.length}/12
             </strong>
           </div>
           <div className="mini-stat-chip">
             <span className="mini-stat-label">암기 단어</span>
             <strong>
-              {state.masteredVocabIds.length}/{COURSE_METADATA.totalVocabCount}
+              {state.masteredVocabIds.length + (state.masteredVaultWordIds?.length ?? 0)}/{COURSE_METADATA.totalVocabCount + 240}
             </strong>
           </div>
         </div>
@@ -328,8 +332,31 @@ export function HomeDashboard({
           style={{ whiteSpace: 'nowrap' }}
           onClick={() => onNavigate('report')}
         >
-          전 단계 성적표 &amp; 취약점 클리닉 →
+          성적표 · 12배지 · 취약점 클리닉 →
         </button>
+      </div>
+
+      {/* DAILY QUESTS 3-STEP CHECKLIST */}
+      <div className="daily-quests-bar" aria-label="오늘의 데일리 퀘스트">
+        {computeDailyQuests(state).map((q) => (
+          <button
+            key={q.id}
+            type="button"
+            className={`daily-quest-chip ${q.done ? 'done' : ''}`}
+            onClick={() =>
+              onNavigate(q.targetRoute, {
+                lectureTab: q.lectureTab,
+                worksheetTab: q.targetRoute === 'worksheet' ? 'mock-exam' : undefined
+              })
+            }
+          >
+            {q.done ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+            <span style={{ flex: 1, textAlign: 'left' }}>{q.titleKo}</span>
+            <strong style={{ fontSize: '0.76rem', color: q.done ? 'var(--ok)' : 'var(--brand)' }}>
+              {q.done ? '완료 ✓' : `+${q.rewardXp} XP`}
+            </strong>
+          </button>
+        ))}
       </div>
 
       {/* QUICK LIVE ENGLISH-KOREAN DICTIONARY BAR */}
@@ -373,28 +400,46 @@ export function HomeDashboard({
               id="home-quick-phonics-btn"
               type="button"
               className="btn-outline"
-              style={{ padding: '8px 14px', fontSize: '0.86rem' }}
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
               onClick={() => onNavigate('foundation')}
             >
-              <Sparkles size={15} /> 파닉스 · 초등 10강
+              <Sparkles size={15} /> 파닉스·연음·초등10강
+            </button>
+            <button
+              id="home-quick-storybook-btn"
+              type="button"
+              className="btn-outline"
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
+              onClick={() => onNavigate('lecture', { lectureTab: 'storybook' })}
+            >
+              <BookOpen size={15} /> 영어 원서 12권
             </button>
             <button
               id="home-quick-academy-btn"
               type="button"
               className="btn-outline"
-              style={{ padding: '8px 14px', fontSize: '0.86rem' }}
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
               onClick={() => onNavigate('academy')}
             >
-              <GraduationCap size={15} /> 영문법 20강 · 고등 수능
+              <GraduationCap size={15} /> 영문법·수능15지문
+            </button>
+            <button
+              id="home-quick-mock-btn"
+              type="button"
+              className="btn-outline"
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
+              onClick={() => onNavigate('worksheet', { worksheetTab: 'mock-exam' })}
+            >
+              <Headphones size={15} /> 실전 듣기 모의고사
             </button>
             <button
               id="home-quick-roleplay-btn"
               type="button"
               className="btn-solid-coral"
-              style={{ padding: '8px 14px', fontSize: '0.86rem' }}
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
               onClick={() => onNavigate('lecture', { lectureTab: 'roleplay' })}
             >
-              <Mic size={15} /> 실전 프리토킹 12편
+              <Mic size={15} /> 프리토킹 12편
             </button>
           </div>
         </div>

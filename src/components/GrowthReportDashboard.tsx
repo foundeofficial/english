@@ -13,6 +13,7 @@ import {
 import { COURSE_CATALOG, COURSE_METADATA, WEEK_THEMES } from '../data/courseCatalog.ts';
 import { LEVEL_INFO_MAP } from '../data/levels.ts';
 import type { AppPersistState, MainRoute } from '../types/course.ts';
+import { computeAchievementBadges } from '../utils/achievements.ts';
 
 interface GrowthReportDashboardProps {
   state: AppPersistState;
@@ -260,9 +261,9 @@ export function GrowthReportDashboard({
         <div className="report-kpi-card">
           <span className="mini-stat-label">비주얼 문법 · 고등 독해</span>
           <strong>
-            {state.grammarMasteredIds.length}/20강 · {Object.keys(state.highSchoolPassageScores ?? {}).length}/10지문
+            {state.grammarMasteredIds.length}/20강 · {Object.keys(state.highSchoolPassageScores ?? {}).length}/15지문
           </strong>
-          <small>에세이 {state.savedEssays.length}편 · 롤플레이 {state.completedRoleplayIds.length}/12편</small>
+          <small>에세이 {state.savedEssays.length}편 · 원서 {state.completedStorybookIds?.length ?? 0}/12 · 롤플레이 {state.completedRoleplayIds.length}/12</small>
         </div>
         <div className="report-kpi-card">
           <span className="mini-stat-label">누적 학습 · 평균 시험</span>
@@ -315,13 +316,13 @@ export function GrowthReportDashboard({
             },
             {
               label: 'Stage 3 · 고등 수능·에세이',
-              detail: `고등독해 ${Object.keys(state.highSchoolPassageScores ?? {}).length}/10 · 에세이 ${state.savedEssays.length}편`,
-              pct: Math.min(100, Math.round(((Object.keys(state.highSchoolPassageScores ?? {}).length + state.savedEssays.length) / 14) * 100))
+              detail: `고등독해 ${Object.keys(state.highSchoolPassageScores ?? {}).length}/15 · 에세이 ${state.savedEssays.length}편`,
+              pct: Math.min(100, Math.round(((Object.keys(state.highSchoolPassageScores ?? {}).length + state.savedEssays.length) / 19) * 100))
             },
             {
               label: 'Stage 4 · 글로벌 C1–C2',
-              detail: `30일 ${completedDays}/30 · 롤플레이 ${state.completedRoleplayIds.length}/12`,
-              pct: Math.min(100, Math.round(((completedDays + state.completedRoleplayIds.length) / 42) * 100))
+              detail: `원서 ${state.completedStorybookIds?.length ?? 0}/12 · 롤플레이 ${state.completedRoleplayIds.length}/12`,
+              pct: Math.min(100, Math.round(((completedDays + state.completedRoleplayIds.length + (state.completedStorybookIds?.length ?? 0)) / 54) * 100))
             }
           ].map((item) => (
             <div key={item.label} className="report-stage-box">
@@ -341,6 +342,49 @@ export function GrowthReportDashboard({
           ))}
         </div>
       </section>
+
+      {/* 12 MASTERY ACHIEVEMENT BADGES HALL OF FAME */}
+      {(() => {
+        const badges = computeAchievementBadges(state);
+        const unlockedCount = badges.filter((b) => b.unlocked).length;
+        return (
+          <section className="surface-card" style={{ marginBottom: '22px' }} aria-label="12개 마스터리 업적 배지관">
+            <div className="section-label-between" style={{ marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+              <div>
+                <h2 style={{ fontSize: '1.18rem' }}>
+                  🏆 코어브릿지 마스터리 업적 배지관 ({unlockedCount} / {badges.length} 달성)
+                </h2>
+                <p style={{ fontSize: '0.86rem', color: 'var(--text-sub)', marginTop: '3px' }}>
+                  파닉스·연음·초등 어순·비주얼 문법·고등 수능·원서 다독·모의고사까지 전 영역 성취 배지를 모아보세요.
+                </p>
+              </div>
+              {(state.mockExamHistory?.length ?? 0) > 0 && (
+                <span className="pill-tag pill-coral">
+                  최근 모의고사: {state.mockExamHistory[0].score}점 (수능 {state.mockExamHistory[0].csatGrade}등급)
+                </span>
+              )}
+            </div>
+            <div className="achievement-badges-grid">
+              {badges.map((b) => (
+                <div key={b.id} className={`achievement-badge-card ${b.unlocked ? 'unlocked' : 'locked'}`}>
+                  <span className="achievement-emoji">{b.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <div className="section-label-between" style={{ gap: '4px' }}>
+                      <strong style={{ fontSize: '0.88rem' }}>{b.titleKo}</strong>
+                      <span style={{ fontSize: '0.72rem', fontWeight: 750, color: b.unlocked ? 'var(--ok)' : 'var(--text-muted)' }}>
+                        {b.unlocked ? '달성 ✓' : b.progressText}
+                      </span>
+                    </div>
+                    <small style={{ color: 'var(--text-sub)', display: 'block', marginTop: '2px' }}>
+                      {b.descKo}
+                    </small>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* 2-COL: 5-SKILL MASTERY + 7-DAY STUDY TIMER CHART */}
       <section className="report-two-col">

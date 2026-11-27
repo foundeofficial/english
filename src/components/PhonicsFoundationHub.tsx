@@ -11,6 +11,7 @@ import {
   Volume2,
   Wand2
 } from 'lucide-react';
+import { CONNECTED_SPEECH_RULES } from '../data/connectedSpeechCourse.ts';
 import { FOUNDATION_UNITS } from '../data/foundationCourse.ts';
 import {
   MAGIC_E_PAIRS,
@@ -23,6 +24,7 @@ import {
 } from '../data/phonicsCourse.ts';
 import type { FoundationBuilderPuzzle, SightWordItem } from '../types/academy.ts';
 import type { SpacedReviewCard } from '../types/course.ts';
+import type { ConnectedSpeechRule } from '../types/v5.ts';
 import { evaluateSpeechOrDictation } from '../utils/speechScoring.ts';
 import {
   isSpeechRecognitionSupported,
@@ -35,7 +37,9 @@ interface PhonicsFoundationHubProps {
   phonicsMasteredIds: string[];
   minimalPairBestStreak: number;
   foundationCompletedIds: string[];
+  connectedSpeechIds: string[];
   onTogglePhonicsMastered: (id: string) => void;
+  onToggleConnectedSpeech: (id: string) => void;
   onRecordMinimalPairStreak: (streak: number) => void;
   onCompleteFoundationUnit: (unitId: string) => void;
   onAddReviewCard: (card: SpacedReviewCard) => void;
@@ -46,6 +50,7 @@ type FoundationSubTab =
   | 'alphabet'
   | 'blending'
   | 'minimal-pairs'
+  | 'connected-speech'
   | 'sight-words'
   | 'elementary-10';
 
@@ -71,13 +76,16 @@ export function PhonicsFoundationHub({
   phonicsMasteredIds,
   minimalPairBestStreak,
   foundationCompletedIds,
+  connectedSpeechIds,
   onTogglePhonicsMastered,
+  onToggleConnectedSpeech,
   onRecordMinimalPairStreak,
   onCompleteFoundationUnit,
   onAddReviewCard,
   onOpenDictionary
 }: PhonicsFoundationHubProps) {
   const [subTab, setSubTab] = useState<FoundationSubTab>('alphabet');
+  const [csFilter, setCsFilter] = useState<'all' | ConnectedSpeechRule['categoryKo']>('all');
 
   // Tab 1: Alphabet Board + Listening Quiz
   const [selectedLetterId, setSelectedLetterId] = useState(PHONICS_ALPHABET[0]?.id ?? 'ph-a');
@@ -341,7 +349,16 @@ export function PhonicsFoundationHub({
           onClick={() => setSubTab('minimal-pairs')}
         >
           <Ear size={16} />
-          <span>3. R/L·F/V 귀트임 게임</span>
+          <span>3. R/L·F/V 귀트임</span>
+        </button>
+        <button
+          id="fnd-tab-connected"
+          type="button"
+          className={`submode-tab-btn ${subTab === 'connected-speech' ? 'active' : ''}`}
+          onClick={() => setSubTab('connected-speech')}
+        >
+          <Volume2 size={16} />
+          <span>4. 연음·억양 리듬 ({connectedSpeechIds.length}/16)</span>
         </button>
         <button
           id="fnd-tab-sight"
@@ -350,7 +367,7 @@ export function PhonicsFoundationHub({
           onClick={() => setSubTab('sight-words')}
         >
           <Award size={16} />
-          <span>4. 사이트워드 60·영상</span>
+          <span>5. 사이트워드 60·영상</span>
         </button>
         <button
           id="fnd-tab-elem10"
@@ -359,7 +376,7 @@ export function PhonicsFoundationHub({
           onClick={() => setSubTab('elementary-10')}
         >
           <Play size={16} />
-          <span>5. 초등 10강·어순조립</span>
+          <span>6. 초등 10강·어순조립</span>
         </button>
       </div>
 
@@ -1269,6 +1286,118 @@ export function PhonicsFoundationHub({
               )}
             </div>
           )}
+        </section>
+      )}
+
+      {/* =======================================================
+          TAB 4: NATIVE CONNECTED SPEECH & INTONATION RHYTHM LAB
+         ======================================================= */}
+      {subTab === 'connected-speech' && (
+        <section className="stack-lg">
+          <div className="surface-card">
+            <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+              <div>
+                <span className="pill-tag pill-coral">한국인이 영어가 안 들리는 진짜 이유 해결!</span>
+                <h2 style={{ fontSize: '1.32rem', marginTop: '6px' }}>
+                  원어민 연음 · T약화 · 축약 · 탈락 · 강세 리듬 16법칙
+                </h2>
+                <p style={{ color: 'var(--text-sub)', fontSize: '0.9rem', marginTop: '4px' }}>
+                  “Check it out”을 “체크 잇 아웃”이 아니라 “체키라웃”으로 듣는 법! 또박또박(0.75x)과 원어민 연음(1.05x) 소리를 비교해 보세요.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                {(
+                  [
+                    'all',
+                    '연음 (Linking)',
+                    'T 약화 (Flap-T)',
+                    '축약·약화 (Reduction)',
+                    '탈락 (Elision)',
+                    '강세 이동 (Stress)'
+                  ] as const
+                ).map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`day-switch-chip ${csFilter === cat ? 'active' : ''}`}
+                    onClick={() => setCsFilter(cat)}
+                  >
+                    {cat === 'all' ? '전체 16법칙' : cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="connected-speech-grid">
+              {CONNECTED_SPEECH_RULES.filter((r) =>
+                csFilter === 'all' ? true : r.categoryKo === csFilter
+              ).map((rule) => {
+                const isDone = connectedSpeechIds.includes(rule.id);
+                return (
+                  <article key={rule.id} className={`sight-word-card ${isDone ? 'mastered' : ''}`}>
+                    <div className="section-label-between" style={{ gap: '6px' }}>
+                      <span className="pill-tag pill-amber" style={{ fontSize: '0.72rem' }}>
+                        {rule.categoryKo}
+                      </span>
+                      <button
+                        type="button"
+                        className={`tiny-check-btn ${isDone ? 'done' : ''}`}
+                        onClick={() => onToggleConnectedSpeech(rule.id)}
+                      >
+                        <CheckCircle2 size={13} /> {isDone ? '체화됨' : '체크'}
+                      </button>
+                    </div>
+                    <h3 style={{ fontSize: '1.02rem', marginTop: '8px' }}>{rule.titleKo}</h3>
+                    <div className="connected-compare-box" style={{ marginTop: '8px' }}>
+                      <div>
+                        <small style={{ color: 'var(--text-muted)' }}>글자 표기</small>
+                        <strong style={{ display: 'block', fontFamily: 'var(--font-en)' }}>
+                          {rule.writtenEn}
+                        </strong>
+                      </div>
+                      <span style={{ color: 'var(--brand)', fontWeight: 800 }}>→</span>
+                      <div>
+                        <small style={{ color: 'var(--coral)' }}>실제 원어민 소리</small>
+                        <strong style={{ display: 'block', fontFamily: 'var(--font-en)', color: 'var(--brand)' }}>
+                          {rule.nativeSoundEn}
+                        </strong>
+                        <small style={{ color: 'var(--coral)', fontWeight: 700 }}>
+                          {rule.koreanPronunciationGuide}
+                        </small>
+                      </div>
+                    </div>
+                    <p style={{ fontSize: '0.84rem', color: 'var(--text-body)', marginTop: '8px', lineHeight: 1.55 }}>
+                      {rule.ruleTipKo}
+                    </p>
+                    <div className="vocab-example-box" style={{ marginTop: '10px' }}>
+                      <p style={{ fontFamily: 'var(--font-en)', fontSize: '0.9rem', fontWeight: 700 }}>
+                        <InteractiveText text={rule.exampleSentenceEn} onLookupWord={onOpenDictionary} />
+                      </p>
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-sub)', marginTop: '2px' }}>
+                        {rule.exampleSentenceKo}
+                      </p>
+                      <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+                        <button
+                          type="button"
+                          className="inline-audio-btn"
+                          onClick={() => speakEnglish(rule.exampleSentenceEn, 0.75)}
+                        >
+                          <Volume2 size={12} /> 천천히 (0.75x)
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-audio-btn"
+                          onClick={() => speakEnglish(rule.exampleSentenceEn, 1.05)}
+                        >
+                          <Volume2 size={12} /> 원어민 연음 (1.05x)
+                        </button>
+                      </div>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          </div>
         </section>
       )}
     </main>

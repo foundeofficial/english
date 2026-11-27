@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   BookOpen,
   CheckCircle2,
   FileCheck2,
+  Headphones,
   PenTool,
   Printer,
   RefreshCw,
@@ -18,22 +19,38 @@ import type {
   SpacedReviewCard,
   WorksheetExamItem
 } from '../types/course.ts';
+import type { MockExamAttemptRecord } from '../types/v5.ts';
 import { analyzeWithOptionalGemini } from '../utils/paraphraseEngine.ts';
 import { speakEnglish } from '../utils/speech.ts';
 import { isEquivalentEnglishAnswer } from '../utils/speechScoring.ts';
 import { DayNavigatorBar } from './DayNavigatorBar.tsx';
 import { InteractiveText } from './InteractiveText.tsx';
 
+const MockExamSimulator = lazy(() =>
+  import('./MockExamSimulator.tsx').then((m) => ({
+    default: m.MockExamSimulator
+  }))
+);
+
+export type WorksheetSubTab = 'concept' | 'exam' | 'mock-exam';
+
 interface AuthenticWorksheetExamProps {
   module: DayLessonModule;
   settings: LearnerSettings;
   dayRecords: Record<number, DayCompletionRecord>;
   previousBestScore: number | null;
+  mockExamHistory: MockExamAttemptRecord[];
+  initialSubTab?: WorksheetSubTab;
   onSelectDay: (dayNumber: number) => void;
   onSubmitExamScore: (
     score: number,
     missedCards: SpacedReviewCard[],
     missedGrammarTags: string[]
+  ) => void;
+  onSubmitMockAttempt: (
+    attempt: MockExamAttemptRecord,
+    missedCards: SpacedReviewCard[],
+    missedTags: string[]
   ) => void;
   onOpenDictionary: (word?: string) => void;
 }
@@ -59,11 +76,14 @@ export function AuthenticWorksheetExam({
   settings,
   dayRecords,
   previousBestScore,
+  mockExamHistory,
+  initialSubTab,
   onSelectDay,
   onSubmitExamScore,
+  onSubmitMockAttempt,
   onOpenDictionary
 }: AuthenticWorksheetExamProps) {
-  const [subTab, setSubTab] = useState<'concept' | 'exam'>('exam');
+  const [subTab, setSubTab] = useState<WorksheetSubTab>(initialSubTab ?? 'exam');
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [graded, setGraded] = useState(false);
   const [score, setScore] = useState<number | null>(null);
@@ -193,9 +213,19 @@ export function AuthenticWorksheetExam({
         >
           <FileCheck2 size={16} />
           <span>
-            실전 학습지 &amp; 단원평가 시험지 ({module.worksheetExam.length}문항)
+            단원평가 시험지 ({module.worksheetExam.length}문항)
             {previousBestScore !== null ? ` · 최고 ${previousBestScore}점` : ''}
           </span>
+        </button>
+
+        <button
+          id="worksheet-subtab-mock"
+          type="button"
+          className={`submode-tab-btn ${subTab === 'mock-exam' ? 'active' : ''}`}
+          onClick={() => setSubTab('mock-exam')}
+        >
+          <Headphones size={16} />
+          <span>실전 타이머 모의고사 · 듣기평가 (4회)</span>
         </button>
       </div>
 
@@ -700,6 +730,22 @@ export function AuthenticWorksheetExam({
             )}
           </section>
         </>
+      )}
+
+      {subTab === 'mock-exam' && (
+        <Suspense
+          fallback={
+            <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+              실전 타이머 모의고사 시험장을 준비하고 있습니다...
+            </div>
+          }
+        >
+          <MockExamSimulator
+            mockExamHistory={mockExamHistory}
+            onSubmitMockAttempt={onSubmitMockAttempt}
+            onOpenDictionary={onOpenDictionary}
+          />
+        </Suspense>
       )}
     </main>
   );

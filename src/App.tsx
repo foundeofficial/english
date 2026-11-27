@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
+import type { WorksheetSubTab } from './components/AuthenticWorksheetExam.tsx';
 import type { StudioTab } from './components/CinematicLectureStudio.tsx';
 import { DictionaryDrawer } from './components/DictionaryDrawer.tsx';
 import { HomeDashboard } from './components/HomeDashboard.tsx';
@@ -61,6 +62,7 @@ import type {
   SavedDictionaryWord,
   SpacedReviewCard
 } from './types/course.ts';
+import type { MockExamAttemptRecord } from './types/v5.ts';
 import type { CourseLexiconEntry } from './utils/dictionaryApi.ts';
 import { setDefaultSpeechAccent } from './utils/speech.ts';
 
@@ -110,7 +112,11 @@ const DEFAULT_STATE: AppPersistState = {
   grammarMasteredIds: [],
   highSchoolPassageScores: {},
   savedEssays: [],
-  completedRoleplayIds: []
+  completedRoleplayIds: [],
+  connectedSpeechIds: [],
+  completedStorybookIds: [],
+  mockExamHistory: [],
+  masteredVaultWordIds: []
 };
 
 function normalizeAccent(raw: unknown): AccentPreference {
@@ -159,6 +165,18 @@ function hydrateState(parsed: Partial<AppPersistState>): AppPersistState {
     savedEssays: Array.isArray(parsed.savedEssays) ? parsed.savedEssays : [],
     completedRoleplayIds: Array.isArray(parsed.completedRoleplayIds)
       ? parsed.completedRoleplayIds
+      : [],
+    connectedSpeechIds: Array.isArray(parsed.connectedSpeechIds)
+      ? parsed.connectedSpeechIds
+      : [],
+    completedStorybookIds: Array.isArray(parsed.completedStorybookIds)
+      ? parsed.completedStorybookIds
+      : [],
+    mockExamHistory: Array.isArray(parsed.mockExamHistory)
+      ? parsed.mockExamHistory
+      : [],
+    masteredVaultWordIds: Array.isArray(parsed.masteredVaultWordIds)
+      ? parsed.masteredVaultWordIds
       : [],
     settings: {
       ...DEFAULT_STATE.settings,
@@ -211,14 +229,13 @@ export default function App() {
   const [state, setState] = useState<AppPersistState>(loadInitialState);
   const [activeRoute, setActiveRoute] = useState<MainRoute>('home');
   const [lectureInitialTab, setLectureInitialTab] = useState<StudioTab>('youtube');
+  const [worksheetInitialTab, setWorksheetInitialTab] = useState<WorksheetSubTab>('exam');
   const [sprintOpen, setSprintOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(!state.onboarded);
 
-  // Lazy-loaded active Day module (Day 1 preloaded for 0ms first paint)
   const [currentModule, setCurrentModule] = useState<DayLessonModule>(day1Module);
   const [loadingDay, setLoadingDay] = useState(false);
 
-  // Global Live English-Korean Dictionary Drawer states
   const [dictOpen, setDictOpen] = useState(false);
   const [dictInitialQuery, setDictInitialQuery] = useState('');
   const [dictSessionKey, setDictSessionKey] = useState(0);
@@ -230,7 +247,6 @@ export default function App() {
     setDefaultSpeechAccent(state.settings.accent);
   }, [state.settings.accent]);
 
-  // Real active study timer
   useEffect(() => {
     const timer = window.setInterval(() => {
       if (document.visibilityState !== 'visible') return;
@@ -260,7 +276,6 @@ export default function App() {
     };
   }, [state.selectedDay]);
 
-  // Global '/' shortcut to open Dictionary Drawer
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -294,11 +309,22 @@ export default function App() {
 
   const currentDayRec = state.dayRecords[currentModule.dayNumber] ?? emptyDayRec();
 
-  const navigateTo = (route: MainRoute, opts?: { lectureTab?: 'youtube' | 'roleplay' }) => {
+  const navigateTo = (
+    route: MainRoute,
+    opts?: {
+      lectureTab?: 'youtube' | 'roleplay' | 'storybook';
+      worksheetTab?: WorksheetSubTab;
+    }
+  ) => {
     if (opts?.lectureTab) {
       setLectureInitialTab(opts.lectureTab);
     } else if (route === 'lecture') {
       setLectureInitialTab('youtube');
+    }
+    if (opts?.worksheetTab) {
+      setWorksheetInitialTab(opts.worksheetTab);
+    } else if (route === 'worksheet') {
+      setWorksheetInitialTab('exam');
     }
     setActiveRoute(route);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -344,7 +370,7 @@ export default function App() {
     setState((prev) => ({ ...prev, selectedDay: dayNumber }));
   };
 
-  // Stage 0 & Stage 1 handlers
+  // Stage 0 & 1 handlers
   const handleTogglePhonicsMastered = (id: string) => {
     setState((prev) => {
       const exists = prev.phonicsMasteredIds.includes(id);
@@ -354,6 +380,19 @@ export default function App() {
         phonicsMasteredIds: exists
           ? prev.phonicsMasteredIds.filter((x) => x !== id)
           : [...prev.phonicsMasteredIds, id]
+      };
+    });
+  };
+
+  const handleToggleConnectedSpeech = (id: string) => {
+    setState((prev) => {
+      const exists = prev.connectedSpeechIds.includes(id);
+      return {
+        ...prev,
+        xpPoints: exists ? prev.xpPoints : prev.xpPoints + 15,
+        connectedSpeechIds: exists
+          ? prev.connectedSpeechIds.filter((x) => x !== id)
+          : [...prev.connectedSpeechIds, id]
       };
     });
   };
@@ -377,7 +416,7 @@ export default function App() {
     });
   };
 
-  // Stage 2 & Stage 3 Grammar / CSAT / Essay handlers
+  // Stage 2 & 3 Grammar / CSAT / Essay handlers
   const handleMarkGrammarMastered = (unitId: string) => {
     setState((prev) => {
       if (prev.grammarMasteredIds.includes(unitId)) return prev;
@@ -447,6 +486,58 @@ export default function App() {
           : [...prev.completedRoleplayIds, scenarioId]
       };
     });
+  };
+
+  // v5.0 Storybook / Mock Exam / Vault handlers
+  const handleCompleteStorybook = (bookId: string) => {
+    setState((prev) => {
+      const already = prev.completedStorybookIds.includes(bookId);
+      return {
+        ...prev,
+        xpPoints: already ? prev.xpPoints : prev.xpPoints + 75,
+        completedStorybookIds: already
+          ? prev.completedStorybookIds
+          : [...prev.completedStorybookIds, bookId]
+      };
+    });
+  };
+
+  const handleSubmitMockAttempt = (
+    attempt: MockExamAttemptRecord,
+    missedCards: SpacedReviewCard[],
+    missedTags: string[]
+  ) => {
+    setState((prev) => {
+      const nextWeak = { ...(prev.weakGrammarTags ?? {}) };
+      for (const t of missedTags) nextWeak[t] = (nextWeak[t] ?? 0) + 1;
+      return {
+        ...prev,
+        xpPoints: prev.xpPoints + 100,
+        weakGrammarTags: nextWeak,
+        mockExamHistory: [attempt, ...prev.mockExamHistory],
+        reviewDeck: [...missedCards, ...prev.reviewDeck]
+      };
+    });
+  };
+
+  const handleToggleVaultWordMastered = (wordId: string) => {
+    setState((prev) => {
+      const exists = prev.masteredVaultWordIds.includes(wordId);
+      return {
+        ...prev,
+        xpPoints: exists ? prev.xpPoints : prev.xpPoints + 5,
+        masteredVaultWordIds: exists
+          ? prev.masteredVaultWordIds.filter((id) => id !== wordId)
+          : [...prev.masteredVaultWordIds, wordId]
+      };
+    });
+  };
+
+  const handleCompleteSpeedBlitz = (correctCount: number) => {
+    setState((prev) => ({
+      ...prev,
+      xpPoints: prev.xpPoints + correctCount * 5
+    }));
   };
 
   // 30-day track handlers
@@ -770,7 +861,9 @@ export default function App() {
             phonicsMasteredIds={state.phonicsMasteredIds}
             minimalPairBestStreak={state.minimalPairBestStreak}
             foundationCompletedIds={state.foundationCompletedIds}
+            connectedSpeechIds={state.connectedSpeechIds}
             onTogglePhonicsMastered={handleTogglePhonicsMastered}
+            onToggleConnectedSpeech={handleToggleConnectedSpeech}
             onRecordMinimalPairStreak={handleRecordMinimalPairStreak}
             onCompleteFoundationUnit={handleCompleteFoundationUnit}
             onAddReviewCard={handleAddReviewCard}
@@ -804,6 +897,7 @@ export default function App() {
             savedNote={state.lectureNotes[currentModule.dayNumber] ?? ''}
             savedParaphrases={state.savedParaphrases}
             completedRoleplayIds={state.completedRoleplayIds}
+            completedStorybookIds={state.completedStorybookIds}
             initialTab={lectureInitialTab}
             onSelectDay={handleSelectDay}
             onMarkLectureComplete={handleMarkLectureComplete}
@@ -812,6 +906,7 @@ export default function App() {
             onRecordShadowingScore={handleRecordShadowingScore}
             onRecordDictationScore={handleRecordDictationScore}
             onCompleteRoleplay={handleCompleteRoleplay}
+            onCompleteStorybook={handleCompleteStorybook}
             onAddReviewCard={handleAddReviewCard}
             onSaveNote={handleSaveNote}
             onSaveParaphrase={handleSaveParaphrase}
@@ -821,13 +916,16 @@ export default function App() {
 
         {activeRoute === 'worksheet' && (
           <AuthenticWorksheetExam
-            key={`worksheet-${currentModule.dayNumber}`}
+            key={`worksheet-${currentModule.dayNumber}-${worksheetInitialTab}`}
             module={currentModule}
             settings={state.settings}
             dayRecords={state.dayRecords}
             previousBestScore={currentDayRec.examScore}
+            mockExamHistory={state.mockExamHistory}
+            initialSubTab={worksheetInitialTab}
             onSelectDay={handleSelectDay}
             onSubmitExamScore={handleSubmitExamScore}
+            onSubmitMockAttempt={handleSubmitMockAttempt}
             onOpenDictionary={handleOpenDictionary}
           />
         )}
@@ -839,10 +937,14 @@ export default function App() {
             dayRecords={state.dayRecords}
             accent={state.settings.accent}
             masteredVocabIds={state.masteredVocabIds}
+            masteredVaultWordIds={state.masteredVaultWordIds}
             savedDictionaryWords={state.savedDictionaryWords}
             reviewDeck={state.reviewDeck}
             onSelectDay={handleSelectDay}
             onToggleVocabMastered={handleToggleVocabMastered}
+            onToggleVaultWordMastered={handleToggleVaultWordMastered}
+            onCompleteSpeedBlitz={handleCompleteSpeedBlitz}
+            onAddReviewCard={handleAddReviewCard}
             onRemoveSavedDictionaryWord={handleRemoveSavedDictionaryWord}
             onPromoteReviewCard={handlePromoteReviewCard}
             onRateReviewCard={handleRateReviewCard}

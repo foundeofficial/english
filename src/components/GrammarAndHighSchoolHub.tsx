@@ -820,7 +820,7 @@ export function GrammarAndHighSchoolHub({
               <div>
                 <span className="pill-tag pill-coral">Stage 3 · 고등학교 내신 · 수능 1등급 정통 구문독해</span>
                 <h2 style={{ fontSize: '1.3rem', marginTop: '6px' }}>
-                  10대 학문 분야 아카데믹 지문 &amp; 수능 5대 킬러 유형 (30문항)
+                  15대 학문 분야 아카데믹 지문 &amp; 수능 5대 킬러 유형 (45문항)
                 </h2>
               </div>
               <span className="pill-tag pill-brand">

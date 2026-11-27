@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   BookMarked,
   Brain,
@@ -7,6 +7,7 @@ import {
   EyeOff,
   Headphones,
   Layers,
+  Library,
   Search,
   Sparkles,
   Trash2,
@@ -25,15 +26,25 @@ import { speakEnglish } from '../utils/speech.ts';
 import { CommuteAudioPlayer } from './CommuteAudioPlayer.tsx';
 import { DayNavigatorBar } from './DayNavigatorBar.tsx';
 
+const VocabMasterVaultPanel = lazy(() =>
+  import('./VocabMasterVaultPanel.tsx').then((m) => ({
+    default: m.VocabMasterVaultPanel
+  }))
+);
+
 interface VocabAndReviewBookProps {
   module: DayLessonModule;
   dayRecords: Record<number, DayCompletionRecord>;
   accent: AccentPreference;
   masteredVocabIds: string[];
+  masteredVaultWordIds: string[];
   savedDictionaryWords: SavedDictionaryWord[];
   reviewDeck: SpacedReviewCard[];
   onSelectDay: (dayNumber: number) => void;
   onToggleVocabMastered: (vocabId: string) => void;
+  onToggleVaultWordMastered: (wordId: string) => void;
+  onCompleteSpeedBlitz: (correctCount: number) => void;
+  onAddReviewCard: (card: SpacedReviewCard) => void;
   onRemoveSavedDictionaryWord: (wordId: string) => void;
   onPromoteReviewCard: (cardId: string) => void;
   onRateReviewCard?: (cardId: string, rating: 'again' | 'good' | 'master') => void;
@@ -41,7 +52,7 @@ interface VocabAndReviewBookProps {
 }
 
 type MaskMode = 'none' | 'hide-ko' | 'hide-en';
-type VocabTab = 'sheet' | 'popquiz' | 'commute' | 'my-dict' | 'review';
+type VocabTab = 'sheet' | 'vault' | 'popquiz' | 'commute' | 'my-dict' | 'review';
 
 function maskHeadwordInExample(example: string, word: string): string {
   const firstToken = word.split(/[\s~-]+/)[0];
@@ -56,10 +67,14 @@ export function VocabAndReviewBook({
   dayRecords,
   accent,
   masteredVocabIds,
+  masteredVaultWordIds,
   savedDictionaryWords,
   reviewDeck,
   onSelectDay,
   onToggleVocabMastered,
+  onToggleVaultWordMastered,
+  onCompleteSpeedBlitz,
+  onAddReviewCard,
   onRemoveSavedDictionaryWord,
   onPromoteReviewCard,
   onRateReviewCard,
@@ -167,6 +182,16 @@ export function VocabAndReviewBook({
         </button>
 
         <button
+          id="vocab-tab-vault"
+          type="button"
+          className={`submode-tab-btn ${subTab === 'vault' ? 'active' : ''}`}
+          onClick={() => setSubTab('vault')}
+        >
+          <Library size={16} />
+          <span>필수 240·어원·블리츠</span>
+        </button>
+
+        <button
           id="vocab-tab-popquiz"
           type="button"
           className={`submode-tab-btn ${subTab === 'popquiz' ? 'active' : ''}`}
@@ -183,7 +208,7 @@ export function VocabAndReviewBook({
           onClick={() => setSubTab('commute')}
         >
           <Headphones size={16} />
-          <span>출퇴근 귀트임 재생</span>
+          <span>출퇴근 귀트임</span>
         </button>
 
         <button
@@ -206,6 +231,24 @@ export function VocabAndReviewBook({
           <span>오답 복습 ({reviewDeck.filter((c) => !c.mastered).length})</span>
         </button>
       </div>
+
+      {subTab === 'vault' && (
+        <Suspense
+          fallback={
+            <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+              필수 240단어 및 어원 도감을 불러오는 중...
+            </div>
+          }
+        >
+          <VocabMasterVaultPanel
+            masteredVaultWordIds={masteredVaultWordIds}
+            onToggleVaultWordMastered={onToggleVaultWordMastered}
+            onCompleteSpeedBlitz={onCompleteSpeedBlitz}
+            onAddReviewCard={onAddReviewCard}
+            onOpenDictionary={onOpenDictionary}
+          />
+        </Suspense>
+      )}
 
       {subTab === 'commute' && (
         <CommuteAudioPlayer

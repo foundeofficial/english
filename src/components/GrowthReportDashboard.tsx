@@ -5,13 +5,15 @@ import {
   BarChart3,
   CheckCircle2,
   Clock,
+  Copy,
   Download,
   Printer,
+  Smartphone,
   Sparkles,
   Upload
 } from 'lucide-react';
 import { COURSE_CATALOG, COURSE_METADATA, WEEK_THEMES } from '../data/courseCatalog.ts';
-import { LEVEL_INFO_MAP } from '../data/levels.ts';
+import { LEVEL_INFO_MAP, MASTERY_STAGE_MAP } from '../data/levels.ts';
 import type { AppPersistState, MainRoute } from '../types/course.ts';
 import { computeAchievementBadges } from '../utils/achievements.ts';
 
@@ -19,6 +21,37 @@ interface GrowthReportDashboardProps {
   state: AppPersistState;
   onJumpToDay: (dayNumber: number, route?: MainRoute) => void;
   onImportState: (imported: AppPersistState) => void;
+}
+
+const SYNC_PREFIX = 'KB6:';
+
+function encodeStateToSyncCode(state: AppPersistState): string {
+  const json = JSON.stringify(state);
+  const bytes = new TextEncoder().encode(json);
+  let bin = '';
+  for (let i = 0; i < bytes.length; i += 1) {
+    bin += String.fromCharCode(bytes[i]);
+  }
+  return `${SYNC_PREFIX}${btoa(bin)}`;
+}
+
+function decodeSyncCodeToState(rawCode: string): AppPersistState | null {
+  const trimmed = rawCode.trim();
+  if (!trimmed) return null;
+  const payload = trimmed.startsWith(SYNC_PREFIX) ? trimmed.slice(SYNC_PREFIX.length) : trimmed;
+  try {
+    const bin = atob(payload);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i += 1) {
+      bytes[i] = bin.charCodeAt(i);
+    }
+    const json = new TextDecoder().decode(bytes);
+    const parsed = JSON.parse(json) as AppPersistState;
+    if (!parsed || typeof parsed !== 'object' || !parsed.settings) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 function getLast7DateKeys(): Array<{ key: string; label: string }> {
@@ -47,7 +80,12 @@ export function GrowthReportDashboard({
 }: GrowthReportDashboardProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [importStatus, setImportStatus] = useState<string | null>(null);
+  const [syncPanelOpen, setSyncPanelOpen] = useState(false);
+  const [generatedCode, setGeneratedCode] = useState('');
+  const [pasteSyncInput, setPasteSyncInput] = useState('');
+  const [syncCopied, setSyncCopied] = useState(false);
   const [last7Days] = useState(getLast7DateKeys);
+  const [reportDateStr] = useState(() => new Date().toISOString().slice(0, 10));
 
   const records = Object.values(state.dayRecords);
   const completedDays = records.filter(
@@ -83,6 +121,10 @@ export function GrowthReportDashboard({
       : null;
 
   const totalMinutes = Object.values(state.studyMinutesByDate ?? {}).reduce((a, b) => a + b, 0);
+  const weeklyMinutes = last7Days.reduce(
+    (sum, d) => sum + (state.studyMinutesByDate?.[d.key] ?? 0),
+    0
+  );
   const targetDailyMin = TARGET_MIN_BY_PACE[state.settings.studyPace];
   const maxBarMin = Math.max(
     targetDailyMin,
@@ -90,55 +132,96 @@ export function GrowthReportDashboard({
   );
 
   const graduatedReviews = state.reviewDeck.filter((c) => c.mastered).length;
+  const writingSolvedCount = state.writingClinicSolvedIds?.length ?? 0;
+  const irregularDoneCount = state.irregularMasteredIds?.length ?? 0;
+  const confusableDoneCount = state.confusableSolvedIds?.length ?? 0;
+  const speakingAttempts = state.speakingAttempts ?? [];
+  const bestSpeakingWpm =
+    speakingAttempts.length > 0
+      ? Math.max(...speakingAttempts.map((a) => a.wpm))
+      : null;
+  const bestSpeakingScore =
+    speakingAttempts.length > 0
+      ? Math.max(...speakingAttempts.map((a) => a.score))
+      : null;
+  const guidedDoneCount = state.guidedSessionsCompleted ?? 0;
 
   // 5-Skill Mastery Scores (0..100)
   const vocabSkill = Math.min(
     100,
-    Math.round(((state.masteredVocabIds.length + state.savedDictionaryWords.length * 2) / 150) * 100)
+    Math.round(
+      ((state.masteredVocabIds.length +
+        (state.masteredVaultWordIds?.length ?? 0) +
+        irregularDoneCount +
+        confusableDoneCount +
+        state.savedDictionaryWords.length * 2) /
+        180) *
+        100
+    )
   );
   const listenReadSkill = Math.min(
     100,
     Math.round(
-      ((videosWatched + readingsDone) / 20) * 65 +
+      ((videosWatched + readingsDone + (state.completedStorybookIds?.length ?? 0)) / 20) * 65 +
         (avgDictation !== null ? avgDictation * 0.35 : 15)
     )
   );
   const speakingSkill = Math.min(
     100,
     Math.round(
-      Math.min(1, (sprintsDone * 10 + state.savedParaphrases.length * 4 + state.totalSentencesSpoken) / 120) * 65 +
-        (avgShadowing !== null ? avgShadowing * 0.35 : 15)
+      Math.min(
+        1,
+        (sprintsDone * 10 +
+          state.savedParaphrases.length * 4 +
+          speakingAttempts.length * 12 +
+          state.totalSentencesSpoken) /
+          120
+      ) *
+        65 +
+        (avgShadowing !== null
+          ? avgShadowing * 0.35
+          : bestSpeakingScore !== null
+            ? bestSpeakingScore * 0.35
+            : 15)
     )
   );
   const grammarSkill = Math.min(
     100,
-    Math.round(((lecturesDone * 3 + graduatedReviews * 4 + examScores.length * 4) / 60) * 100)
+    Math.round(
+      ((lecturesDone * 3 +
+        state.grammarMasteredIds.length * 3 +
+        writingSolvedCount * 2 +
+        graduatedReviews * 4 +
+        examScores.length * 4) /
+        65) *
+        100
+    )
   );
   const examSkill = examScores.length > 0 ? avgExam : Math.min(25, completedDays * 5);
 
   const skills = [
     {
-      label: '어휘 & 연어 (Vocabulary)',
+      label: '어휘 · 불규칙동사 · 혼동어휘 (Vocabulary)',
       score: vocabSkill,
-      detail: `암기 ${state.masteredVocabIds.length}/${COURSE_METADATA.totalVocabCount} · 사전 저장 ${state.savedDictionaryWords.length}개`
+      detail: `암기 ${state.masteredVocabIds.length + (state.masteredVaultWordIds?.length ?? 0)}/${COURSE_METADATA.totalVocabCount + 240} · 불규칙 ${irregularDoneCount}/80 · 혼동어휘 ${confusableDoneCount}/50`
     },
     {
-      label: '리스닝 & 영자 독해 (Listening/Reading)',
+      label: '리스닝 & 원서·영자 독해 (Listening/Reading)',
       score: listenReadSkill,
-      detail: `유튜브 ${videosWatched}편 · 독해 ${readingsDone}편 · 딕테이션 ${avgDictation !== null ? `${avgDictation}%` : '응시 전'}`
+      detail: `유튜브 ${videosWatched}편 · 원서 ${state.completedStorybookIds?.length ?? 0}/12 · 독해 ${readingsDone}편 · 딕테이션 ${avgDictation !== null ? `${avgDictation}%` : '응시 전'}`
     },
     {
-      label: '스피킹 & 쉐도잉 (Speaking/Fluency)',
+      label: '스피킹 · 1분 챌린지 · 쉐도잉 (Speaking/Fluency)',
       score: speakingSkill,
-      detail: `발화 ${state.totalSentencesSpoken}문장 · 첨삭 ${state.savedParaphrases.length}건 · 쉐도잉 ${avgShadowing !== null ? `${avgShadowing}%` : '측정 전'}`
+      detail: `발화 ${state.totalSentencesSpoken}문장 · 1분 스피킹 ${speakingAttempts.length}회${bestSpeakingWpm !== null ? ` (최고 ${bestSpeakingWpm} WPM)` : ''} · 쉐도잉 ${avgShadowing !== null ? `${avgShadowing}%` : '측정 전'}`
     },
     {
-      label: '문법 & 어순 체화 (Grammar/Structure)',
+      label: '문법 · 내신 서술형 · 어순 체화 (Grammar/Writing)',
       score: grammarSkill,
-      detail: `인강 완주 ${lecturesDone}강 · 오답 복습 졸업 ${graduatedReviews}건`
+      detail: `문법 ${state.grammarMasteredIds.length}/20강 · 내신 서술형/오류 ${writingSolvedCount}/60 · 복습 졸업 ${graduatedReviews}건`
     },
     {
-      label: '실전 단원평가 성취도 (Exam Mastery)',
+      label: '실전 단원평가 & 모의고사 (Exam Mastery)',
       score: examSkill,
       detail: examScores.length > 0 ? `${examScores.length}회 응시 · 평균 ${avgExam}점` : '첫 단원평가 응시 전'
     }
@@ -178,7 +261,41 @@ export function GrowthReportDashboard({
     reader.readAsText(file);
   };
 
+  const handleOpenSyncPanel = () => {
+    const nextOpen = !syncPanelOpen;
+    setSyncPanelOpen(nextOpen);
+    if (nextOpen) {
+      setGeneratedCode(encodeStateToSyncCode(state));
+      setSyncCopied(false);
+    }
+  };
+
+  const handleCopySyncCode = async () => {
+    const code = encodeStateToSyncCode(state);
+    setGeneratedCode(code);
+    try {
+      await navigator.clipboard.writeText(code);
+      setSyncCopied(true);
+      setImportStatus('✓ 3초 기기 동기화 코드가 클립보드에 복사되었습니다! 모바일/PC에서 붙여넣어 복원하세요.');
+    } catch {
+      setSyncCopied(true);
+      setImportStatus('아래 코드 박스를 전체 선택해 복사해 주세요.');
+    }
+  };
+
+  const handleRestoreSyncCode = () => {
+    const parsed = decodeSyncCodeToState(pasteSyncInput);
+    if (!parsed) {
+      setImportStatus('유효한 코어브릿지 동기화 코드(KB6:...)가 아닙니다. 코드 전체를 빠짐없이 붙여넣어 주세요.');
+      return;
+    }
+    onImportState(parsed);
+    setPasteSyncInput('');
+    setImportStatus('✓ 다른 기기의 학습 기록이 3초 만에 완벽하게 동기화되었습니다!');
+  };
+
   const levelMeta = LEVEL_INFO_MAP[state.settings.levelTier];
+  const stageMeta = MASTERY_STAGE_MAP[state.settings.currentStage ?? 'stage0'];
 
   return (
     <main className="page-wrap">
@@ -187,24 +304,32 @@ export function GrowthReportDashboard({
         <div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <span className="pill-tag pill-brand">개인 맞춤형 영어 성장 성적표</span>
-            <span className="pill-tag pill-coral">{levelMeta.shortLabel}</span>
+            <span className="pill-tag pill-coral">{stageMeta.badge} · {levelMeta.shortLabel}</span>
           </div>
           <h1 style={{ fontSize: 'clamp(1.5rem, 2.5vw, 2rem)', marginTop: '8px' }}>
             {state.settings.learnerName} 님의 통합 영어 성장 리포트 &amp; 취약점 클리닉
           </h1>
           <p style={{ color: 'var(--text-sub)', marginTop: '6px' }}>
-            5대 영어 역량 분석, 최근 7일 학습 시간, 자동 감지된 취약 문법 패턴, 그리고 30일 완주 현황을 한눈에 확인하고 A4 성적표로 출력할 수 있습니다.
+            5대 영어 역량 분석, 내신 서술형·1분 스피킹 기록, 3초 기기 간 동기화 코드, 그리고 학부모·교사 확인용 A4 성적표 출력까지 지원합니다.
           </p>
         </div>
 
         <div className="no-print" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          <button
+            id="toggle-sync-code-panel-btn"
+            type="button"
+            className="btn-solid-coral"
+            onClick={handleOpenSyncPanel}
+          >
+            <Smartphone size={15} /> 3초 기기 동기화 (모바일↔PC)
+          </button>
           <button
             id="export-study-backup-btn"
             type="button"
             className="btn-outline"
             onClick={handleExportBackup}
           >
-            <Download size={15} /> 학습 기록 백업(JSON)
+            <Download size={15} /> 백업(JSON)
           </button>
           <button
             id="import-study-backup-btn"
@@ -212,7 +337,7 @@ export function GrowthReportDashboard({
             className="btn-outline"
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload size={15} /> 백업 불러오기
+            <Upload size={15} /> 파일 복원
           </button>
           <input
             ref={fileInputRef}
@@ -230,7 +355,7 @@ export function GrowthReportDashboard({
             className="btn-solid-brand"
             onClick={() => window.print()}
           >
-            <Printer size={15} /> A4 성적표 인쇄 / PDF
+            <Printer size={15} /> A4 성적표 · 인증서 인쇄
           </button>
         </div>
       </div>
@@ -242,35 +367,100 @@ export function GrowthReportDashboard({
         </div>
       )}
 
+      {/* 3-SECOND MOBILE <-> PC SYNC CODE PANEL */}
+      {syncPanelOpen && (
+        <section className="sync-code-panel no-print" aria-label="3초 기기 간 학습 기록 동기화">
+          <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+            <div>
+              <span className="pill-tag pill-brand">로그인·회원가입 없이 3초 기기 전송</span>
+              <h2 style={{ fontSize: '1.14rem', marginTop: '6px' }}>
+                모바일 ↔ PC 학습 기록 즉시 동기화 코드
+              </h2>
+            </div>
+            <button
+              id="copy-sync-code-btn"
+              type="button"
+              className="btn-solid-brand"
+              style={{ padding: '8px 14px', fontSize: '0.86rem' }}
+              onClick={() => void handleCopySyncCode()}
+            >
+              <Copy size={15} /> {syncCopied ? '코드 복사 완료 ✓' : '내 동기화 코드 복사하기'}
+            </button>
+          </div>
+
+          <div className="sync-code-grid">
+            <div>
+              <label htmlFor="sync-code-export-box" style={{ fontSize: '0.82rem', fontWeight: 750, color: 'var(--text-sub)', display: 'block', marginBottom: '6px' }}>
+                ① 현재 기기의 동기화 코드 (카톡 나에게 보내기 / 메모장 붙여넣기)
+              </label>
+              <textarea
+                id="sync-code-export-box"
+                readOnly
+                rows={3}
+                className="input-clean"
+                style={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: '0.76rem' }}
+                value={generatedCode}
+                onFocus={(e) => e.currentTarget.select()}
+              />
+            </div>
+
+            <div>
+              <label htmlFor="sync-code-restore-input" style={{ fontSize: '0.82rem', fontWeight: 750, color: 'var(--text-sub)', display: 'block', marginBottom: '6px' }}>
+                ② 다른 기기에서 복사한 코드 붙여넣어 불러오기
+              </label>
+              <textarea
+                id="sync-code-restore-input"
+                rows={3}
+                className="input-clean"
+                style={{ width: '100%', fontFamily: 'var(--font-mono)', fontSize: '0.76rem' }}
+                value={pasteSyncInput}
+                onChange={(e) => setPasteSyncInput(e.target.value)}
+                placeholder="KB6:eyJvbmJvYXJkZWQi..."
+              />
+              <button
+                id="apply-sync-code-btn"
+                type="button"
+                className="btn-solid-coral"
+                style={{ marginTop: '8px', width: '100%', padding: '9px 14px', fontSize: '0.86rem' }}
+                disabled={!pasteSyncInput.trim()}
+                onClick={handleRestoreSyncCode}
+              >
+                붙여넣은 동기화 코드로 학습 기록 복원하기
+              </button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* TOP KPI STRIP */}
       <section className="report-kpi-grid" aria-label="핵심 학습 지표">
         <div className="report-kpi-card">
-          <span className="mini-stat-label">통합 마스터리 레벨</span>
+          <span className="mini-stat-label">통합 마스터리 · 자동수업</span>
           <strong>
             Lv.{Math.floor((state.xpPoints ?? 0) / 250) + 1} · {state.xpPoints ?? 0} XP
           </strong>
-          <small>연속 학습 {state.streakDays}일째 · 30일 중 {completedDays}일 진행</small>
+          <small>연속 {state.streakDays}일 · 15분 자동수업 {guidedDoneCount}회 완주</small>
         </div>
         <div className="report-kpi-card">
-          <span className="mini-stat-label">파닉스 · 초등 10강</span>
+          <span className="mini-stat-label">내신 서술형 · 불규칙동사</span>
           <strong>
-            {state.phonicsMasteredIds.length}/86 · {state.foundationCompletedIds.length}/10강
+            {writingSolvedCount}/60 · {irregularDoneCount}/80
           </strong>
-          <small>미니멀페어 최고 {state.minimalPairBestStreak}연속 정답</small>
+          <small>수능 혼동어휘 {confusableDoneCount}/50쌍 · 문법 {state.grammarMasteredIds.length}/20강</small>
         </div>
         <div className="report-kpi-card">
-          <span className="mini-stat-label">비주얼 문법 · 고등 독해</span>
+          <span className="mini-stat-label">1분 스피킹 · 영어 원서</span>
           <strong>
-            {state.grammarMasteredIds.length}/20강 · {Object.keys(state.highSchoolPassageScores ?? {}).length}/15지문
+            {bestSpeakingWpm !== null ? `${bestSpeakingWpm} WPM` : `${speakingAttempts.length}회`} · {state.completedStorybookIds?.length ?? 0}/12권
           </strong>
-          <small>에세이 {state.savedEssays.length}편 · 원서 {state.completedStorybookIds?.length ?? 0}/12 · 롤플레이 {state.completedRoleplayIds.length}/12</small>
+          <small>고등독해 {Object.keys(state.highSchoolPassageScores ?? {}).length}/15 · 에세이 {state.savedEssays.length}편 · 롤플레이 {state.completedRoleplayIds.length}/12</small>
         </div>
         <div className="report-kpi-card">
           <span className="mini-stat-label">누적 학습 · 평균 시험</span>
           <strong>
             {totalMinutes}분 · {examScores.length > 0 ? `${avgExam}점` : '응시 전'}
           </strong>
-          <small>발화 {state.totalSentencesSpoken}문장 · 첨삭 {state.savedParaphrases.length}건</small>
+          <small>발화 {state.totalSentencesSpoken}문장 · 이번 주 {weeklyMinutes}분 집중</small>
         </div>
       </section>
 
@@ -536,6 +726,53 @@ export function GrowthReportDashboard({
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* PARENT / TEACHER WEEKLY ACHIEVEMENT CERTIFICATE (A4 PRINTABLE) */}
+      <section className="print-cert-box" aria-label="학부모·교사 확인용 주간 성취 인증서">
+        <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '8px' }}>
+          <div>
+            <span className="pill-tag pill-brand">KOREBRIDGE OFFICIAL WEEKLY CERTIFICATE</span>
+            <h2 style={{ fontSize: '1.22rem', marginTop: '6px' }}>
+              학부모 · 지도교사 확인용 주간 영어 성취 인증서
+            </h2>
+          </div>
+          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.84rem', color: 'var(--text-sub)' }}>
+            발급일: {reportDateStr}
+          </span>
+        </div>
+
+        <div className="print-cert-metrics">
+          <div>
+            <span>학습자</span>
+            <strong>{state.settings.learnerName} ({stageMeta.badge})</strong>
+          </div>
+          <div>
+            <span>이번 주 집중 시간</span>
+            <strong>{weeklyMinutes}분 (연속 {state.streakDays}일)</strong>
+          </div>
+          <div>
+            <span>15분 자동수업 · 서술형</span>
+            <strong>자동수업 {guidedDoneCount}회 · 서술형 {writingSolvedCount}/60</strong>
+          </div>
+          <div>
+            <span>1분 스피킹 · 모의고사</span>
+            <strong>
+              {bestSpeakingWpm !== null ? `최고 ${bestSpeakingWpm} WPM` : `스피킹 ${speakingAttempts.length}회`} · 모의고사 {state.mockExamHistory?.length ?? 0}회
+            </strong>
+          </div>
+        </div>
+
+        <div className="print-cert-signatures">
+          <div className="print-sig-col">
+            <span>학부모 확인 (서명)</span>
+            <div className="print-sig-line" />
+          </div>
+          <div className="print-sig-col">
+            <span>지도교사 / 튜터 확인 (서명)</span>
+            <div className="print-sig-line" />
+          </div>
         </div>
       </section>
     </main>

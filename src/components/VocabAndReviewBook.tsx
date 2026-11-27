@@ -25,6 +25,7 @@ import type {
 import { speakEnglish } from '../utils/speech.ts';
 import { CommuteAudioPlayer } from './CommuteAudioPlayer.tsx';
 import { DayNavigatorBar } from './DayNavigatorBar.tsx';
+import type { VaultView } from './VocabMasterVaultPanel.tsx';
 
 const VocabMasterVaultPanel = lazy(() =>
   import('./VocabMasterVaultPanel.tsx').then((m) => ({
@@ -38,11 +39,17 @@ interface VocabAndReviewBookProps {
   accent: AccentPreference;
   masteredVocabIds: string[];
   masteredVaultWordIds: string[];
+  irregularMasteredIds: string[];
+  confusableSolvedIds: string[];
   savedDictionaryWords: SavedDictionaryWord[];
   reviewDeck: SpacedReviewCard[];
+  initialTab?: VocabTab;
+  initialVaultView?: VaultView;
   onSelectDay: (dayNumber: number) => void;
   onToggleVocabMastered: (vocabId: string) => void;
   onToggleVaultWordMastered: (wordId: string) => void;
+  onMasterIrregularVerb: (verbId: string) => void;
+  onSolveConfusablePair: (pairId: string) => void;
   onCompleteSpeedBlitz: (correctCount: number) => void;
   onAddReviewCard: (card: SpacedReviewCard) => void;
   onRemoveSavedDictionaryWord: (wordId: string) => void;
@@ -52,7 +59,7 @@ interface VocabAndReviewBookProps {
 }
 
 type MaskMode = 'none' | 'hide-ko' | 'hide-en';
-type VocabTab = 'sheet' | 'vault' | 'popquiz' | 'commute' | 'my-dict' | 'review';
+export type VocabTab = 'sheet' | 'vault' | 'popquiz' | 'commute' | 'my-dict' | 'review';
 
 function maskHeadwordInExample(example: string, word: string): string {
   const firstToken = word.split(/[\s~-]+/)[0];
@@ -68,11 +75,17 @@ export function VocabAndReviewBook({
   accent,
   masteredVocabIds,
   masteredVaultWordIds,
+  irregularMasteredIds,
+  confusableSolvedIds,
   savedDictionaryWords,
   reviewDeck,
+  initialTab,
+  initialVaultView,
   onSelectDay,
   onToggleVocabMastered,
   onToggleVaultWordMastered,
+  onMasterIrregularVerb,
+  onSolveConfusablePair,
   onCompleteSpeedBlitz,
   onAddReviewCard,
   onRemoveSavedDictionaryWord,
@@ -80,7 +93,7 @@ export function VocabAndReviewBook({
   onRateReviewCard,
   onOpenDictionary
 }: VocabAndReviewBookProps) {
-  const [subTab, setSubTab] = useState<VocabTab>('sheet');
+  const [subTab, setSubTab] = useState<VocabTab>(initialTab ?? 'sheet');
   const [maskMode, setMaskMode] = useState<MaskMode>('none');
   const [peekIds, setPeekIds] = useState<Record<string, boolean>>({});
 
@@ -242,7 +255,12 @@ export function VocabAndReviewBook({
         >
           <VocabMasterVaultPanel
             masteredVaultWordIds={masteredVaultWordIds}
+            irregularMasteredIds={irregularMasteredIds}
+            confusableSolvedIds={confusableSolvedIds}
+            initialView={initialVaultView}
             onToggleVaultWordMastered={onToggleVaultWordMastered}
+            onMasterIrregularVerb={onMasterIrregularVerb}
+            onSolveConfusablePair={onSolveConfusablePair}
             onCompleteSpeedBlitz={onCompleteSpeedBlitz}
             onAddReviewCard={onAddReviewCard}
             onOpenDictionary={onOpenDictionary}

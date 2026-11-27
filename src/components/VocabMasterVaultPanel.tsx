@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   Check,
   Eye,
@@ -17,15 +17,26 @@ import type { SpacedReviewCard } from '../types/course.ts';
 import type { ThematicVocabWord } from '../types/v5.ts';
 import { speakEnglish } from '../utils/speech.ts';
 
+const IrregularConfusableLab = lazy(() =>
+  import('./IrregularConfusableLab.tsx').then((m) => ({
+    default: m.IrregularConfusableLab
+  }))
+);
+
 interface VocabMasterVaultPanelProps {
   masteredVaultWordIds: string[];
+  irregularMasteredIds: string[];
+  confusableSolvedIds: string[];
+  initialView?: VaultView;
   onToggleVaultWordMastered: (wordId: string) => void;
+  onMasterIrregularVerb: (verbId: string) => void;
+  onSolveConfusablePair: (pairId: string) => void;
   onCompleteSpeedBlitz: (correctCount: number) => void;
   onAddReviewCard: (card: SpacedReviewCard) => void;
   onOpenDictionary: (word?: string) => void;
 }
 
-type VaultView = 'packs' | 'etymology' | 'blitz';
+export type VaultView = 'packs' | 'etymology' | 'irregular-confusable' | 'blitz';
 
 interface BlitzQuestion {
   target: ThematicVocabWord;
@@ -47,12 +58,17 @@ function buildBlitzQuestions(pool: ThematicVocabWord[]): BlitzQuestion[] {
 
 export function VocabMasterVaultPanel({
   masteredVaultWordIds,
+  irregularMasteredIds,
+  confusableSolvedIds,
+  initialView,
   onToggleVaultWordMastered,
+  onMasterIrregularVerb,
+  onSolveConfusablePair,
   onCompleteSpeedBlitz,
   onAddReviewCard,
   onOpenDictionary
 }: VocabMasterVaultPanelProps) {
-  const [view, setView] = useState<VaultView>('packs');
+  const [view, setView] = useState<VaultView>(initialView ?? 'packs');
   const [packFilter, setPackFilter] = useState<ThematicVocabWord['pack']>('elem-core');
   const [searchQuery, setSearchQuery] = useState('');
   const [hideMeanings, setHideMeanings] = useState(false);
@@ -136,7 +152,7 @@ export function VocabMasterVaultPanel({
   };
 
   return (
-    <section className="stack-lg" aria-label="교육부 필수 영단어 240 & 어원 도감">
+    <section className="stack-lg" aria-label="교육부 필수 영단어 240 · 어원 도감 · 불규칙 80 · 혼동어휘 50">
       {/* SUB-SWITCHER */}
       <div className="cellophane-bar" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
@@ -146,7 +162,7 @@ export function VocabMasterVaultPanel({
             className={`day-switch-chip ${view === 'packs' ? 'active' : ''}`}
             onClick={() => setView('packs')}
           >
-            📚 학년별 필수 240단어 ({masteredVaultWordIds.length}/240)
+            📚 필수 240단어 ({masteredVaultWordIds.length}/240)
           </button>
           <button
             id="vault-mode-etymology"
@@ -155,7 +171,16 @@ export function VocabMasterVaultPanel({
             onClick={() => setView('etymology')}
           >
             <GitBranch size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-            어원(접두사·어근) 20선 · 80파생어
+            어원 20선 · 80파생어
+          </button>
+          <button
+            id="vault-mode-irregular"
+            type="button"
+            className={`day-switch-chip ${view === 'irregular-confusable' ? 'active' : ''}`}
+            onClick={() => setView('irregular-confusable')}
+          >
+            <Sparkles size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
+            불규칙동사 80 · 혼동어휘 50
           </button>
           <button
             id="vault-mode-blitz"
@@ -164,7 +189,7 @@ export function VocabMasterVaultPanel({
             onClick={() => startBlitz(packFilter)}
           >
             <Zap size={14} style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-            스피드 영단어 10문항 블리츠
+            스피드 10문항 블리츠
           </button>
         </div>
 
@@ -180,6 +205,23 @@ export function VocabMasterVaultPanel({
           </button>
         )}
       </div>
+
+      {view === 'irregular-confusable' && (
+        <Suspense
+          fallback={
+            <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+              불규칙 동사 80선 및 혼동 어휘 50쌍을 불러오는 중...
+            </div>
+          }
+        >
+          <IrregularConfusableLab
+            irregularMasteredIds={irregularMasteredIds}
+            confusableSolvedIds={confusableSolvedIds}
+            onMasterIrregularVerb={onMasterIrregularVerb}
+            onSolveConfusablePair={onSolveConfusablePair}
+          />
+        </Suspense>
+      )}
 
       {/* VIEW 1: 240 THEMATIC ESSENTIAL WORDS */}
       {view === 'packs' && (

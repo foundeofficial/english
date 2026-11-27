@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import {
   Award,
   BookOpen,
@@ -8,6 +8,7 @@ import {
   GitBranch,
   GraduationCap,
   Layers,
+  PenTool,
   Sparkles,
   Volume2
 } from 'lucide-react';
@@ -37,10 +38,18 @@ import {
 import { speakEnglish } from '../utils/speech.ts';
 import { InteractiveText } from './InteractiveText.tsx';
 
+const SchoolWritingClinic = lazy(() =>
+  import('./SchoolWritingClinic.tsx').then((m) => ({
+    default: m.SchoolWritingClinic
+  }))
+);
+
 interface GrammarAndHighSchoolHubProps {
   grammarMasteredIds: string[];
   highSchoolPassageScores: Record<string, number>;
   savedEssays: SavedEssayRecord[];
+  writingClinicSolvedIds: string[];
+  initialSubTab?: AcademySubTab;
   geminiApiKey?: string;
   onMarkGrammarMastered: (unitId: string) => void;
   onRecordHighSchoolScore: (
@@ -50,11 +59,22 @@ interface GrammarAndHighSchoolHubProps {
     missedTags: string[]
   ) => void;
   onSaveEssay: (essay: SavedEssayRecord) => void;
+  onSolveWritingItem: (
+    itemId: string,
+    isCorrect: boolean,
+    missedCard?: SpacedReviewCard,
+    missedTag?: string
+  ) => void;
   onRecordGrammarMistakes: (missedCards: SpacedReviewCard[], missedTags: string[]) => void;
   onOpenDictionary: (word?: string) => void;
 }
 
-type AcademySubTab = 'grammar-units' | 'transformer-tense' | 'csat-reading' | 'essay-lab';
+export type AcademySubTab =
+  | 'grammar-units'
+  | 'transformer-tense'
+  | 'csat-reading'
+  | 'writing-clinic'
+  | 'essay-lab';
 
 const SYNTAX_ROLE_CLASS: Record<SyntaxRole, string> = {
   S: 'syntax-chip-s',
@@ -92,14 +112,17 @@ export function GrammarAndHighSchoolHub({
   grammarMasteredIds,
   highSchoolPassageScores,
   savedEssays,
+  writingClinicSolvedIds,
+  initialSubTab,
   geminiApiKey,
   onMarkGrammarMastered,
   onRecordHighSchoolScore,
   onSaveEssay,
+  onSolveWritingItem,
   onRecordGrammarMistakes,
   onOpenDictionary
 }: GrammarAndHighSchoolHubProps) {
-  const [subTab, setSubTab] = useState<AcademySubTab>('grammar-units');
+  const [subTab, setSubTab] = useState<AcademySubTab>(initialSubTab ?? 'grammar-units');
 
   // Tab 1: Visual Grammar 20 Units
   const [stageFilter, setStageFilter] = useState<'all' | 'elementary' | 'middle' | 'high'>('all');
@@ -275,24 +298,28 @@ export function GrammarAndHighSchoolHub({
             눈으로 꿰뚫는 비주얼 영문법 &amp; 고등 수능 구문독해 아카데미
           </h1>
           <p style={{ color: 'var(--text-sub)', marginTop: '8px', maxWidth: '640px' }}>
-            무작정 외우는 문법은 끝! 초등 5형식부터 고등 분사구문·가정법 도치까지 20강 비주얼 블록·실시간 문장 변환기·12시제 타임라인으로 뼈대를 세우고, 10대 분야 수능 구문독해 X-Ray와 4축 루브릭 에세이로 고등학교 이상 수준을 완벽 정복합니다.
+            무작정 외우는 문법은 끝! 초등 5형식부터 고등 분사구문·가정법 도치까지 20강 비주얼 블록·문장 변환기·12시제 타임라인으로 뼈대를 세우고, 15지문 수능 구문독해 X-Ray · 내신 서술형·오류 60문항 · 4축 루브릭 에세이로 중·고등 1등급을 완벽 정복합니다.
           </p>
 
           <div className="summary-stat-strip" style={{ marginTop: '14px' }}>
             <div className="mini-stat-chip">
-              <span className="mini-stat-label">비주얼 문법 마스터</span>
+              <span className="mini-stat-label">비주얼 문법</span>
               <strong>
                 {grammarMasteredIds.length} / {GRAMMAR_UNITS.length}강
               </strong>
             </div>
             <div className="mini-stat-chip">
-              <span className="mini-stat-label">고등 구문독해 완주</span>
+              <span className="mini-stat-label">수능 구문독해</span>
               <strong>
                 {completedPassagesCount} / {HIGH_SCHOOL_PASSAGES.length}지문
               </strong>
             </div>
             <div className="mini-stat-chip">
-              <span className="mini-stat-label">작성 아카데믹 에세이</span>
+              <span className="mini-stat-label">내신 서술형·오류</span>
+              <strong>{writingClinicSolvedIds.length} / 60</strong>
+            </div>
+            <div className="mini-stat-chip">
+              <span className="mini-stat-label">에세이 첨삭</span>
               <strong>{savedEssays.length}편</strong>
             </div>
           </div>
@@ -329,8 +356,17 @@ export function GrammarAndHighSchoolHub({
           className={`submode-tab-btn ${subTab === 'csat-reading' ? 'active' : ''}`}
           onClick={() => setSubTab('csat-reading')}
         >
-          <BookOpen size={16} />
-          <span>3. 고등·수능 구문독해 X-Ray</span>
+          <BookOpen size={15} />
+          <span>3. 고등·수능 구문독해</span>
+        </button>
+        <button
+          id="acad-tab-clinic"
+          type="button"
+          className={`submode-tab-btn ${subTab === 'writing-clinic' ? 'active' : ''}`}
+          onClick={() => setSubTab('writing-clinic')}
+        >
+          <PenTool size={15} />
+          <span>4. 내신 서술형·오류 ({writingClinicSolvedIds.length}/60)</span>
         </button>
         <button
           id="acad-tab-essay"
@@ -338,8 +374,8 @@ export function GrammarAndHighSchoolHub({
           className={`submode-tab-btn ${subTab === 'essay-lab' ? 'active' : ''}`}
           onClick={() => setSubTab('essay-lab')}
         >
-          <FileEdit size={16} />
-          <span>4. 아카데믹 에세이 첨삭</span>
+          <FileEdit size={15} />
+          <span>5. 아카데믹 에세이</span>
         </button>
       </div>
 
@@ -1388,6 +1424,24 @@ export function GrammarAndHighSchoolHub({
             </div>
           </div>
         </section>
+      )}
+
+      {/* =======================================================
+          TAB 4: MIDDLE & HIGH SCHOOL WRITING & ERROR CLINIC (60)
+         ======================================================= */}
+      {subTab === 'writing-clinic' && (
+        <Suspense
+          fallback={
+            <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+              내신 서술형·어법 오류 클리닉을 준비하고 있습니다...
+            </div>
+          }
+        >
+          <SchoolWritingClinic
+            writingClinicSolvedIds={writingClinicSolvedIds}
+            onSolveWritingItem={onSolveWritingItem}
+          />
+        </Suspense>
       )}
     </main>
   );

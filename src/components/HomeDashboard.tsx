@@ -6,10 +6,11 @@ import {
   BookOpenCheck,
   CheckCircle2,
   Circle,
-  GraduationCap,
+  FileEdit,
   Headphones,
   Layers,
   Mic,
+  Play,
   PlayCircle,
   Search,
   Sparkles,
@@ -37,7 +38,10 @@ import type {
 } from '../types/course.ts';
 import { computeDailyQuests } from '../utils/achievements.ts';
 import { speakEnglish } from '../utils/speech.ts';
+import type { AcademySubTab } from './GrammarAndHighSchoolHub.tsx';
 import { InteractiveText } from './InteractiveText.tsx';
+import type { VocabTab } from './VocabAndReviewBook.tsx';
+import type { VaultView } from './VocabMasterVaultPanel.tsx';
 
 interface HomeDashboardProps {
   state: AppPersistState;
@@ -45,11 +49,16 @@ interface HomeDashboardProps {
   onSelectDay: (dayNumber: number) => void;
   onSelectStage: (stage: MasteryStage) => void;
   onStartSprint: () => void;
+  onStartGuidedSession: () => void;
   onNavigate: (
     route: MainRoute,
     opts?: {
       lectureTab?: 'youtube' | 'roleplay' | 'storybook';
+      roleplaySub?: 'roleplay' | 'speaking';
       worksheetTab?: 'concept' | 'exam' | 'mock-exam';
+      academyTab?: AcademySubTab;
+      vocabTab?: VocabTab;
+      vaultView?: VaultView;
     }
   ) => void;
   onOpenDictionary: (word?: string) => void;
@@ -174,6 +183,7 @@ export function HomeDashboard({
   onSelectDay,
   onSelectStage,
   onStartSprint,
+  onStartGuidedSession,
   onNavigate,
   onOpenDictionary
 }: HomeDashboardProps) {
@@ -270,94 +280,119 @@ export function HomeDashboard({
   const dailyGoalPct = Math.min(100, Math.round((todayStudyMin / targetDailyMin) * 100));
 
   const xpLevel = Math.floor((state.xpPoints ?? 0) / 250) + 1;
+  const guidedDoneCount = state.guidedSessionsCompleted ?? 0;
+  const writingSolvedCount = state.writingClinicSolvedIds?.length ?? 0;
+  const speakingCount = state.speakingAttempts?.length ?? 0;
+  const totalVocabLearned =
+    state.masteredVocabIds.length + (state.masteredVaultWordIds?.length ?? 0);
 
   return (
     <main className="page-wrap">
-      {/* TOP INTRO + STATS */}
-      <div className="track-intro-row">
-        <div>
+      {/* =======================================================
+          v6.0 FLAGSHIP DAILY COMMAND HERO (1-CLICK ZERO-FRICTION START)
+         ======================================================= */}
+      <section className="command-hero-card" aria-label="오늘의 15분 자동 완전학습 커맨드 센터">
+        <div className="command-hero-left">
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center' }}>
-            <span className="pill-tag pill-brand">유치원 파닉스 → 초·중·고등 수능 → 글로벌 C2 완전학습</span>
+            <span className="pill-tag pill-brand">{activeStageMeta.badge} · {learnerLevelMeta.shortLabel}</span>
             <span className="pill-tag pill-amber">Lv.{xpLevel} · {state.xpPoints ?? 0} XP</span>
+            <span className="pill-tag pill-subtle">🔥 연속 {state.streakDays}일 · 자동수업 {guidedDoneCount}회</span>
           </div>
-          <p style={{ marginTop: '8px', color: 'var(--text-sub)', fontSize: '0.94rem' }}>
-            <strong>{state.settings.learnerName}</strong> 님 · 현재 단계{' '}
-            <strong style={{ color: 'var(--brand)' }}>{activeStageMeta.badge}</strong> ({learnerLevelMeta.shortLabel})
+
+          <h1 className="command-hero-title">
+            {state.settings.learnerName} 님, 오늘은 고민 없이
+            <br />
+            15분 자동 완전학습으로 바로 시작하세요
+          </h1>
+
+          <p className="command-hero-sub">
+            현재 단계(<strong>{activeStageMeta.shortLabel}</strong>)에 맞춰{' '}
+            <strong>① 워밍업 발음 → ② 핵심 공식 → ③ 직접 영작 출력 → ④ 3문항 점검</strong>까지
+            버튼 한 번으로 끊김 없이 완주합니다.
           </p>
+
+          <div className="command-hero-actions">
+            <button
+              id="home-start-guided-session-btn"
+              type="button"
+              className="btn-solid-brand command-primary-cta"
+              onClick={onStartGuidedSession}
+            >
+              <Play size={18} />
+              <span>오늘의 15분 자동 수업 시작하기 (+120 XP)</span>
+            </button>
+
+            <button
+              id="home-open-report-btn"
+              type="button"
+              className="btn-outline"
+              onClick={() => onNavigate('report')}
+            >
+              성적표 · 12배지 · 기기 동기화 →
+            </button>
+          </div>
         </div>
 
-        <div className="summary-stat-strip">
-          <div className="mini-stat-chip">
-            <span className="mini-stat-label">파닉스·초등10강</span>
-            <strong>
-              {state.phonicsMasteredIds.length} · {state.foundationCompletedIds.length}/10
-            </strong>
+        <div className="command-hero-right">
+          <div className="command-goal-row">
+            <div>
+              <strong style={{ fontSize: '0.88rem', color: 'var(--text-strong)' }}>
+                오늘의 집중 학습 목표
+              </strong>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-sub)', marginLeft: '8px' }}>
+                {todayStudyMin}분 / {targetDailyMin}분 ({dailyGoalPct}%)
+              </span>
+            </div>
+            <span style={{ fontSize: '0.78rem', fontWeight: 750, color: 'var(--brand)' }}>
+              {dailyGoalPct >= 100 ? '목표 달성 ✓' : `${Math.max(0, targetDailyMin - todayStudyMin)}분 남음`}
+            </span>
           </div>
-          <div className="mini-stat-chip">
-            <span className="mini-stat-label">문법·고등독해</span>
-            <strong>
-              {state.grammarMasteredIds.length}/20 · {stage3PassagesDone}/15
-            </strong>
+          <div className="daily-goal-track" style={{ marginTop: '6px', marginBottom: '12px' }}>
+            <div className="daily-goal-fill" style={{ width: `${Math.max(4, dailyGoalPct)}%` }} />
           </div>
-          <div className="mini-stat-chip">
-            <span className="mini-stat-label">원서·롤플레이</span>
-            <strong>
-              {state.completedStorybookIds?.length ?? 0}/12 · {state.completedRoleplayIds.length}/12
-            </strong>
-          </div>
-          <div className="mini-stat-chip">
-            <span className="mini-stat-label">암기 단어</span>
-            <strong>
-              {state.masteredVocabIds.length + (state.masteredVaultWordIds?.length ?? 0)}/{COURSE_METADATA.totalVocabCount + 240}
-            </strong>
-          </div>
-        </div>
-      </div>
 
-      {/* DAILY ACTIVE STUDY GOAL BAR */}
-      <div className="daily-goal-strip">
-        <div className="daily-goal-text">
-          <strong>오늘의 집중 학습 목표</strong>
-          <span>
-            {todayStudyMin}분 / {targetDailyMin}분 ({dailyGoalPct}%)
-          </span>
-        </div>
-        <div className="daily-goal-track">
-          <div className="daily-goal-fill" style={{ width: `${Math.max(4, dailyGoalPct)}%` }} />
-        </div>
-        <button
-          id="home-open-report-btn"
-          type="button"
-          className="text-action-btn"
-          style={{ whiteSpace: 'nowrap' }}
-          onClick={() => onNavigate('report')}
-        >
-          성적표 · 12배지 · 취약점 클리닉 →
-        </button>
-      </div>
+          <div className="command-quests-list" aria-label="오늘의 데일리 퀘스트">
+            {computeDailyQuests(state).map((q) => (
+              <button
+                key={q.id}
+                type="button"
+                className={`command-quest-row ${q.done ? 'done' : ''}`}
+                onClick={() =>
+                  onNavigate(q.targetRoute, {
+                    lectureTab: q.lectureTab,
+                    worksheetTab: q.targetRoute === 'worksheet' ? 'mock-exam' : undefined
+                  })
+                }
+              >
+                {q.done ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                <span style={{ flex: 1, textAlign: 'left' }}>{q.titleKo}</span>
+                <strong style={{ fontSize: '0.75rem', color: q.done ? 'var(--ok)' : 'var(--brand)' }}>
+                  {q.done ? '완료 ✓' : `+${q.rewardXp} XP`}
+                </strong>
+              </button>
+            ))}
+          </div>
 
-      {/* DAILY QUESTS 3-STEP CHECKLIST */}
-      <div className="daily-quests-bar" aria-label="오늘의 데일리 퀘스트">
-        {computeDailyQuests(state).map((q) => (
-          <button
-            key={q.id}
-            type="button"
-            className={`daily-quest-chip ${q.done ? 'done' : ''}`}
-            onClick={() =>
-              onNavigate(q.targetRoute, {
-                lectureTab: q.lectureTab,
-                worksheetTab: q.targetRoute === 'worksheet' ? 'mock-exam' : undefined
-              })
-            }
-          >
-            {q.done ? <CheckCircle2 size={15} /> : <Circle size={15} />}
-            <span style={{ flex: 1, textAlign: 'left' }}>{q.titleKo}</span>
-            <strong style={{ fontSize: '0.76rem', color: q.done ? 'var(--ok)' : 'var(--brand)' }}>
-              {q.done ? '완료 ✓' : `+${q.rewardXp} XP`}
-            </strong>
-          </button>
-        ))}
-      </div>
+          <div className="command-mini-kpis">
+            <div>
+              <span>파닉스·초등</span>
+              <strong>{state.phonicsMasteredIds.length} · {state.foundationCompletedIds.length}/10</strong>
+            </div>
+            <div>
+              <span>문법·내신서술형</span>
+              <strong>{state.grammarMasteredIds.length}/20 · {writingSolvedCount}/60</strong>
+            </div>
+            <div>
+              <span>원서·스피킹</span>
+              <strong>{state.completedStorybookIds?.length ?? 0}/12 · {state.completedRoleplayIds.length + speakingCount}</strong>
+            </div>
+            <div>
+              <span>누적 어휘</span>
+              <strong>{totalVocabLearned}/{COURSE_METADATA.totalVocabCount + 240}</strong>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* QUICK LIVE ENGLISH-KOREAN DICTIONARY BAR */}
       <form
@@ -385,25 +420,43 @@ export function HomeDashboard({
       </form>
 
       {/* =======================================================
-          NEW: ZERO-TO-MASTERY 5-STAGE LADDER (KINDERGARTEN -> HIGH SCHOOL+ -> C2)
+          ZERO-TO-MASTERY 5-STAGE LADDER + v6.0 POWER LAB SHORTCUTS
          ======================================================= */}
       <section className="zero-to-mastery-section" aria-labelledby="z2m-heading">
         <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
           <div>
             <span className="pill-tag pill-coral">Zero-to-Mastery 5단계 완전정복 로드맵</span>
-            <h1 id="z2m-heading" style={{ fontSize: 'clamp(1.45rem, 2.5vw, 1.95rem)', marginTop: '6px' }}>
-              유치원 파닉스부터 고등 수능 1등급·글로벌 C2까지 한 길로 완성
-            </h1>
+            <h2 id="z2m-heading" style={{ fontSize: 'clamp(1.38rem, 2.3vw, 1.78rem)', marginTop: '6px' }}>
+              유치원 파닉스부터 중·고등 내신 서술형·수능 1등급·글로벌 C2까지
+            </h2>
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
-              id="home-quick-phonics-btn"
+              id="home-quick-writing-clinic-btn"
+              type="button"
+              className="btn-solid-coral"
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
+              onClick={() => onNavigate('academy', { academyTab: 'writing-clinic' })}
+            >
+              <FileEdit size={15} /> 내신 서술형·오류 60
+            </button>
+            <button
+              id="home-quick-speaking-1min-btn"
               type="button"
               className="btn-outline"
               style={{ padding: '8px 13px', fontSize: '0.84rem' }}
-              onClick={() => onNavigate('foundation')}
+              onClick={() => onNavigate('lecture', { lectureTab: 'roleplay', roleplaySub: 'speaking' })}
             >
-              <Sparkles size={15} /> 파닉스·연음·초등10강
+              <Mic size={15} /> 1분 스피킹 16주제
+            </button>
+            <button
+              id="home-quick-irregular-btn"
+              type="button"
+              className="btn-outline"
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
+              onClick={() => onNavigate('vocab-review', { vocabTab: 'vault', vaultView: 'irregular-confusable' })}
+            >
+              <Sparkles size={15} /> 불규칙80·혼동50
             </button>
             <button
               id="home-quick-storybook-btn"
@@ -415,15 +468,6 @@ export function HomeDashboard({
               <BookOpen size={15} /> 영어 원서 12권
             </button>
             <button
-              id="home-quick-academy-btn"
-              type="button"
-              className="btn-outline"
-              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
-              onClick={() => onNavigate('academy')}
-            >
-              <GraduationCap size={15} /> 영문법·수능15지문
-            </button>
-            <button
               id="home-quick-mock-btn"
               type="button"
               className="btn-outline"
@@ -431,15 +475,6 @@ export function HomeDashboard({
               onClick={() => onNavigate('worksheet', { worksheetTab: 'mock-exam' })}
             >
               <Headphones size={15} /> 실전 듣기 모의고사
-            </button>
-            <button
-              id="home-quick-roleplay-btn"
-              type="button"
-              className="btn-solid-coral"
-              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
-              onClick={() => onNavigate('lecture', { lectureTab: 'roleplay' })}
-            >
-              <Mic size={15} /> 프리토킹 12편
             </button>
           </div>
         </div>

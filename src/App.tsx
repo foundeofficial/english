@@ -2,10 +2,13 @@ import { lazy, Suspense, useEffect, useState } from 'react';
 import type { WorksheetSubTab } from './components/AuthenticWorksheetExam.tsx';
 import type { StudioTab } from './components/CinematicLectureStudio.tsx';
 import { DictionaryDrawer } from './components/DictionaryDrawer.tsx';
+import type { AcademySubTab } from './components/GrammarAndHighSchoolHub.tsx';
 import { HomeDashboard } from './components/HomeDashboard.tsx';
 import { OnboardingSettingsModal } from './components/OnboardingSettingsModal.tsx';
 import { SprintFocusOverlay } from './components/SprintFocusOverlay.tsx';
 import { TopNavHeader } from './components/TopNavHeader.tsx';
+import type { VocabTab } from './components/VocabAndReviewBook.tsx';
+import type { VaultView } from './components/VocabMasterVaultPanel.tsx';
 
 const PhonicsFoundationHub = lazy(() =>
   import('./components/PhonicsFoundationHub.tsx').then((m) => ({
@@ -37,6 +40,11 @@ const VocabAndReviewBook = lazy(() =>
     default: m.VocabAndReviewBook
   }))
 );
+const DailyGuidedSessionOverlay = lazy(() =>
+  import('./components/DailyGuidedSessionOverlay.tsx').then((m) => ({
+    default: m.DailyGuidedSessionOverlay
+  }))
+);
 
 import { INITIAL_REVIEW_CARDS } from './data/courseCatalog.ts';
 import {
@@ -63,10 +71,12 @@ import type {
   SpacedReviewCard
 } from './types/course.ts';
 import type { MockExamAttemptRecord } from './types/v5.ts';
+import type { SpeakingAttemptRecord } from './types/v6.ts';
 import type { CourseLexiconEntry } from './utils/dictionaryApi.ts';
 import { setDefaultSpeechAccent } from './utils/speech.ts';
 
-const STORAGE_KEY = 'korebridge_commercial_v5';
+const STORAGE_KEY = 'korebridge_commercial_v6';
+const LEGACY_V5_KEY = 'korebridge_commercial_v5';
 const LEGACY_V4_KEY = 'korebridge_commercial_v4';
 const LEGACY_V3_KEY = 'korebridge_commercial_v3';
 
@@ -116,7 +126,12 @@ const DEFAULT_STATE: AppPersistState = {
   connectedSpeechIds: [],
   completedStorybookIds: [],
   mockExamHistory: [],
-  masteredVaultWordIds: []
+  masteredVaultWordIds: [],
+  writingClinicSolvedIds: [],
+  irregularMasteredIds: [],
+  confusableSolvedIds: [],
+  speakingAttempts: [],
+  guidedSessionsCompleted: 0
 };
 
 function normalizeAccent(raw: unknown): AccentPreference {
@@ -178,6 +193,18 @@ function hydrateState(parsed: Partial<AppPersistState>): AppPersistState {
     masteredVaultWordIds: Array.isArray(parsed.masteredVaultWordIds)
       ? parsed.masteredVaultWordIds
       : [],
+    writingClinicSolvedIds: Array.isArray(parsed.writingClinicSolvedIds)
+      ? parsed.writingClinicSolvedIds
+      : [],
+    irregularMasteredIds: Array.isArray(parsed.irregularMasteredIds)
+      ? parsed.irregularMasteredIds
+      : [],
+    confusableSolvedIds: Array.isArray(parsed.confusableSolvedIds)
+      ? parsed.confusableSolvedIds
+      : [],
+    speakingAttempts: Array.isArray(parsed.speakingAttempts) ? parsed.speakingAttempts : [],
+    guidedSessionsCompleted:
+      typeof parsed.guidedSessionsCompleted === 'number' ? parsed.guidedSessionsCompleted : 0,
     settings: {
       ...DEFAULT_STATE.settings,
       ...(parsed.settings ?? {}),
@@ -192,6 +219,7 @@ function loadInitialState(): AppPersistState {
   try {
     const raw =
       window.localStorage.getItem(STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_V5_KEY) ??
       window.localStorage.getItem(LEGACY_V4_KEY) ??
       window.localStorage.getItem(LEGACY_V3_KEY);
     if (!raw) return DEFAULT_STATE;
@@ -229,8 +257,13 @@ export default function App() {
   const [state, setState] = useState<AppPersistState>(loadInitialState);
   const [activeRoute, setActiveRoute] = useState<MainRoute>('home');
   const [lectureInitialTab, setLectureInitialTab] = useState<StudioTab>('youtube');
+  const [lectureRoleplaySub, setLectureRoleplaySub] = useState<'roleplay' | 'speaking'>('roleplay');
   const [worksheetInitialTab, setWorksheetInitialTab] = useState<WorksheetSubTab>('exam');
+  const [academyInitialTab, setAcademyInitialTab] = useState<AcademySubTab>('grammar-units');
+  const [vocabInitialTab, setVocabInitialTab] = useState<VocabTab>('sheet');
+  const [vocabInitialVaultView, setVocabInitialVaultView] = useState<VaultView>('packs');
   const [sprintOpen, setSprintOpen] = useState(false);
+  const [guidedSessionOpen, setGuidedSessionOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(!state.onboarded);
 
   const [currentModule, setCurrentModule] = useState<DayLessonModule>(day1Module);
@@ -313,7 +346,11 @@ export default function App() {
     route: MainRoute,
     opts?: {
       lectureTab?: 'youtube' | 'roleplay' | 'storybook';
+      roleplaySub?: 'roleplay' | 'speaking';
       worksheetTab?: WorksheetSubTab;
+      academyTab?: AcademySubTab;
+      vocabTab?: VocabTab;
+      vaultView?: VaultView;
     }
   ) => {
     if (opts?.lectureTab) {
@@ -321,10 +358,30 @@ export default function App() {
     } else if (route === 'lecture') {
       setLectureInitialTab('youtube');
     }
+    if (opts?.roleplaySub) {
+      setLectureRoleplaySub(opts.roleplaySub);
+    } else if (route === 'lecture') {
+      setLectureRoleplaySub('roleplay');
+    }
     if (opts?.worksheetTab) {
       setWorksheetInitialTab(opts.worksheetTab);
     } else if (route === 'worksheet') {
       setWorksheetInitialTab('exam');
+    }
+    if (opts?.academyTab) {
+      setAcademyInitialTab(opts.academyTab);
+    } else if (route === 'academy') {
+      setAcademyInitialTab('grammar-units');
+    }
+    if (opts?.vocabTab) {
+      setVocabInitialTab(opts.vocabTab);
+    } else if (route === 'vocab-review') {
+      setVocabInitialTab('sheet');
+    }
+    if (opts?.vaultView) {
+      setVocabInitialVaultView(opts.vaultView);
+    } else if (route === 'vocab-review') {
+      setVocabInitialVaultView('packs');
     }
     setActiveRoute(route);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -537,6 +594,86 @@ export default function App() {
     setState((prev) => ({
       ...prev,
       xpPoints: prev.xpPoints + correctCount * 5
+    }));
+  };
+
+  // v6.0 Incumbent-Killer handlers
+  const handleSolveWritingItem = (
+    itemId: string,
+    isCorrect: boolean,
+    missedCard?: SpacedReviewCard,
+    missedTag?: string
+  ) => {
+    setState((prev) => {
+      if (isCorrect) {
+        const already = prev.writingClinicSolvedIds.includes(itemId);
+        return {
+          ...prev,
+          xpPoints: already ? prev.xpPoints : prev.xpPoints + 35,
+          writingClinicSolvedIds: already
+            ? prev.writingClinicSolvedIds
+            : [...prev.writingClinicSolvedIds, itemId]
+        };
+      }
+      const nextWeak = { ...(prev.weakGrammarTags ?? {}) };
+      if (missedTag) nextWeak[missedTag] = (nextWeak[missedTag] ?? 0) + 1;
+      return {
+        ...prev,
+        weakGrammarTags: nextWeak,
+        reviewDeck: missedCard ? [missedCard, ...prev.reviewDeck] : prev.reviewDeck
+      };
+    });
+  };
+
+  const handleMasterIrregularVerb = (verbId: string) => {
+    setState((prev) => {
+      if (prev.irregularMasteredIds.includes(verbId)) return prev;
+      return {
+        ...prev,
+        xpPoints: prev.xpPoints + 10,
+        irregularMasteredIds: [...prev.irregularMasteredIds, verbId]
+      };
+    });
+  };
+
+  const handleSolveConfusablePair = (pairId: string) => {
+    setState((prev) => {
+      if (prev.confusableSolvedIds.includes(pairId)) return prev;
+      return {
+        ...prev,
+        xpPoints: prev.xpPoints + 15,
+        confusableSolvedIds: [...prev.confusableSolvedIds, pairId]
+      };
+    });
+  };
+
+  const handleRecordSpeakingAttempt = (attempt: SpeakingAttemptRecord) => {
+    setState((prev) => ({
+      ...prev,
+      xpPoints: prev.xpPoints + 90,
+      totalSentencesSpoken:
+        prev.totalSentencesSpoken + Math.max(3, Math.round(attempt.wordCount / 10)),
+      speakingAttempts: [attempt, ...prev.speakingAttempts]
+    }));
+  };
+
+  const handleCompleteGuidedSession = (
+    _scorePct: number,
+    earnedXp: number,
+    missedCards: SpacedReviewCard[]
+  ) => {
+    const today = getTodayKey();
+    setState((prev) => ({
+      ...prev,
+      xpPoints: prev.xpPoints + earnedXp,
+      streakDays: prev.guidedSessionsCompleted === 0 ? prev.streakDays + 1 : prev.streakDays,
+      totalSentencesSpoken: prev.totalSentencesSpoken + 5,
+      guidedSessionsCompleted: (prev.guidedSessionsCompleted ?? 0) + 1,
+      studyMinutesByDate: {
+        ...prev.studyMinutesByDate,
+        [today]: (prev.studyMinutesByDate?.[today] ?? 0) + 15
+      },
+      reviewDeck: [...missedCards, ...prev.reviewDeck]
     }));
   };
 
@@ -842,6 +979,7 @@ export default function App() {
           onSelectDay={handleSelectDay}
           onSelectStage={handleSelectStage}
           onStartSprint={() => setSprintOpen(true)}
+          onStartGuidedSession={() => setGuidedSessionOpen(true)}
           onNavigate={navigateTo}
           onOpenDictionary={handleOpenDictionary}
         />
@@ -873,13 +1011,17 @@ export default function App() {
 
         {activeRoute === 'academy' && (
           <GrammarAndHighSchoolHub
+            key={`academy-${academyInitialTab}`}
             grammarMasteredIds={state.grammarMasteredIds}
             highSchoolPassageScores={state.highSchoolPassageScores}
             savedEssays={state.savedEssays}
+            writingClinicSolvedIds={state.writingClinicSolvedIds}
+            initialSubTab={academyInitialTab}
             geminiApiKey={state.settings.geminiApiKey}
             onMarkGrammarMastered={handleMarkGrammarMastered}
             onRecordHighSchoolScore={handleRecordHighSchoolScore}
             onSaveEssay={handleSaveEssay}
+            onSolveWritingItem={handleSolveWritingItem}
             onRecordGrammarMistakes={handleRecordGrammarMistakes}
             onOpenDictionary={handleOpenDictionary}
           />
@@ -887,7 +1029,7 @@ export default function App() {
 
         {activeRoute === 'lecture' && (
           <CinematicLectureStudio
-            key={`lecture-${currentModule.dayNumber}-${lectureInitialTab}-${state.settings.showStructureSlashes}-${state.settings.levelTier}-${state.settings.accent}`}
+            key={`lecture-${currentModule.dayNumber}-${lectureInitialTab}-${lectureRoleplaySub}-${state.settings.showStructureSlashes}-${state.settings.levelTier}-${state.settings.accent}`}
             module={currentModule}
             settings={state.settings}
             dayRecords={state.dayRecords}
@@ -898,7 +1040,9 @@ export default function App() {
             savedParaphrases={state.savedParaphrases}
             completedRoleplayIds={state.completedRoleplayIds}
             completedStorybookIds={state.completedStorybookIds}
+            speakingAttempts={state.speakingAttempts}
             initialTab={lectureInitialTab}
+            initialRoleplaySub={lectureRoleplaySub}
             onSelectDay={handleSelectDay}
             onMarkLectureComplete={handleMarkLectureComplete}
             onMarkVideoWatched={handleMarkVideoWatched}
@@ -907,6 +1051,7 @@ export default function App() {
             onRecordDictationScore={handleRecordDictationScore}
             onCompleteRoleplay={handleCompleteRoleplay}
             onCompleteStorybook={handleCompleteStorybook}
+            onRecordSpeakingAttempt={handleRecordSpeakingAttempt}
             onAddReviewCard={handleAddReviewCard}
             onSaveNote={handleSaveNote}
             onSaveParaphrase={handleSaveParaphrase}
@@ -932,17 +1077,23 @@ export default function App() {
 
         {activeRoute === 'vocab-review' && (
           <VocabAndReviewBook
-            key={`vocab-${currentModule.dayNumber}`}
+            key={`vocab-${currentModule.dayNumber}-${vocabInitialTab}-${vocabInitialVaultView}`}
             module={currentModule}
             dayRecords={state.dayRecords}
             accent={state.settings.accent}
             masteredVocabIds={state.masteredVocabIds}
             masteredVaultWordIds={state.masteredVaultWordIds}
+            irregularMasteredIds={state.irregularMasteredIds}
+            confusableSolvedIds={state.confusableSolvedIds}
             savedDictionaryWords={state.savedDictionaryWords}
             reviewDeck={state.reviewDeck}
+            initialTab={vocabInitialTab}
+            initialVaultView={vocabInitialVaultView}
             onSelectDay={handleSelectDay}
             onToggleVocabMastered={handleToggleVocabMastered}
             onToggleVaultWordMastered={handleToggleVaultWordMastered}
+            onMasterIrregularVerb={handleMasterIrregularVerb}
+            onSolveConfusablePair={handleSolveConfusablePair}
             onCompleteSpeedBlitz={handleCompleteSpeedBlitz}
             onAddReviewCard={handleAddReviewCard}
             onRemoveSavedDictionaryWord={handleRemoveSavedDictionaryWord}
@@ -963,6 +1114,19 @@ export default function App() {
           />
         )}
       </Suspense>
+
+      {guidedSessionOpen && (
+        <Suspense fallback={null}>
+          <DailyGuidedSessionOverlay
+            key={`guided-${state.settings.currentStage}`}
+            stage={state.settings.currentStage ?? 'stage0'}
+            sessionIndex={state.guidedSessionsCompleted ?? 0}
+            learnerName={state.settings.learnerName}
+            onCompleteSession={handleCompleteGuidedSession}
+            onClose={() => setGuidedSessionOpen(false)}
+          />
+        </Suspense>
+      )}
 
       {sprintOpen && (
         <SprintFocusOverlay

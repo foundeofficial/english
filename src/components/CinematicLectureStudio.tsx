@@ -25,6 +25,7 @@ import type {
   ParaphraseResult,
   SpacedReviewCard
 } from '../types/course.ts';
+import type { SpeakingAttemptRecord } from '../types/v6.ts';
 import { analyzeWithOptionalGemini } from '../utils/paraphraseEngine.ts';
 import {
   isSpeechRecognitionSupported,
@@ -44,6 +45,12 @@ const StorybookLibraryStudio = lazy(() =>
   }))
 );
 
+const SpeakingChallengeLab = lazy(() =>
+  import('./SpeakingChallengeLab.tsx').then((m) => ({
+    default: m.SpeakingChallengeLab
+  }))
+);
+
 interface CinematicLectureStudioProps {
   module: DayLessonModule;
   settings: LearnerSettings;
@@ -55,7 +62,9 @@ interface CinematicLectureStudioProps {
   savedParaphrases: ParaphraseResult[];
   completedRoleplayIds: string[];
   completedStorybookIds: string[];
+  speakingAttempts: SpeakingAttemptRecord[];
   initialTab?: StudioTab;
+  initialRoleplaySub?: 'roleplay' | 'speaking';
   onSelectDay: (dayNumber: number) => void;
   onMarkLectureComplete: () => void;
   onMarkVideoWatched: () => void;
@@ -64,6 +73,7 @@ interface CinematicLectureStudioProps {
   onRecordDictationScore: (accuracyPct: number) => void;
   onCompleteRoleplay: (scenarioId: string, spokenTurns: number) => void;
   onCompleteStorybook: (bookId: string) => void;
+  onRecordSpeakingAttempt: (attempt: SpeakingAttemptRecord) => void;
   onAddReviewCard: (card: SpacedReviewCard) => void;
   onSaveNote: (note: string) => void;
   onSaveParaphrase: (item: ParaphraseResult, reviewCard?: SpacedReviewCard) => void;
@@ -92,7 +102,9 @@ export function CinematicLectureStudio({
   savedParaphrases,
   completedRoleplayIds,
   completedStorybookIds,
+  speakingAttempts,
   initialTab,
+  initialRoleplaySub,
   onSelectDay,
   onMarkLectureComplete,
   onMarkVideoWatched,
@@ -101,6 +113,7 @@ export function CinematicLectureStudio({
   onRecordDictationScore,
   onCompleteRoleplay,
   onCompleteStorybook,
+  onRecordSpeakingAttempt,
   onAddReviewCard,
   onSaveNote,
   onSaveParaphrase,
@@ -108,6 +121,9 @@ export function CinematicLectureStudio({
 }: CinematicLectureStudioProps) {
   const [studioTab, setStudioTab] = useState<StudioTab>(initialTab ?? 'youtube');
   const [sitcomSubMode, setSitcomSubMode] = useState<SitcomSubMode>('watch');
+  const [roleplaySubMode, setRoleplaySubMode] = useState<'roleplay' | 'speaking'>(
+    initialRoleplaySub ?? 'roleplay'
+  );
 
   const defaultRate = LEVEL_INFO_MAP[settings.levelTier].defaultSpeechRate;
 
@@ -1316,15 +1332,58 @@ export function CinematicLectureStudio({
       )}
 
       {/* =======================================================
-          TAB 6: MULTI-TURN REALTALK ROLEPLAY STUDIO (12 SCENARIOS)
+          TAB 6: MULTI-TURN REALTALK ROLEPLAY + 1-MIN SPEAKING CHALLENGE
          ======================================================= */}
       {studioTab === 'roleplay' && (
-        <RealTalkRoleplayStudio
-          completedRoleplayIds={completedRoleplayIds}
-          onCompleteRoleplay={onCompleteRoleplay}
-          onAddReviewCard={onAddReviewCard}
-          onOpenDictionary={onOpenDictionary}
-        />
+        <div>
+          <div className="sitcom-submode-bar" role="tablist" aria-label="스피킹 훈련 모드">
+            <button
+              id="roleplay-sub-5turn"
+              type="button"
+              role="tab"
+              aria-selected={roleplaySubMode === 'roleplay'}
+              className={`sitcom-sub-btn ${roleplaySubMode === 'roleplay' ? 'active' : ''}`}
+              onClick={() => setRoleplaySubMode('roleplay')}
+            >
+              <MessageSquareText size={15} />
+              <span>5턴 AI 롤플레이 (12편)</span>
+            </button>
+            <button
+              id="roleplay-sub-1min-speaking"
+              type="button"
+              role="tab"
+              aria-selected={roleplaySubMode === 'speaking'}
+              className={`sitcom-sub-btn ${roleplaySubMode === 'speaking' ? 'active' : ''}`}
+              onClick={() => setRoleplaySubMode('speaking')}
+            >
+              <Mic size={15} />
+              <span>1분 스피킹 챌린지 · 수행평가·OPIc (16주제)</span>
+            </button>
+          </div>
+
+          {roleplaySubMode === 'roleplay' ? (
+            <RealTalkRoleplayStudio
+              completedRoleplayIds={completedRoleplayIds}
+              onCompleteRoleplay={onCompleteRoleplay}
+              onAddReviewCard={onAddReviewCard}
+              onOpenDictionary={onOpenDictionary}
+            />
+          ) : (
+            <Suspense
+              fallback={
+                <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+                  1분 실전 스피킹 챌린지 스튜디오를 여는 중...
+                </div>
+              }
+            >
+              <SpeakingChallengeLab
+                speakingAttempts={speakingAttempts}
+                onRecordSpeakingAttempt={onRecordSpeakingAttempt}
+                onOpenDictionary={onOpenDictionary}
+              />
+            </Suspense>
+          )}
+        </div>
       )}
 
       {/* =======================================================

@@ -23,13 +23,18 @@ export function computeAchievementBadges(state: AppPersistState): AchievementBad
   const connectedCount = state.connectedSpeechIds?.length ?? 0;
   const foundationCount = state.foundationCompletedIds.length;
   const grammarCount = state.grammarMasteredIds.length;
+  const writingCount = state.writingClinicSolvedIds?.length ?? 0;
   const csatCount = Object.keys(state.highSchoolPassageScores ?? {}).length;
   const essayCount = state.savedEssays.length;
   const storybookCount = state.completedStorybookIds?.length ?? 0;
   const roleplayCount = state.completedRoleplayIds.length;
+  const speakingCount = state.speakingAttempts?.length ?? 0;
   const mockCount = state.mockExamHistory?.length ?? 0;
   const totalVocab =
-    state.masteredVocabIds.length + (state.masteredVaultWordIds?.length ?? 0);
+    state.masteredVocabIds.length +
+    (state.masteredVaultWordIds?.length ?? 0) +
+    (state.irregularMasteredIds?.length ?? 0) +
+    (state.confusableSolvedIds?.length ?? 0);
   const reviewedCount = state.reviewDeck.filter(
     (c) => c.mastered || (c.reviewCount ?? 0) > 0 || c.intervalDays > 1
   ).length;
@@ -62,11 +67,11 @@ export function computeAchievementBadges(state: AppPersistState): AchievementBad
     },
     {
       id: 'badge-grammar',
-      titleKo: '비주얼 문법 마스터',
-      descKo: '비주얼 영문법 20강 중 3강 이상 마스터',
+      titleKo: '비주얼 문법·서술형 마스터',
+      descKo: '영문법 3강 또는 내신 서술형·오류 3문항 정답',
       emoji: '📐',
-      unlocked: grammarCount >= 3,
-      progressText: `${grammarCount}/20강`
+      unlocked: grammarCount >= 3 || writingCount >= 3,
+      progressText: `문법 ${grammarCount}/20 · 서술형 ${writingCount}/60`
     },
     {
       id: 'badge-csat',
@@ -94,11 +99,11 @@ export function computeAchievementBadges(state: AppPersistState): AchievementBad
     },
     {
       id: 'badge-roleplay',
-      titleKo: '프리토킹 스피커',
-      descKo: '5턴 실전 회화 롤플레이 1편 이상 완주',
+      titleKo: '프리토킹 · 1분 스피커',
+      descKo: '5턴 롤플레이 또는 1분 스피킹 챌린지 1회 완주',
       emoji: '🎙️',
-      unlocked: roleplayCount >= 1,
-      progressText: `${roleplayCount}/12편`
+      unlocked: roleplayCount >= 1 || speakingCount >= 1,
+      progressText: `롤플레이 ${roleplayCount} · 1분스피킹 ${speakingCount}`
     },
     {
       id: 'badge-mock',
@@ -111,10 +116,10 @@ export function computeAchievementBadges(state: AppPersistState): AchievementBad
     {
       id: 'badge-vocab',
       titleKo: '어휘력 폭발',
-      descKo: '30일·필수 영단어 금고 합산 20단어 암기',
+      descKo: '어휘 금고·불규칙동사·혼동어휘 합산 20개 달성',
       emoji: '📚',
       unlocked: totalVocab >= 20,
-      progressText: `${totalVocab}단어`
+      progressText: `${totalVocab}개`
     },
     {
       id: 'badge-srs',
@@ -140,13 +145,16 @@ export function computeDailyQuests(state: AppPersistState): DailyQuestItem[] {
   const hasFoundationProgress =
     state.phonicsMasteredIds.length >= 1 ||
     state.foundationCompletedIds.length >= 1 ||
-    (state.connectedSpeechIds?.length ?? 0) >= 1;
+    (state.connectedSpeechIds?.length ?? 0) >= 1 ||
+    (state.guidedSessionsCompleted ?? 0) >= 1;
   const hasReadingOrStory =
     (state.completedStorybookIds?.length ?? 0) >= 1 ||
     Object.keys(state.highSchoolPassageScores ?? {}).length >= 1 ||
+    (state.writingClinicSolvedIds?.length ?? 0) >= 1 ||
     Object.values(state.dayRecords).some((r) => r.readingCompleted);
   const hasOutputOrExam =
     state.completedRoleplayIds.length >= 1 ||
+    (state.speakingAttempts?.length ?? 0) >= 1 ||
     (state.mockExamHistory?.length ?? 0) >= 1 ||
     state.savedEssays.length >= 1 ||
     Object.values(state.dayRecords).some((r) => r.examScore !== null);
@@ -156,15 +164,15 @@ export function computeDailyQuests(state: AppPersistState): DailyQuestItem[] {
       id: 'quest-1',
       titleKo:
         stage === 'stage0' || stage === 'stage1'
-          ? '파닉스 음가 · 연음 또는 초등 어순 1강 익히기'
-          : '비주얼 영문법 또는 연음·발음 1패턴 체크하기',
+          ? '파닉스·초등 어순 1강 또는 15분 자동 수업 완료'
+          : '비주얼 영문법·내신 서술형 또는 15분 자동 수업 완료',
       rewardXp: 50,
       done: hasFoundationProgress || state.grammarMasteredIds.length >= 1,
       targetRoute: stage === 'stage0' || stage === 'stage1' ? 'foundation' : 'academy'
     },
     {
       id: 'quest-2',
-      titleKo: '영어 원서 스토리북 1권 또는 고등 구문독해 1지문 읽기',
+      titleKo: '영어 원서 1권 · 고등 구문독해 또는 내신 서술형 1문항 풀기',
       rewardXp: 75,
       done: hasReadingOrStory,
       targetRoute: stage === 'stage3' ? 'academy' : 'lecture',
@@ -172,7 +180,7 @@ export function computeDailyQuests(state: AppPersistState): DailyQuestItem[] {
     },
     {
       id: 'quest-3',
-      titleKo: '5턴 프리토킹 롤플레이 또는 실전 듣기 모의고사 1회 도전',
+      titleKo: '1분 스피킹 챌린지 · 5턴 롤플레이 또는 실전 모의고사 도전',
       rewardXp: 100,
       done: hasOutputOrExam,
       targetRoute: stage === 'stage3' || stage === 'stage4' ? 'worksheet' : 'lecture',

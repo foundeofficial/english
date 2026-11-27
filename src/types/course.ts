@@ -1,5 +1,6 @@
 import type { MasteryStage, SavedEssayRecord } from './academy.ts';
 import type { MockExamAttemptRecord } from './v5.ts';
+import type { SpeakingAttemptRecord } from './v6.ts';
 
 export type MainRoute =
   | 'home'
@@ -277,4 +278,10 @@ export interface AppPersistState {
   completedStorybookIds: string[];
   mockExamHistory: MockExamAttemptRecord[];
   masteredVaultWordIds: string[];
+  // v6.0 Incumbent-Killer Progress
+  writingClinicSolvedIds: string[];
+  irregularMasteredIds: string[];
+  confusableSolvedIds: string[];
+  speakingAttempts: SpeakingAttemptRecord[];
+  guidedSessionsCompleted: number;
 }

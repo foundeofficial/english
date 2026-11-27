@@ -318,8 +318,8 @@ export function CinematicLectureStudio({
           className={`submode-tab-btn ${studioTab === 'youtube' ? 'active' : ''}`}
           onClick={() => switchStudioTab('youtube')}
         >
-          <Video size={16} />
-          <span>1교시 · 유튜브 인강 {videoWatched ? '✓' : ''}</span>
+          <Video size={15} />
+          <span>1. 유튜브 인강 {videoWatched ? '✓' : ''}</span>
         </button>
 
         <button
@@ -328,8 +328,8 @@ export function CinematicLectureStudio({
           className={`submode-tab-btn ${studioTab === 'sitcom' ? 'active' : ''}`}
           onClick={() => switchStudioTab('sitcom')}
         >
-          <Play size={16} />
-          <span>2교시 · 시트콤 ({module.dialogue.length}턴)</span>
+          <Play size={15} />
+          <span>2. 시트콤·쉐도잉</span>
         </button>
 
         <button
@@ -338,8 +338,8 @@ export function CinematicLectureStudio({
           className={`submode-tab-btn ${studioTab === 'reading' ? 'active' : ''}`}
           onClick={() => switchStudioTab('reading')}
         >
-          <FileText size={16} />
-          <span>3교시 · 영자 독해 {readingCompleted ? '✓' : ''}</span>
+          <FileText size={15} />
+          <span>3. 영자 독해 {readingCompleted ? '✓' : ''}</span>
         </button>
 
         <button
@@ -348,8 +348,8 @@ export function CinematicLectureStudio({
           className={`submode-tab-btn ${studioTab === 'chalkboard' ? 'active' : ''}`}
           onClick={() => switchStudioTab('chalkboard')}
         >
-          <BookOpen size={16} />
-          <span>4교시 · 원리 칠판 ({module.grammarSections.length}강)</span>
+          <BookOpen size={15} />
+          <span>4. 원리 칠판</span>
         </button>
 
         <button
@@ -358,8 +358,8 @@ export function CinematicLectureStudio({
           className={`submode-tab-btn ${studioTab === 'tutor' ? 'active' : ''}`}
           onClick={() => switchStudioTab('tutor')}
         >
-          <MessageSquareText size={16} />
-          <span>5교시 · 1:1 과외</span>
+          <MessageSquareText size={15} />
+          <span>5. 1:1 과외</span>
         </button>
 
         <button
@@ -368,8 +368,8 @@ export function CinematicLectureStudio({
           className={`submode-tab-btn ${studioTab === 'roleplay' ? 'active' : ''}`}
           onClick={() => switchStudioTab('roleplay')}
         >
-          <Mic size={16} />
-          <span>6교시 · 프리토킹 ({completedRoleplayIds.length}/12)</span>
+          <Mic size={15} />
+          <span>6. 프리토킹 ({completedRoleplayIds.length}/12)</span>
         </button>
 
         <button
@@ -378,8 +378,8 @@ export function CinematicLectureStudio({
           className={`submode-tab-btn ${studioTab === 'storybook' ? 'active' : ''}`}
           onClick={() => switchStudioTab('storybook')}
         >
-          <Headphones size={16} />
-          <span>7교시 · 영어 원서 ({completedStorybookIds.length}/12)</span>
+          <Headphones size={15} />
+          <span>7. 영어 원서 ({completedStorybookIds.length}/12)</span>
         </button>
       </div>
 

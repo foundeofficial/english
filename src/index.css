@@ -4963,8 +4963,9 @@ button { cursor: pointer; }
 
 .submode-tab-btn {
   flex: 1 0 auto;
-  padding: 10px 13px;
-  font-size: 0.87rem;
+  padding: 9px 10px;
+  font-size: 0.83rem;
+  gap: 5px;
   white-space: nowrap;
 }
 

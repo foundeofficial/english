@@ -45,6 +45,11 @@ const DailyGuidedSessionOverlay = lazy(() =>
     default: m.DailyGuidedSessionOverlay
   }))
 );
+const CurriculumOmnisearch = lazy(() =>
+  import('./components/CurriculumOmnisearch.tsx').then((m) => ({
+    default: m.CurriculumOmnisearch
+  }))
+);
 
 import { INITIAL_REVIEW_CARDS } from './data/courseCatalog.ts';
 import {
@@ -73,9 +78,11 @@ import type {
 import type { MockExamAttemptRecord } from './types/v5.ts';
 import type { SpeakingAttemptRecord } from './types/v6.ts';
 import type { CourseLexiconEntry } from './utils/dictionaryApi.ts';
+import { setSoundFxMuted } from './utils/soundFx.ts';
 import { setDefaultSpeechAccent } from './utils/speech.ts';
 
-const STORAGE_KEY = 'korebridge_commercial_v6';
+const STORAGE_KEY = 'korebridge_commercial_v7';
+const LEGACY_V6_KEY = 'korebridge_commercial_v6';
 const LEGACY_V5_KEY = 'korebridge_commercial_v5';
 const LEGACY_V4_KEY = 'korebridge_commercial_v4';
 const LEGACY_V3_KEY = 'korebridge_commercial_v3';
@@ -131,7 +138,11 @@ const DEFAULT_STATE: AppPersistState = {
   irregularMasteredIds: [],
   confusableSolvedIds: [],
   speakingAttempts: [],
-  guidedSessionsCompleted: 0
+  guidedSessionsCompleted: 0,
+  vocabEloRating: 1000,
+  clozeSolvedCount: 0,
+  patternReflexMasteredIds: [],
+  csatKillerSolvedIds: []
 };
 
 function normalizeAccent(raw: unknown): AccentPreference {
@@ -205,6 +216,16 @@ function hydrateState(parsed: Partial<AppPersistState>): AppPersistState {
     speakingAttempts: Array.isArray(parsed.speakingAttempts) ? parsed.speakingAttempts : [],
     guidedSessionsCompleted:
       typeof parsed.guidedSessionsCompleted === 'number' ? parsed.guidedSessionsCompleted : 0,
+    vocabEloRating:
+      typeof parsed.vocabEloRating === 'number' ? parsed.vocabEloRating : 1000,
+    clozeSolvedCount:
+      typeof parsed.clozeSolvedCount === 'number' ? parsed.clozeSolvedCount : 0,
+    patternReflexMasteredIds: Array.isArray(parsed.patternReflexMasteredIds)
+      ? parsed.patternReflexMasteredIds
+      : [],
+    csatKillerSolvedIds: Array.isArray(parsed.csatKillerSolvedIds)
+      ? parsed.csatKillerSolvedIds
+      : [],
     settings: {
       ...DEFAULT_STATE.settings,
       ...(parsed.settings ?? {}),
@@ -219,6 +240,7 @@ function loadInitialState(): AppPersistState {
   try {
     const raw =
       window.localStorage.getItem(STORAGE_KEY) ??
+      window.localStorage.getItem(LEGACY_V6_KEY) ??
       window.localStorage.getItem(LEGACY_V5_KEY) ??
       window.localStorage.getItem(LEGACY_V4_KEY) ??
       window.localStorage.getItem(LEGACY_V3_KEY);
@@ -257,13 +279,16 @@ export default function App() {
   const [state, setState] = useState<AppPersistState>(loadInitialState);
   const [activeRoute, setActiveRoute] = useState<MainRoute>('home');
   const [lectureInitialTab, setLectureInitialTab] = useState<StudioTab>('youtube');
-  const [lectureRoleplaySub, setLectureRoleplaySub] = useState<'roleplay' | 'speaking'>('roleplay');
+  const [lectureRoleplaySub, setLectureRoleplaySub] = useState<'roleplay' | 'speaking' | 'pattern-gym'>('roleplay');
+  const [lectureGymMode, setLectureGymMode] = useState<'cloze-elo' | 'pattern-reflex'>('cloze-elo');
   const [worksheetInitialTab, setWorksheetInitialTab] = useState<WorksheetSubTab>('exam');
   const [academyInitialTab, setAcademyInitialTab] = useState<AcademySubTab>('grammar-units');
+  const [academyCsatSub, setAcademyCsatSub] = useState<'xray' | 'killer'>('xray');
   const [vocabInitialTab, setVocabInitialTab] = useState<VocabTab>('sheet');
   const [vocabInitialVaultView, setVocabInitialVaultView] = useState<VaultView>('packs');
   const [sprintOpen, setSprintOpen] = useState(false);
   const [guidedSessionOpen, setGuidedSessionOpen] = useState(false);
+  const [omnisearchOpen, setOmnisearchOpen] = useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = useState(!state.onboarded);
 
   const [currentModule, setCurrentModule] = useState<DayLessonModule>(day1Module);
@@ -279,6 +304,10 @@ export default function App() {
   useEffect(() => {
     setDefaultSpeechAccent(state.settings.accent);
   }, [state.settings.accent]);
+
+  useEffect(() => {
+    setSoundFxMuted(state.settings.silentMode);
+  }, [state.settings.silentMode]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -311,6 +340,11 @@ export default function App() {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setOmnisearchOpen((prev) => !prev);
+        return;
+      }
       if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return;
       const tag = (e.target as HTMLElement | null)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
@@ -345,14 +379,20 @@ export default function App() {
   const navigateTo = (
     route: MainRoute,
     opts?: {
+      dayNumber?: number;
       lectureTab?: 'youtube' | 'roleplay' | 'storybook';
-      roleplaySub?: 'roleplay' | 'speaking';
+      roleplaySub?: 'roleplay' | 'speaking' | 'pattern-gym';
+      gymMode?: 'cloze-elo' | 'pattern-reflex';
       worksheetTab?: WorksheetSubTab;
       academyTab?: AcademySubTab;
+      csatSub?: 'xray' | 'killer';
       vocabTab?: VocabTab;
       vaultView?: VaultView;
     }
   ) => {
+    if (opts?.dayNumber) {
+      handleSelectDay(opts.dayNumber);
+    }
     if (opts?.lectureTab) {
       setLectureInitialTab(opts.lectureTab);
     } else if (route === 'lecture') {
@@ -363,6 +403,11 @@ export default function App() {
     } else if (route === 'lecture') {
       setLectureRoleplaySub('roleplay');
     }
+    if (opts?.gymMode) {
+      setLectureGymMode(opts.gymMode);
+    } else if (route === 'lecture') {
+      setLectureGymMode('cloze-elo');
+    }
     if (opts?.worksheetTab) {
       setWorksheetInitialTab(opts.worksheetTab);
     } else if (route === 'worksheet') {
@@ -372,6 +417,11 @@ export default function App() {
       setAcademyInitialTab(opts.academyTab);
     } else if (route === 'academy') {
       setAcademyInitialTab('grammar-units');
+    }
+    if (opts?.csatSub) {
+      setAcademyCsatSub(opts.csatSub);
+    } else if (route === 'academy') {
+      setAcademyCsatSub('xray');
     }
     if (opts?.vocabTab) {
       setVocabInitialTab(opts.vocabTab);
@@ -677,6 +727,62 @@ export default function App() {
     }));
   };
 
+  // v7.0 Transcendence handlers
+  const handleUpdateClozeElo = (
+    nextElo: number,
+    isCorrect: boolean,
+    missedCard?: SpacedReviewCard
+  ) => {
+    setState((prev) => ({
+      ...prev,
+      vocabEloRating: nextElo,
+      clozeSolvedCount: (prev.clozeSolvedCount ?? 0) + 1,
+      xpPoints: isCorrect ? prev.xpPoints + 15 : prev.xpPoints,
+      reviewDeck: missedCard ? [missedCard, ...prev.reviewDeck] : prev.reviewDeck
+    }));
+  };
+
+  const handleCompletePatternSet = (patternId: string, spokenCount: number) => {
+    setState((prev) => {
+      const already = prev.patternReflexMasteredIds.includes(patternId);
+      return {
+        ...prev,
+        xpPoints: prev.xpPoints + 65,
+        totalSentencesSpoken: prev.totalSentencesSpoken + spokenCount,
+        patternReflexMasteredIds: already
+          ? prev.patternReflexMasteredIds
+          : [...prev.patternReflexMasteredIds, patternId]
+      };
+    });
+  };
+
+  const handleSolveKillerItem = (
+    itemId: string,
+    isCorrect: boolean,
+    missedCard?: SpacedReviewCard,
+    missedTag?: string
+  ) => {
+    setState((prev) => {
+      if (isCorrect) {
+        const already = prev.csatKillerSolvedIds.includes(itemId);
+        return {
+          ...prev,
+          xpPoints: already ? prev.xpPoints : prev.xpPoints + 40,
+          csatKillerSolvedIds: already
+            ? prev.csatKillerSolvedIds
+            : [...prev.csatKillerSolvedIds, itemId]
+        };
+      }
+      const nextWeak = { ...(prev.weakGrammarTags ?? {}) };
+      if (missedTag) nextWeak[missedTag] = (nextWeak[missedTag] ?? 0) + 1;
+      return {
+        ...prev,
+        weakGrammarTags: nextWeak,
+        reviewDeck: missedCard ? [missedCard, ...prev.reviewDeck] : prev.reviewDeck
+      };
+    });
+  };
+
   // 30-day track handlers
   const handleCompleteSprint = (spokenCount: number, missedCards: SpacedReviewCard[]) => {
     setState((prev) => {
@@ -980,6 +1086,7 @@ export default function App() {
           onSelectStage={handleSelectStage}
           onStartSprint={() => setSprintOpen(true)}
           onStartGuidedSession={() => setGuidedSessionOpen(true)}
+          onOpenOmnisearch={() => setOmnisearchOpen(true)}
           onNavigate={navigateTo}
           onOpenDictionary={handleOpenDictionary}
         />
@@ -1011,17 +1118,20 @@ export default function App() {
 
         {activeRoute === 'academy' && (
           <GrammarAndHighSchoolHub
-            key={`academy-${academyInitialTab}`}
+            key={`academy-${academyInitialTab}-${academyCsatSub}`}
             grammarMasteredIds={state.grammarMasteredIds}
             highSchoolPassageScores={state.highSchoolPassageScores}
             savedEssays={state.savedEssays}
             writingClinicSolvedIds={state.writingClinicSolvedIds}
+            csatKillerSolvedIds={state.csatKillerSolvedIds}
             initialSubTab={academyInitialTab}
+            initialCsatSub={academyCsatSub}
             geminiApiKey={state.settings.geminiApiKey}
             onMarkGrammarMastered={handleMarkGrammarMastered}
             onRecordHighSchoolScore={handleRecordHighSchoolScore}
             onSaveEssay={handleSaveEssay}
             onSolveWritingItem={handleSolveWritingItem}
+            onSolveKillerItem={handleSolveKillerItem}
             onRecordGrammarMistakes={handleRecordGrammarMistakes}
             onOpenDictionary={handleOpenDictionary}
           />
@@ -1029,7 +1139,7 @@ export default function App() {
 
         {activeRoute === 'lecture' && (
           <CinematicLectureStudio
-            key={`lecture-${currentModule.dayNumber}-${lectureInitialTab}-${lectureRoleplaySub}-${state.settings.showStructureSlashes}-${state.settings.levelTier}-${state.settings.accent}`}
+            key={`lecture-${currentModule.dayNumber}-${lectureInitialTab}-${lectureRoleplaySub}-${lectureGymMode}-${state.settings.showStructureSlashes}-${state.settings.levelTier}-${state.settings.accent}`}
             module={currentModule}
             settings={state.settings}
             dayRecords={state.dayRecords}
@@ -1041,8 +1151,12 @@ export default function App() {
             completedRoleplayIds={state.completedRoleplayIds}
             completedStorybookIds={state.completedStorybookIds}
             speakingAttempts={state.speakingAttempts}
+            vocabEloRating={state.vocabEloRating}
+            clozeSolvedCount={state.clozeSolvedCount}
+            patternReflexMasteredIds={state.patternReflexMasteredIds}
             initialTab={lectureInitialTab}
             initialRoleplaySub={lectureRoleplaySub}
+            initialGymMode={lectureGymMode}
             onSelectDay={handleSelectDay}
             onMarkLectureComplete={handleMarkLectureComplete}
             onMarkVideoWatched={handleMarkVideoWatched}
@@ -1052,6 +1166,8 @@ export default function App() {
             onCompleteRoleplay={handleCompleteRoleplay}
             onCompleteStorybook={handleCompleteStorybook}
             onRecordSpeakingAttempt={handleRecordSpeakingAttempt}
+            onUpdateClozeElo={handleUpdateClozeElo}
+            onCompletePatternSet={handleCompletePatternSet}
             onAddReviewCard={handleAddReviewCard}
             onSaveNote={handleSaveNote}
             onSaveParaphrase={handleSaveParaphrase}
@@ -1119,11 +1235,23 @@ export default function App() {
         <Suspense fallback={null}>
           <DailyGuidedSessionOverlay
             key={`guided-${state.settings.currentStage}`}
+            state={state}
             stage={state.settings.currentStage ?? 'stage0'}
             sessionIndex={state.guidedSessionsCompleted ?? 0}
             learnerName={state.settings.learnerName}
             onCompleteSession={handleCompleteGuidedSession}
             onClose={() => setGuidedSessionOpen(false)}
+          />
+        </Suspense>
+      )}
+
+      {omnisearchOpen && (
+        <Suspense fallback={null}>
+          <CurriculumOmnisearch
+            isOpen={omnisearchOpen}
+            onClose={() => setOmnisearchOpen(false)}
+            onNavigate={navigateTo}
+            onOpenDictionary={handleOpenDictionary}
           />
         </Suspense>
       )}

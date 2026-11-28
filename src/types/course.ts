@@ -284,4 +284,9 @@ export interface AppPersistState {
   confusableSolvedIds: string[];
   speakingAttempts: SpeakingAttemptRecord[];
   guidedSessionsCompleted: number;
+  // v7.0 Transcendence Progress
+  vocabEloRating: number;
+  clozeSolvedCount: number;
+  patternReflexMasteredIds: string[];
+  csatKillerSolvedIds: string[];
 }

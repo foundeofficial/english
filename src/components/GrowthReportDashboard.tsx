@@ -435,25 +435,25 @@ export function GrowthReportDashboard({
       {/* TOP KPI STRIP */}
       <section className="report-kpi-grid" aria-label="핵심 학습 지표">
         <div className="report-kpi-card">
-          <span className="mini-stat-label">통합 마스터리 · 자동수업</span>
+          <span className="mini-stat-label">통합 마스터리 · 어휘력 ELO</span>
           <strong>
-            Lv.{Math.floor((state.xpPoints ?? 0) / 250) + 1} · {state.xpPoints ?? 0} XP
+            Lv.{Math.floor((state.xpPoints ?? 0) / 250) + 1} · ELO {(state.vocabEloRating ?? 1000).toLocaleString()}
           </strong>
-          <small>연속 {state.streakDays}일 · 15분 자동수업 {guidedDoneCount}회 완주</small>
+          <small>연속 {state.streakDays}일 · 15분 자동수업 {guidedDoneCount}회 · {state.xpPoints ?? 0} XP</small>
         </div>
         <div className="report-kpi-card">
-          <span className="mini-stat-label">내신 서술형 · 불규칙동사</span>
+          <span className="mini-stat-label">내신 서술형 · 수능 킬러</span>
           <strong>
-            {writingSolvedCount}/60 · {irregularDoneCount}/80
+            {writingSolvedCount}/60 · {state.csatKillerSolvedIds?.length ?? 0}/20
           </strong>
-          <small>수능 혼동어휘 {confusableDoneCount}/50쌍 · 문법 {state.grammarMasteredIds.length}/20강</small>
+          <small>불규칙 {irregularDoneCount}/80 · 혼동어휘 {confusableDoneCount}/50 · 문법 {state.grammarMasteredIds.length}/20강</small>
         </div>
         <div className="report-kpi-card">
-          <span className="mini-stat-label">1분 스피킹 · 영어 원서</span>
+          <span className="mini-stat-label">1분 스피킹 · 2초 반사패턴</span>
           <strong>
-            {bestSpeakingWpm !== null ? `${bestSpeakingWpm} WPM` : `${speakingAttempts.length}회`} · {state.completedStorybookIds?.length ?? 0}/12권
+            {bestSpeakingWpm !== null ? `${bestSpeakingWpm} WPM` : `${speakingAttempts.length}회`} · {state.patternReflexMasteredIds?.length ?? 0}/20패턴
           </strong>
-          <small>고등독해 {Object.keys(state.highSchoolPassageScores ?? {}).length}/15 · 에세이 {state.savedEssays.length}편 · 롤플레이 {state.completedRoleplayIds.length}/12</small>
+          <small>원서 {state.completedStorybookIds?.length ?? 0}/12 · 고등독해 {Object.keys(state.highSchoolPassageScores ?? {}).length}/15 · 롤플레이 {state.completedRoleplayIds.length}/12</small>
         </div>
         <div className="report-kpi-card">
           <span className="mini-stat-label">누적 학습 · 평균 시험</span>

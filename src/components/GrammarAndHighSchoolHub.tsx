@@ -44,12 +44,20 @@ const SchoolWritingClinic = lazy(() =>
   }))
 );
 
+const CsatKillerTrainer = lazy(() =>
+  import('./CsatKillerTrainer.tsx').then((m) => ({
+    default: m.CsatKillerTrainer
+  }))
+);
+
 interface GrammarAndHighSchoolHubProps {
   grammarMasteredIds: string[];
   highSchoolPassageScores: Record<string, number>;
   savedEssays: SavedEssayRecord[];
   writingClinicSolvedIds: string[];
+  csatKillerSolvedIds: string[];
   initialSubTab?: AcademySubTab;
+  initialCsatSub?: 'xray' | 'killer';
   geminiApiKey?: string;
   onMarkGrammarMastered: (unitId: string) => void;
   onRecordHighSchoolScore: (
@@ -60,6 +68,12 @@ interface GrammarAndHighSchoolHubProps {
   ) => void;
   onSaveEssay: (essay: SavedEssayRecord) => void;
   onSolveWritingItem: (
+    itemId: string,
+    isCorrect: boolean,
+    missedCard?: SpacedReviewCard,
+    missedTag?: string
+  ) => void;
+  onSolveKillerItem: (
     itemId: string,
     isCorrect: boolean,
     missedCard?: SpacedReviewCard,
@@ -113,16 +127,20 @@ export function GrammarAndHighSchoolHub({
   highSchoolPassageScores,
   savedEssays,
   writingClinicSolvedIds,
+  csatKillerSolvedIds,
   initialSubTab,
+  initialCsatSub,
   geminiApiKey,
   onMarkGrammarMastered,
   onRecordHighSchoolScore,
   onSaveEssay,
   onSolveWritingItem,
+  onSolveKillerItem,
   onRecordGrammarMistakes,
   onOpenDictionary
 }: GrammarAndHighSchoolHubProps) {
   const [subTab, setSubTab] = useState<AcademySubTab>(initialSubTab ?? 'grammar-units');
+  const [csatSubMode, setCsatSubMode] = useState<'xray' | 'killer'>(initialCsatSub ?? 'xray');
 
   // Tab 1: Visual Grammar 20 Units
   const [stageFilter, setStageFilter] = useState<'all' | 'elementary' | 'middle' | 'high'>('all');
@@ -847,22 +865,62 @@ export function GrammarAndHighSchoolHub({
       )}
 
       {/* =======================================================
-          TAB 3: HIGH-SCHOOL / CSAT SYNTAX X-RAY READING LAB
+          TAB 3: HIGH-SCHOOL / CSAT SYNTAX X-RAY + KILLER ORDERING/INSERTION
          ======================================================= */}
       {subTab === 'csat-reading' && activePassage && (
         <section className="stack-lg">
-          <div className="surface-card">
-            <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
-              <div>
-                <span className="pill-tag pill-coral">Stage 3 · 고등학교 내신 · 수능 1등급 정통 구문독해</span>
-                <h2 style={{ fontSize: '1.3rem', marginTop: '6px' }}>
-                  15대 학문 분야 아카데믹 지문 &amp; 수능 5대 킬러 유형 (45문항)
-                </h2>
-              </div>
-              <span className="pill-tag pill-brand">
-                응시 완료: {completedPassagesCount} / {HIGH_SCHOOL_PASSAGES.length}지문
-              </span>
-            </div>
+          <div className="sitcom-submode-bar" role="tablist" aria-label="고등·수능 독해 훈련 모드">
+            <button
+              id="csat-sub-xray"
+              type="button"
+              role="tab"
+              aria-selected={csatSubMode === 'xray'}
+              className={`sitcom-sub-btn ${csatSubMode === 'xray' ? 'active' : ''}`}
+              onClick={() => setCsatSubMode('xray')}
+            >
+              <Eye size={15} />
+              <span>수능 구문독해 X-Ray (15지문 · 45문항)</span>
+            </button>
+            <button
+              id="csat-sub-killer"
+              type="button"
+              role="tab"
+              aria-selected={csatSubMode === 'killer'}
+              className={`sitcom-sub-btn ${csatSubMode === 'killer' ? 'active' : ''}`}
+              onClick={() => setCsatSubMode('killer')}
+            >
+              <Sparkles size={15} />
+              <span>수능 킬러 순서배열 · 문장삽입 ({csatKillerSolvedIds.length}/20)</span>
+            </button>
+          </div>
+
+          {csatSubMode === 'killer' ? (
+            <Suspense
+              fallback={
+                <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+                  수능 36~39번 킬러 순서배열 · 문장삽입 트레이너를 불러오는 중...
+                </div>
+              }
+            >
+              <CsatKillerTrainer
+                csatKillerSolvedIds={csatKillerSolvedIds}
+                onSolveKillerItem={onSolveKillerItem}
+              />
+            </Suspense>
+          ) : (
+            <>
+              <div className="surface-card">
+                <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
+                  <div>
+                    <span className="pill-tag pill-coral">Stage 3 · 고등학교 내신 · 수능 1등급 정통 구문독해</span>
+                    <h2 style={{ fontSize: '1.3rem', marginTop: '6px' }}>
+                      15대 학문 분야 아카데믹 지문 &amp; 수능 5대 킬러 유형 (45문항)
+                    </h2>
+                  </div>
+                  <span className="pill-tag pill-brand">
+                    응시 완료: {completedPassagesCount} / {HIGH_SCHOOL_PASSAGES.length}지문
+                  </span>
+                </div>
 
             <div className="csat-passage-strip">
               {HIGH_SCHOOL_PASSAGES.map((p) => {
@@ -1143,6 +1201,8 @@ export function GrammarAndHighSchoolHub({
               </div>
             </div>
           </div>
+            </>
+          )}
         </section>
       )}
 

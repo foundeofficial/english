@@ -24,6 +24,8 @@ import {
   PHONICS_YOUTUBE_VIDEOS,
   SIGHT_WORDS_60
 } from '../src/data/phonicsCourse.ts';
+import { CSAT_INSERTION_10, CSAT_ORDERING_10 } from '../src/data/csatKillerDrills.ts';
+import { PATTERN_REFLEX_20 } from '../src/data/patternReflexDrills.ts';
 import { ROLEPLAY_SCENARIOS } from '../src/data/roleplayScenarios.ts';
 import { SPEAKING_PROMPTS_16 } from '../src/data/speakingPrompts.ts';
 import { CONFUSABLE_PAIRS_50, IRREGULAR_VERBS_80 } from '../src/data/verbAndConfusableBank.ts';
@@ -33,7 +35,7 @@ import { ALL_CURATED_YOUTUBE_VIDEOS } from '../src/data/youtubeLibrary.ts';
 import { validateWeekModule } from '../src/utils/courseQA.ts';
 
 console.log('==================================================================');
-console.log(' KoreBridge v6.0 Incumbent-Killer Full Curriculum QA Verifier');
+console.log(' KoreBridge v7.0 Transcendence Full Curriculum QA Verifier');
 console.log(` Track: ${COURSE_METADATA.trackTitle}`);
 console.log('==================================================================\n');
 
@@ -231,9 +233,57 @@ if (SPEAKING_PROMPTS_16.length !== 16) {
   errors.push(`Speaking prompts ${SPEAKING_PROMPTS_16.length} !== 16`);
 }
 
+// v7.0 Pattern Reflex 20x6=120 & CSAT Killer 20 QA
+if (PATTERN_REFLEX_20.length !== 20) {
+  errors.push(`Pattern reflex sets ${PATTERN_REFLEX_20.length} !== 20`);
+}
+let totalPatternVariations = 0;
+for (const set of PATTERN_REFLEX_20) {
+  totalPatternVariations += set.variations.length;
+  if (set.variations.length !== 6) {
+    errors.push(`Pattern set ${set.id} variations ${set.variations.length} !== 6`);
+  }
+  for (const v of set.variations) {
+    const joined = v.chunkBlocks.join(' ').replace(/\s+([?.!,])/g, '$1').trim();
+    if (joined.toLowerCase() !== v.targetEn.trim().toLowerCase()) {
+      errors.push(`Pattern ${v.id} chunk join mismatch: "${joined}" !== "${v.targetEn}"`);
+    }
+  }
+}
+
+if (CSAT_ORDERING_10.length !== 10) {
+  errors.push(`CSAT ordering ${CSAT_ORDERING_10.length} !== 10`);
+}
+for (const ord of CSAT_ORDERING_10) {
+  if ([...ord.correctOrder].sort().join('') !== 'ABC') {
+    errors.push(`CSAT ordering ${ord.id} invalid order ${ord.correctOrder.join('-')}`);
+  }
+  const combined = `${ord.givenBoxEn} ${ord.paragraphs.A.textEn} ${ord.paragraphs.B.textEn} ${ord.paragraphs.C.textEn}`.toLowerCase();
+  for (const clue of ord.clues) {
+    if (!combined.includes(clue.phrase.toLowerCase())) {
+      errors.push(`CSAT ordering ${ord.id} clue "${clue.phrase}" not found in English text`);
+    }
+  }
+}
+
+if (CSAT_INSERTION_10.length !== 10) {
+  errors.push(`CSAT insertion ${CSAT_INSERTION_10.length} !== 10`);
+}
+for (const ins of CSAT_INSERTION_10) {
+  if (ins.segmentsEn.length !== 6 || ins.segmentsEn.some((s) => !s.trim())) {
+    errors.push(`CSAT insertion ${ins.id} must have 6 non-empty segments`);
+  }
+  const combined = `${ins.targetSentenceEn} ${ins.segmentsEn.join(' ')}`.toLowerCase();
+  for (const clue of ins.clues) {
+    if (!combined.includes(clue.phrase.toLowerCase())) {
+      errors.push(`CSAT insertion ${ins.id} clue "${clue.phrase}" not found in English text`);
+    }
+  }
+}
+
 if (errors.length > 0) {
   allPassed = false;
-  console.error('\n--- v4/v5/v6 Curriculum QA Errors ---');
+  console.error('\n--- v4/v5/v6/v7 Curriculum QA Errors ---');
   for (const err of errors) console.error(` -> ERROR: ${err}`);
 }
 
@@ -248,9 +298,9 @@ console.log(` Stage 0 · Phonics A-Z / Blends / Magic-E / Digraphs / MP / Sight 
 console.log(` Stage 1 · Elementary Foundation Units / Sentences / Puzzles                  : ${FOUNDATION_UNITS.length} units / ${foundationSentences} sents / ${foundationPuzzles} puzzles`);
 console.log(` Stage 2-3 · Visual Grammar Units / Quiz / Transformers / Tenses              : ${GRAMMAR_UNITS.length} units / ${grammarQuizCount} quiz Qs / ${TRANSFORMER_SENTENCES.length}x7 / ${TENSE_MATRIX_12.length} tenses`);
 console.log(` Stage 2-3 · School Writing Clinic (Conditional + Spot & Fix Error)           : ${CONDITIONAL_WRITING_30.length} writing + ${ERROR_CORRECTION_30.length} error-fix`);
-console.log(` Stage 3 · High-School CSAT Passages / X-Ray Sents / CSAT Qs / Essays         : ${HIGH_SCHOOL_PASSAGES.length} passages / ${hsSentencesCount} sents / ${csatQuizCount} Qs / ${ACADEMIC_ESSAY_PROMPTS.length} essays`);
+console.log(` Stage 3 · High-School CSAT Passages + CSAT 36-39 Killer Ordering/Insertion   : ${HIGH_SCHOOL_PASSAGES.length} passages (${csatQuizCount} Qs) + ${CSAT_ORDERING_10.length} ordering + ${CSAT_INSERTION_10.length} insertion`);
 console.log(` Stage 0-4 · Graded Storybooks / Chapters / Synced Sents / Quizzes            : ${GRADED_STORYBOOKS.length} books / ${storybookChapters} chs / ${storybookSentences} sents / ${storybookQuizzes} Qs`);
-console.log(` Stage 0-4 · Roleplay (5-Turn) + 1-Min Speaking Challenge (WPM/OPIc)          : ${ROLEPLAY_SCENARIOS.length} scenarios (${roleplayTurnsCount} turns) + ${SPEAKING_PROMPTS_16.length} speaking prompts`);
+console.log(` Stage 0-4 · Roleplay + 1-Min Speaking + 2-Sec Pattern Reflex Drills          : ${ROLEPLAY_SCENARIOS.length} roleplays + ${SPEAKING_PROMPTS_16.length} speaking + ${PATTERN_REFLEX_20.length} patterns (${totalPatternVariations} drills)`);
 console.log(` Stage 1-4 · Timed Mock Exams / Total Qs / Multi-Voice Listening Qs           : ${MOCK_EXAM_PAPERS.length} exams / ${mockQuestionsCount} Qs (${mockListeningCount} audio)`);
 console.log(` Vocab Mastery · 30-Day + Sight + Vault + Etymology + Verbs + Confusables     : ${totalVocab} + ${SIGHT_WORDS_60.length} + ${THEMATIC_VOCAB_VAULT.length} + ${totalDerivatives} + ${IRREGULAR_VERBS_80.length} verbs + ${CONFUSABLE_PAIRS_50.length} pairs`);
 console.log(` 30-Day Core Track · Days / Reading Qs / Sprints / Worksheet+Twin             : ${ALL_30_DAY_MODULES.length} days / ${totalReadingQuiz} readQs / ${totalSprint} sprints / ${totalExam}+${totalTwins}`);
@@ -262,4 +312,4 @@ if (!allPassed) {
   process.exit(1);
 }
 
-console.log('\nKoreBridge v6.0 Incumbent-Killer passed 100% QA verification!');
+console.log('\nKoreBridge v7.0 Transcendence passed 100% QA verification!');

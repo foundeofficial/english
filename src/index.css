@@ -5405,3 +5405,467 @@ button { cursor: pointer; }
   }
 }
 
+/* =====================================================================
+   v7.0 TRANSCENDENCE EDITION STYLES
+   ===================================================================== */
+
+/* 0. Crisp Inner Segmented Control Bar (Roleplay / Speaking / ELO Gym & CSAT X-Ray / Killer) */
+.sitcom-submode-bar {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  margin-bottom: 18px;
+  border-radius: 14px;
+  background: #f1f4f0;
+  border: 1px solid var(--line-light);
+}
+
+.sitcom-sub-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 15px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.sitcom-sub-btn:hover {
+  color: var(--text-strong);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.sitcom-sub-btn.active {
+  background: #ffffff;
+  color: var(--brand);
+  border-color: #cde2d7;
+  box-shadow: 0 2px 8px rgba(17, 45, 34, 0.08);
+}
+
+/* 1. Real-Time Microphone Waveform & Native-vs-User A/B Compare Strip */
+.voice-compare-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 13px;
+  background: #f5faf7;
+  border: 1px solid #cce3d8;
+}
+
+.voice-compare-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.voice-wave-canvas {
+  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid var(--line-light);
+  flex-shrink: 0;
+}
+
+.voice-wave-caption {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-sub);
+}
+
+.voice-compare-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.inline-audio-btn.recording {
+  background: #fdecec;
+  border-color: #e0533c;
+  color: #b42318;
+}
+
+.inline-audio-btn.brand-highlight {
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #ffffff;
+}
+
+/* 2. SRS Review Spotlight Box inside Infinite Guided Daily Session */
+.srs-spotlight-box {
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: #fff9f5;
+  border: 1px dashed #ebb9a5;
+}
+
+/* 3. Ctrl/Cmd+K Global Curriculum Omnisearch Modal */
+.omnisearch-panel {
+  max-width: 720px;
+  width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.omnisearch-input-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line-light);
+  background: #ffffff;
+}
+
+.omnisearch-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  font-size: 0.96rem;
+  font-weight: 600;
+  color: var(--text-strong);
+  background: transparent;
+}
+
+.omnisearch-tags-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line-light);
+}
+
+.omnisearch-results-list {
+  max-height: 410px;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.omnisearch-hit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.omnisearch-hit-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.14s ease, border-color 0.14s ease;
+}
+
+.omnisearch-hit-main:hover {
+  background: #f2faf6;
+  border-color: #cbe3d7;
+}
+
+.omnisearch-footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--line-light);
+  background: #fbfcf9;
+  text-align: right;
+}
+
+/* 4. Malhaeboca-Grade Adaptive ELO Cloze + Speak 2-Sec Pattern Reflex Gym */
+.elo-badge-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: #f3fbf7;
+  border: 1.5px solid #c4e3d4;
+}
+
+.elo-cloze-sentence-box {
+  margin-top: 14px;
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: #fffdf8;
+  border: 1.5px solid #e6dcc7;
+}
+
+.elo-cloze-en {
+  font-family: var(--font-en);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.65;
+  color: var(--text-strong);
+}
+
+.elo-cloze-blank {
+  display: inline-block;
+  padding: 2px 10px;
+  margin: 0 3px;
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  background: #eef7f3;
+  color: var(--brand);
+  border-bottom: 2.5px solid var(--brand);
+}
+
+.elo-cloze-blank.correct {
+  background: #e3f7ec;
+  color: #0e6f4c;
+  border-color: #0e6f4c;
+}
+
+.elo-cloze-blank.inflection-close {
+  background: #fff5df;
+  color: #9a6008;
+  border-color: #d98a0b;
+}
+
+.elo-cloze-blank.wrong {
+  background: #fdecec;
+  color: #b42318;
+  border-color: #d92d20;
+}
+
+.pattern-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+  gap: 8px;
+}
+
+.pattern-pill-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1.5px solid var(--line-light);
+  background: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pattern-pill-card:hover {
+  border-color: var(--brand);
+  background: #f5fbf8;
+}
+
+.pattern-pill-card.active {
+  border-color: var(--brand);
+  background: #eaf6f0;
+  box-shadow: 0 0 0 2px rgba(24, 84, 67, 0.14);
+}
+
+.pattern-pill-card.done {
+  border-color: #9ed4b8;
+}
+
+/* 5. CSAT Killer Ordering (A-B-C) & Sentence Insertion (1-5) X-Ray Trainer */
+.csat-given-box {
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: #fffdf8;
+  border: 1.5px solid #dfd2b5;
+}
+
+.csat-order-chain-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line-light);
+}
+
+.csat-order-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 58px;
+  padding: 5px 12px;
+  border-radius: 9px;
+  font-size: 0.86rem;
+  font-weight: 800;
+  border: 1.5px dashed var(--line-mid);
+  color: var(--text-muted);
+  background: #ffffff;
+}
+
+.csat-order-slot.filled {
+  border-style: solid;
+  border-color: var(--brand);
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.csat-para-card {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1.5px solid var(--line-light);
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.csat-para-card:hover {
+  border-color: var(--brand);
+  background: #f6fbf8;
+}
+
+.csat-para-card.selected {
+  border-color: var(--coral);
+  background: #fff7f4;
+}
+
+.csat-insertion-passage {
+  margin-top: 14px;
+  padding: 18px 20px;
+  border-radius: 14px;
+  background: #ffffff;
+  border: 1px solid var(--line-light);
+  font-size: 1.01rem;
+  line-height: 1.85;
+  color: var(--text-strong);
+}
+
+.csat-slot-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 9px;
+  margin: 0 2px;
+  border-radius: 8px;
+  border: 1.5px solid var(--coral);
+  background: #fff4f0;
+  color: var(--coral);
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.csat-slot-btn:hover,
+.csat-slot-btn.selected {
+  background: var(--coral);
+  color: #ffffff;
+}
+
+.csat-slot-btn.true-slot {
+  border-color: #0e7a56;
+  background: #0e7a56;
+  color: #ffffff;
+}
+
+.csat-slot-btn.wrong-slot {
+  border-color: #d92d20;
+  background: #fdecec;
+  color: #b42318;
+}
+
+.csat-inline-preview {
+  display: inline-block;
+  margin: 4px 4px;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: #edf8f3;
+  border: 1px dashed var(--brand);
+  color: var(--brand);
+  font-family: var(--font-en);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.csat-clue-mark {
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-weight: 750;
+}
+
+.csat-clue-mark.clue-connector {
+  background: #e6f4ff;
+  color: #0b5394;
+}
+
+.csat-clue-mark.clue-reference {
+  background: #fff2d9;
+  color: #8a5300;
+}
+
+.csat-clue-mark.clue-article {
+  background: #e8f8ef;
+  color: #0e6f4c;
+}
+
+.csat-clue-mark.clue-contrast {
+  background: #fdeceb;
+  color: #b42318;
+}
+
+.csat-clues-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.csat-clue-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .sitcom-submode-bar {
+    display: flex;
+    width: 100%;
+  }
+
+  .sitcom-sub-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  .voice-compare-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .elo-badge-card {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .pattern-selector-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+

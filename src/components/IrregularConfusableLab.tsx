@@ -12,6 +12,7 @@ import {
   IRREGULAR_VERBS_80
 } from '../data/verbAndConfusableBank.ts';
 import type { IrregularVerbItem } from '../types/v6.ts';
+import { playComboChime, playSoftMiss } from '../utils/soundFx.ts';
 import { speakEnglish } from '../utils/speech.ts';
 
 interface IrregularConfusableLabProps {
@@ -69,13 +70,16 @@ export function IrregularConfusableLab({
     const pastOk = checkVerbMatch(pastInput, activeVerb.past);
     const ppOk = checkVerbMatch(ppInput, activeVerb.pp);
     if (pastOk && ppOk) {
+      const nextStreak = drillStreak + 1;
       setDrillResult('ok');
-      setDrillStreak((s) => s + 1);
+      setDrillStreak(nextStreak);
+      playComboChime(nextStreak);
       speakEnglish(`${activeVerb.base}, ${activeVerb.past}, ${activeVerb.pp}`, 0.92);
       onMasterIrregularVerb(activeVerb.id);
     } else {
       setDrillResult('wrong');
       setDrillStreak(0);
+      playSoftMiss();
     }
   };
 

@@ -1,0 +1,1049 @@
+import type { CsatInsertionItem, CsatOrderingItem } from '../types/v7.ts';
+
+export const CSAT_ORDERING_10: CsatOrderingItem[] = [
+  /* =========================================================================
+   * 1. 고2 모의 수준 — 3문항 (co-01 ~ co-03)
+   * ========================================================================= */
+  {
+    id: 'co-01',
+    numberLabel: '수능 36번 유형 · 인지심리학',
+    topicKo: '착각적 진실 효과와 처리 유창성',
+    difficulty: '고2 모의',
+    givenBoxEn:
+      'Most people assume they evaluate a claim by carefully weighing objective evidence. Cognitive psychologists, however, have uncovered a surprising shortcut called processing fluency: statements that feel effortless to read and comprehend are automatically judged as more truthful.',
+    givenBoxKo:
+      '대부분의 사람은 객관적 증거를 신중하게 따져 주장을 평가한다고 생각한다. 그러나 인지심리학자들은 처리 유창성이라 불리는 놀라운 지름길을 발견했는데, 읽고 이해하는 데 노력이 거의 들지 않는 진술일수록 자동으로 더 사실처럼 판단된다는 것이다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'Remarkably, the effect persists even when listeners already possess the correct background knowledge. In controlled experiments, participants who knew that a sari is an Indian garment rather than a Scottish skirt still rated repeated false claims about it as more credible than unfamiliar facts.',
+        textKo:
+          '놀랍게도 이 효과는 청자가 이미 올바른 배경지식을 갖추고 있을 때조차 지속된다. 통제된 실험에서 사리가 스코틀랜드 치마가 아니라 인도 의복임을 알고 있던 참가자들마저, 그에 관한 반복된 거짓 주장을 낯선 사실보다 더 신뢰할 만하다고 평가했다.',
+      },
+      B: {
+        textEn:
+          'This mental shortcut explains why mere repetition can bend human judgment so easily. Hearing or reading a sentence a second time allows the brain to recognize its wording faster, and because that ease of recognition feels identical to genuine familiarity, the mind mistakes smoothness for accuracy.',
+        textKo:
+          '이 정신적 지름길은 단순한 반복만으로 인간의 판단이 그토록 쉽게 휘어지는 이유를 설명해 준다. 문장을 두 번째로 듣거나 읽으면 뇌가 그 표현을 더 빠르게 인식하게 되며, 그러한 인식의 수월함이 진짜 친숙함과 똑같이 느껴지기 때문에 마음은 매끄러움을 정확성으로 착각한다.',
+      },
+      C: {
+        textEn:
+          'Consequently, fact-checkers and educators face a delicate paradox when countering misinformation. Repeating a popular myth in order to debunk it can unintentionally boost its fluency, so communicators are increasingly advised to lead with the accurate claim rather than amplify the falsehood.',
+        textKo:
+          '결과적으로 팩트체커와 교육자들은 잘못된 정보에 대응할 때 미묘한 역설에 직면한다. 널리 퍼진 통념을 반박하기 위해 이를 반복하는 행위가 의도치 않게 그 유창성을 높일 수 있으므로, 전달자들은 거짓을 증폭시키기보다 정확한 주장을 앞세우라는 조언을 점점 더 많이 받는다.',
+      },
+    },
+    correctOrder: ['B', 'A', 'C'],
+    clues: [
+      {
+        phrase: 'This mental shortcut',
+        clueType: 'reference',
+        explanationKo:
+          '주어진 글의 "a surprising shortcut called processing fluency"를 정확히 받아 (B)가 첫 단락으로 이어집니다.',
+      },
+      {
+        phrase: 'the effect',
+        clueType: 'article',
+        explanationKo:
+          '(B)에서 설명한 "반복이 유창성을 높여 거짓을 사실로 착각하게 만드는 효과"를 정관사 the로 지칭하므로 (B)→(A) 순서가 확정됩니다.',
+      },
+      {
+        phrase: 'even when',
+        clueType: 'contrast',
+        explanationKo:
+          '이미 정답을 알고 있는 경우에도(even when) 효과가 사라지지 않는다는 심화·역접 전개로 (B)의 메커니즘을 실험으로 강화합니다.',
+      },
+      {
+        phrase: 'Consequently,',
+        clueType: 'connector',
+        explanationKo:
+          '(B)의 반복 메커니즘과 (A)의 실험 결과를 종합해 팩트체커가 겪는 실질적 역설을 결론짓는 인과 연결어입니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → B): 주어진 글 마지막의 "a surprising shortcut called processing fluency"를 (B) 첫 문장의 "This mental shortcut"이 곧바로 받아 반복이 왜 판단을 왜곡하는지 설명합니다. (A)의 "the effect"와 "repeated false claims"는 아직 반복 개념이 나오기 전이므로 첫 단락이 될 수 없습니다.\nStep 2 (B → A → C): (B)에서 반복으로 인한 착각을 설명한 뒤, (A)가 "the effect"로 이를 받아 배경지식이 있어도 반복된 거짓이 더 믿음직해 보인다는 실험을 제시합니다. 마지막으로 (C)가 "Consequently,"로 이 현상이 팩트체킹 실무에 주는 역설적 시사점을 마무리합니다.',
+  },
+  {
+    id: 'co-02',
+    numberLabel: '수능 36번 유형 · 진화생물학',
+    topicKo: '공작의 꼬리와 핸디캡 원리',
+    difficulty: '고2 모의',
+    givenBoxEn:
+      'Natural selection is usually described as a ruthless filter that eliminates any trait reducing an organism\'s odds of survival. Yet nature is filled with extravagant ornaments, such as a peacock\'s heavy tail, that appear to invite predators rather than deter them.',
+    givenBoxKo:
+      '자연선택은 보통 생물의 생존 확률을 낮추는 어떤 형질이든 제거하는 냉혹한 거름망으로 묘사된다. 그러나 자연은 포식자를 쫓아내기는커녕 오히려 불러들이는 듯 보이는 공작의 무거운 꼬리 같은 화려한 장식으로 가득하다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'According to this handicap principle, only an exceptionally healthy male can afford the burden. Dragging an oversized, vivid tail while still escaping predators and securing food proves superior stamina, whereas a weaker rival simply cannot fake such an expensive signal.',
+        textKo:
+          '이 핸디캡 원리에 따르면 유난히 건강한 수컷만이 그 부담을 감당할 수 있다. 거대하고 선명한 꼬리를 끌고 다니면서도 여전히 포식자를 따돌리고 먹이를 확보한다는 사실이 탁월한 체력을 입증하는 반면, 약한 경쟁자는 그토록 비용이 큰 신호를 결코 위조할 수 없다.',
+      },
+      B: {
+        textEn:
+          'In turn, females that favor mates with elaborate tails pass those robust genes on to their offspring. What looks at first glance like evolutionary waste at the individual level thus operates as a reliable filter for genetic quality across generations.',
+        textKo:
+          '그 결과 정교한 꼬리를 지닌 짝을 선호하는 암컷들은 그 강건한 유전자를 자손에게 물려주게 된다. 얼핏 개체 차원의 진화적 낭비처럼 보이는 것이 이처럼 세대를 거쳐 유전적 우수성을 가려내는 신뢰할 만한 기준선으로 작동한다.',
+      },
+      C: {
+        textEn:
+          'For decades, biologists struggled to reconcile these costly displays with Darwin\'s theory of survival. In the 1970s, evolutionary biologist Amotz Zahavi proposed a bold solution: a handicap can actually function as an honest advertisement of biological vigor.',
+        textKo:
+          '수십 년 동안 생물학자들은 이 값비싼 과시 형질들을 다윈의 생존 이론과 조화시키는 데 어려움을 겪었다. 1970년대에 진화생물학자 아모츠 자하비는 대담한 해법을 제시했는데, 핸디캡이 오히려 생물학적 활력을 알리는 정직한 광고로 기능할 수 있다는 것이었다.',
+      },
+    },
+    correctOrder: ['C', 'A', 'B'],
+    clues: [
+      {
+        phrase: 'these costly displays',
+        clueType: 'reference',
+        explanationKo:
+          '주어진 글의 "extravagant ornaments, such as a peacock\'s heavy tail"을 지시어 these로 받아 (C)가 자연스럽게 이어집니다.',
+      },
+      {
+        phrase: 'a handicap',
+        clueType: 'article',
+        explanationKo:
+          '(C)에서 부정관사 a와 함께 "핸디캡" 개념을 처음 도입해야만 (A)의 "this handicap principle"이 성립할 수 있습니다.',
+      },
+      {
+        phrase: 'this handicap principle',
+        clueType: 'reference',
+        explanationKo:
+          '(C)에서 자하비가 제안한 핸디캡 가설을 그대로 받아 구체적 작동 원리를 설명하는 결정적 연결 고리입니다.',
+      },
+      {
+        phrase: 'In turn,',
+        clueType: 'connector',
+        explanationKo:
+          '(A)에서 수컷의 정직한 신호가 입증된 데 이어, "그 결과로" 암컷의 선택과 유전자 전달이 일어난다는 순차 인과를 보여줍니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → C): 주어진 글의 "extravagant ornaments, such as a peacock\'s heavy tail"을 (C)의 "these costly displays"가 직접 지칭하며, 자하비의 "a handicap" 개념을 최초로 도입합니다. (A)는 "this handicap principle"을 쓰고 있어 (C)보다 앞에 올 수 없습니다.\nStep 2 (C → A → B): (C)에서 도입한 "a handicap"을 (A)가 "this handicap principle"과 "the burden"으로 이어받아 약한 수컷은 흉내 낼 수 없는 정직한 신호임을 설명합니다. 이어 (B)가 "In turn,"과 "those robust genes"로 암컷의 선택에 따른 세대 간 진화적 귀결을 정리합니다.',
+  },
+  {
+    id: 'co-03',
+    numberLabel: '수능 36번 유형 · 행동경제학',
+    topicKo: '선택의 역설과 의사결정 마비',
+    difficulty: '고2 모의',
+    givenBoxEn:
+      'Standard economic theory assumes that expanding a consumer\'s options can only increase well-being, since buyers remain free to ignore unwanted items. In practice, however, behavioral psychologists have found that excessive choice often triggers anxiety rather than satisfaction.',
+    givenBoxKo:
+      '표준 경제 이론은 소비자가 원치 않는 품목을 무시할 자유가 있으므로 선택지를 늘리는 것이 후생을 높이기만 한다고 가정한다. 그러나 실제로는 지나친 선택권이 만족감보다 불안을 유발하는 경우가 많다는 사실을 행동심리학자들이 밝혀냈다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'Researchers attribute this sharp drop in buying to cognitive overload and anticipated regret. When dozens of tempting options compete for attention, shoppers worry they might overlook a superior alternative, so walking away empty-handed feels safer than committing to an imperfect pick.',
+        textKo:
+          '연구자들은 이러한 급격한 구매 하락을 인지 과부하와 예상되는 후회 때문으로 돌린다. 수십 개의 매력적인 선택지가 주의를 끌려 경쟁할 때 소비자들은 더 나은 대안을 놓칠까 걱정하게 되며, 그 결과 불완전한 선택을 확정하기보다 빈손으로 떠나는 편이 더 안전하게 느껴진다.',
+      },
+      B: {
+        textEn:
+          'A classic supermarket experiment illustrates this counterintuitive finding vividly. Psychologists set up a jam tasting booth in an upscale grocery store, offering shoppers twenty-four varieties of jam on one weekend and only six varieties on another.',
+        textKo:
+          '한 고전적인 슈퍼마켓 실험은 이 직관에 반하는 발견을 생생하게 보여 준다. 심리학자들은 고급 식료품점에 잼 시식 부스를 설치해 한 주말에는 24가지 종류의 잼을, 다른 주말에는 단 6가지 종류의 잼만 소비자들에게 제공했다.',
+      },
+      C: {
+        textEn:
+          'The larger display attracted far more passersby to stop and sample, yet it produced dramatically fewer purchases. Only three percent of customers who visited the twenty-four-jam table bought a jar, whereas thirty percent of those who browsed the smaller table completed a purchase.',
+        textKo:
+          '더 큰 진열대는 훨씬 더 많은 행인이 멈춰 시식하도록 끌어모았지만, 실제 구매는 극적으로 적었다. 24종 잼 테이블을 찾은 고객 중 단 3퍼센트만이 한 병을 구매한 반면, 더 작은 테이블을 둘러본 이들 중에서는 30퍼센트가 구매를 완료했다.',
+      },
+    },
+    correctOrder: ['B', 'C', 'A'],
+    clues: [
+      {
+        phrase: 'this counterintuitive finding',
+        clueType: 'reference',
+        explanationKo:
+          '주어진 글의 "excessive choice often triggers anxiety rather than satisfaction"을 받아 (B)가 실험 도입부 역할을 합니다.',
+      },
+      {
+        phrase: 'The larger display',
+        clueType: 'article',
+        explanationKo:
+          '(B)에서 24종과 6종 잼 테이블을 대조 설정해야만 (C)에서 정관사 The로 "더 큰 진열대"를 지칭할 수 있습니다.',
+      },
+      {
+        phrase: 'yet',
+        clueType: 'contrast',
+        explanationKo:
+          '시식객은 더 많이 모였으나(attracted far more) 구매는 급감했다(dramatically fewer)는 실험의 핵심 반전을 드러냅니다.',
+      },
+      {
+        phrase: 'this sharp drop in buying',
+        clueType: 'reference',
+        explanationKo:
+          '(C)에서 수치(30% → 3%)로 제시된 구매율 급락을 그대로 받아 (A)가 그 심리적 원인을 분석합니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → B): 주어진 글이 "지나친 선택이 불안을 유발한다"는 반직관적 사실을 제시하자, (B)가 "this counterintuitive finding"으로 이를 받아 24종 대 6종 잼 실험의 설계를 소개합니다.\nStep 2 (B → C → A): (B)의 두 조건을 (C)가 "The larger display"와 "the smaller table"로 받아 3% 대 30%라는 구매율 격차를 보고합니다. 마지막으로 (A)가 "this sharp drop in buying"으로 그 수치를 지칭하며 인지 과부하와 예상 후회라는 원인을 밝혀 글을 마무리합니다.',
+  },
+
+  /* =========================================================================
+   * 2. 고3 평가원 수준 — 4문항 (co-04 ~ co-07)
+   * ========================================================================= */
+  {
+    id: 'co-04',
+    numberLabel: '수능 36번 유형 · 도시건축학',
+    topicKo: '유발 수요와 도로 확장의 역설',
+    difficulty: '고3 평가원',
+    givenBoxEn:
+      'Whenever metropolitan highways clog with commuter traffic, city planners face intense public pressure to widen existing roads or build new bypasses. Intuitively, adding extra lanes should spread the same stream of vehicles over more pavement and dissolve congestion.',
+    givenBoxKo:
+      '대도시 고속도로가 출퇴근 차량으로 막힐 때마다 도시 계획가들은 기존 도로를 확장하거나 새 우회도로를 건설하라는 거센 여론의 압박을 받는다. 직관적으로는 차로를 늘리면 같은 양의 차량이 더 넓은 도로에 분산되어 정체가 해소될 것처럼 보인다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'Instead, drivers adapted to the reduced road capacity by shifting their departure times, choosing alternate routes, or switching to public transit. Urban mobility, planners concluded, depends less on pouring additional concrete than on reshaping incentives across the entire transport network.',
+        textKo:
+          '그 대신 운전자들은 출발 시간을 조정하거나 대체 경로를 택하고 대중교통으로 갈아타는 방식으로 줄어든 도로 용량에 적응했다. 도시의 이동성은 콘크리트를 더 붓는 것보다 교통망 전반의 유인 구조를 재설계하는 데 달려 있다고 계획가들은 결론 내렸다.',
+      },
+      B: {
+        textEn:
+          'Within just a few years, these newly generated trips refill the widened roadway to its original level of gridlock. Even more strikingly, when cities such as Seoul and San Francisco demolished aging elevated expressways altogether, the widely predicted traffic nightmare never materialized.',
+        textKo:
+          '불과 몇 년 안에 이 새롭게 발생한 통행량들이 넓어진 도로를 원래의 정체 수준으로 다시 채워 버린다. 더욱 놀랍게도 서울과 샌프란시스코 같은 도시들이 노후 고가도로를 아예 철거했을 때, 널리 예견되었던 교통 대란은 결코 현실화되지 않았다.',
+      },
+      C: {
+        textEn:
+          'Yet decades of metropolitan traffic data reveal that such expansions rarely deliver lasting relief. Traffic engineers call the culprit induced demand: smoother roads temporarily lower the time cost of driving, prompting transit riders to buy cars and suburban residents to take trips they previously avoided.',
+        textKo:
+          '그러나 수십 년간의 대도시 교통 데이터는 그러한 확장이 지속적인 해소를 가져오는 경우가 드물다는 사실을 보여 준다. 교통공학자들은 그 주범을 유발 수요라 부르는데, 원활해진 도로가 일시적으로 운전의 시간 비용을 낮춰 대중교통 이용자가 차를 사게 만들고 교외 거주민들이 이전에는 피하던 이동에 나서게 한다는 것이다.',
+      },
+    },
+    correctOrder: ['C', 'B', 'A'],
+    clues: [
+      {
+        phrase: 'Yet',
+        clueType: 'contrast',
+        explanationKo:
+          '주어진 글의 직관적 통념("adding extra lanes should... dissolve congestion")을 정면으로 반박하며 논지를 전환합니다.',
+      },
+      {
+        phrase: 'such expansions',
+        clueType: 'reference',
+        explanationKo:
+          '주어진 글의 "widen existing roads or build new bypasses"를 직접 가리켜 (C)가 첫 단락임을 확정합니다.',
+      },
+      {
+        phrase: 'these newly generated trips',
+        clueType: 'reference',
+        explanationKo:
+          '(C) 말미에서 유발 수요로 인해 늘어나는 차량 이동("take trips they previously avoided")을 받아 (C)→(B)를 연결합니다.',
+      },
+      {
+        phrase: 'Instead,',
+        clueType: 'contrast',
+        explanationKo:
+          '(B) 끝의 부정문("the widely predicted traffic nightmare never materialized") 바로 뒤에 이어져 실제 벌어진 적응 현상을 대조 제시합니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → C): 주어진 글이 "차로를 늘리면 정체가 풀릴 것"이라는 직관을 제시하면, (C)가 "Yet"과 "such expansions"로 이를 반박하며 유발 수요(induced demand) 개념을 도입합니다.\nStep 2 (C → B → A): (C)에서 새로 유발된 이동들을 (B)가 "these newly generated trips"로 받아 정체가 원상 복구됨을 보인 뒤, 반대로 고가도로를 철거해도 교통 대란이 일어나지 않았다고 전환합니다. 마지막으로 (A)가 "Instead,"와 "the reduced road capacity"로 대란 대신 운전자들이 어떻게 적응했는지 설명하며 결론을 맺습니다.',
+  },
+  {
+    id: 'co-05',
+    numberLabel: '수능 37번 유형 · 인공지능·예술',
+    topicKo: '생성형 AI와 예술적 의도성',
+    difficulty: '고3 평가원',
+    givenBoxEn:
+      'As generative AI models compose symphonies and render museum-grade portraits in seconds, critics increasingly debate whether machines can be genuinely creative. If creativity is measured solely by the novelty and technical polish of a finished artifact, modern algorithms already pass the test.',
+    givenBoxKo:
+      '생성형 AI 모델이 몇 초 만에 교향곡을 작곡하고 박물관 수준의 초상화를 그려 내면서, 비평가들은 기계가 진정으로 창의적일 수 있는지를 두고 점점 더 치열하게 논쟁하고 있다. 창의성을 완성된 결과물의 참신성과 기술적 완성도만으로 측정한다면 현대 알고리즘은 이미 시험을 통과했다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'However, art historians argue that judging a work purely by its surface output overlooks half of what gives art its force. Human audiences encounter a painting or poem as an intentional act of communication—a trace of lived vulnerability, historical friction, and deliberate choice made under real constraints.',
+        textKo:
+          '그러나 미술사학자들은 작품을 표면적 결과물만으로 판단하는 것은 예술에 힘을 부여하는 요소의 절반을 간과한다고 주장한다. 인간 관객은 회화나 시를 의도적인 소통 행위, 즉 실제 제약 속에서 겪은 삶의 취약성·역사적 마찰·신중한 선택의 흔적으로 마주한다.',
+      },
+      B: {
+        textEn:
+          'This distinction does not render AI useless to artists, though; rather, it repositions the machine as an instrument. Just as photography freed painters from literal realism without replacing human vision, generative tools may broaden creative exploration while leaving authorship firmly in human hands.',
+        textKo:
+          '그렇다고 이 구분이 예술가에게 AI를 쓸모없게 만드는 것은 아니다. 오히려 그것은 기계를 하나의 도구로 재정립한다. 사진술이 인간의 시선을 대체하지 않고도 화가들을 문자 그대로의 사실주의에서 해방했듯, 생성형 도구 역시 저작권을 인간의 손에 굳건히 남긴 채 창작의 지평을 넓혀 줄 수 있다.',
+      },
+      C: {
+        textEn:
+          'Because an algorithm possesses neither mortality nor personal stakes, its creations lack that communicative anchor. When a neural network arranges chords into a mournful melody, it is optimizing statistical patterns extracted from human archives rather than translating grief it has actually endured.',
+        textKo:
+          '알고리즘은 유한한 삶도 개인적 이해관계도 지니지 않기에, 그 창작물에는 바로 그 소통적 닻이 결여되어 있다. 신경망이 화음을 애절한 선율로 배열할 때, 그것은 자신이 실제로 견뎌 낸 슬픔을 번역하는 것이 아니라 인간의 기록물에서 추출한 통계적 패턴을 최적화하고 있을 뿐이다.',
+      },
+    },
+    correctOrder: ['A', 'C', 'B'],
+    clues: [
+      {
+        phrase: 'However,',
+        clueType: 'contrast',
+        explanationKo:
+          '주어진 글의 "결과물 기준으로는 알고리즘이 이미 통과했다"는 진술에 맞서 미술사학자들의 반론을 여는 역접 연결어입니다.',
+      },
+      {
+        phrase: 'that communicative anchor',
+        clueType: 'reference',
+        explanationKo:
+          '(A)에서 정의한 "an intentional act of communication"을 지시어 that으로 정확히 받아 (A)→(C)를 고정합니다.',
+      },
+      {
+        phrase: 'This distinction',
+        clueType: 'reference',
+        explanationKo:
+          '(A)의 인간적 의도성과 (C)의 통계적 패턴 최적화 사이의 본질적 차이를 포괄해 (B)의 종합 결론으로 끌어올립니다.',
+      },
+      {
+        phrase: 'rather,',
+        clueType: 'contrast',
+        explanationKo:
+          'AI를 무용지물로 치부하지 않고(does not render AI useless) "오히려" 창작 도구로 자리매김하는 대조 구조입니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → A): 주어진 글은 완성품의 표면적 수준만 보면 AI도 창의적이라 할 수 있다고 열어 둡니다. (A)가 "However,"와 "judging a work purely by its surface output"으로 이를 곧바로 반박하며, 예술은 삶의 취약성과 의도가 담긴 소통 행위라고 규정합니다.\nStep 2 (A → C → B): (A)의 "an intentional act of communication"을 (C)가 "that communicative anchor"로 받아 AI가 슬픔을 체험하는 대신 통계 패턴을 최적화할 뿐임을 대조합니다. 마지막으로 (B)가 앞선 두 단락의 차이를 "This distinction"으로 묶어 AI를 사진술과 같은 새로운 도구로 재해석하며 글을 닫습니다.',
+  },
+  {
+    id: 'co-06',
+    numberLabel: '수능 36번 유형 · 수면신경과학',
+    topicKo: '서파 수면과 시냅스 하향 조절',
+    difficulty: '고3 평가원',
+    givenBoxEn:
+      'From an evolutionary perspective, sleep looks like a perilous liability, leaving animals motionless and blind to predators for a third of their lives. For such vulnerability to survive millions of years of natural selection, sleep must perform vital biological work that waking brains simply cannot accomplish.',
+    givenBoxKo:
+      '진화적 관점에서 수면은 동물이 삶의 3분의 1 동안 움직이지 못하고 포식자에게 무방비로 노출되게 만드는 위험한 약점처럼 보인다. 그러한 취약성이 수백만 년의 자연선택을 견뎌 살아남으려면, 수면은 깨어 있는 뇌가 도저히 해낼 수 없는 필수적인 생물학적 과업을 수행해야만 한다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'By clearing away that background clutter, downscaling achieves two essential goals at once. It restores the brain\'s metabolic capacity to encode fresh experiences the next morning, while sharpening the signal-to-noise ratio of genuinely important memories.',
+        textKo:
+          '그 배경 잡음을 말끔히 정리함으로써 하향 조절은 두 가지 필수 목표를 동시에 달성한다. 다음 날 아침 새로운 경험을 부호화할 뇌의 대사적 여력을 회복시키는 동시에, 진정으로 중요한 기억들의 신호 대 잡음비를 또렷하게 높여 주는 것이다.',
+      },
+      B: {
+        textEn:
+          'One critical clue lies in what happens to the brain\'s neural connections during waking hours. Every sensation, conversation, and skill practiced throughout the day strengthens synaptic junctions, steadily consuming energy and pushing neural circuits toward saturation.',
+        textKo:
+          '결정적인 단서 하나는 깨어 있는 시간 동안 뇌의 신경 연결에 어떤 일이 벌어지는가에 놓여 있다. 하루 종일 겪는 모든 감각·대화·기술 연습은 시냅스 접합부를 강화하며, 꾸준히 에너지를 소모하고 신경 회로를 포화 상태로 몰아간다.',
+      },
+      C: {
+        textEn:
+          'During deep slow-wave sleep, the brain reverses this buildup through a process neuroscientists call synaptic downscaling. Weak, noisy connections formed by trivial daytime impressions are selectively pruned away, whereas the strongest, most repeatedly activated pathways remain intact.',
+        textKo:
+          '깊은 서파 수면 동안 뇌는 신경과학자들이 시냅스 하향 조절이라 부르는 과정을 통해 이러한 누적을 되돌린다. 낮 동안의 사소한 인상으로 형성된 약하고 잡음 섞인 연결들은 선택적으로 가지치기되는 반면, 가장 강하고 반복적으로 활성화된 경로들은 온전히 남는다.',
+      },
+    },
+    correctOrder: ['B', 'C', 'A'],
+    clues: [
+      {
+        phrase: 'One critical clue',
+        clueType: 'connector',
+        explanationKo:
+          '주어진 글이 제기한 "깨어 있는 뇌가 할 수 없는 필수 과업이 무엇인가"에 대한 탐색을 여는 도입 신호입니다.',
+      },
+      {
+        phrase: 'this buildup',
+        clueType: 'reference',
+        explanationKo:
+          '(B)에서 낮 동안 시냅스가 계속 강화되어 포화에 이르는 현상을 받아 (B)→(C) 인과 흐름을 묶습니다.',
+      },
+      {
+        phrase: 'a process neuroscientists call synaptic downscaling',
+        clueType: 'article',
+        explanationKo:
+          '(C)에서 부정관사 a와 함께 용어를 처음 정의하므로, 설명 없이 "downscaling"을 바로 쓰는 (A)보다 반드시 앞서야 합니다.',
+      },
+      {
+        phrase: 'that background clutter',
+        clueType: 'reference',
+        explanationKo:
+          '(C)의 "Weak, noisy connections formed by trivial daytime impressions"를 가리켜 (C)→(A)를 완벽하게 연결합니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → B): 주어진 글이 수면이 수행하는 필수 생물학적 기능을 묻자, (B)가 "One critical clue"로 답을 열며 낮 동안 시냅스가 끊임없이 강화되어 포화된다는 문제를 제시합니다.\nStep 2 (B → C → A): (C)는 (B)의 시냅스 포화를 "this buildup"으로 받아 수면 중 "synaptic downscaling"으로 약하고 잡음 섞인 연결을 쳐낸다고 설명합니다. 이어 (A)가 그 잡음을 "that background clutter"로, 앞선 용어를 "downscaling"으로 그대로 받아 두 가지 인지적 이점을 정리합니다.',
+  },
+  {
+    id: 'co-07',
+    numberLabel: '수능 37번 유형 · 언어학',
+    topicKo: '언어적 상대성과 색채 경계 지각',
+    difficulty: '고3 평가원',
+    givenBoxEn:
+      'For much of the twentieth century, cognitive scientists dismissed the notion that the language we speak shapes how we perceive physical reality. Because human eyes share virtually identical photoreceptor cells worldwide, they assumed that basic perceptual categories like color must be strictly universal.',
+    givenBoxKo:
+      '20세기 상당 기간 동안 인지과학자들은 우리가 사용하는 언어가 물리적 현실을 지각하는 방식을 형성한다는 생각을 일축했다. 전 세계 인간의 눈은 사실상 동일한 광수용체 세포를 공유하므로, 색채 같은 기본 지각 범주는 철저히 보편적일 것이라고 가정했기 때문이다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'When researchers asked both groups to match colored squares on a computer screen, a subtle boundary effect emerged. Russian speakers distinguished two squares significantly faster whenever the shades crossed the lexical divide between goluboy and siniy, whereas English speakers showed no speed advantage across that exact boundary.',
+        textKo:
+          '연구자들이 두 집단에게 컴퓨터 화면의 색깔 사각형을 짝짓도록 요청했을 때, 미묘한 경계 효과가 나타났다. 러시아어 화자들은 두 색조가 goluboy와 siniy 사이의 어휘 경계를 가로지를 때마다 훨씬 빠르게 구별해 낸 반면, 영어 화자들은 바로 그 경계에서 어떤 속도상의 이점도 보이지 않았다.',
+      },
+      B: {
+        textEn:
+          'Crucially, this advantage vanished when Russian participants were simultaneously asked to perform a verbal distraction task. Language does not rewire the biological eye itself, researchers concluded, yet habitual verbal labels quietly accelerate rapid perceptual decisions in real time.',
+        textKo:
+          '결정적으로, 러시아어 참가자들에게 동시에 언어적 방해 과제를 수행하게 하자 이 이점은 사라졌다. 연구자들은 언어가 생물학적 눈 자체의 회로를 바꾸지는 않지만, 습관적인 언어 표지가 실시간으로 빠른 지각적 판단을 조용히 가속화한다고 결론지었다.',
+      },
+      C: {
+        textEn:
+          'Recent psycholinguistic experiments, however, have revived a more nuanced version of this debate. Unlike English, which groups light and dark blues under a single basic term, Russian obliges speakers to distinguish grammatically between lighter shades (goluboy) and darker shades (siniy).',
+        textKo:
+          '그러나 최근의 심리언어학 실험들은 이 논쟁의 훨씬 정교한 판본을 되살려 놓았다. 밝은 파랑과 어두운 파랑을 하나의 기본어로 묶는 영어와 달리, 러시아어는 화자들이 밝은 색조(goluboy)와 어두운 색조(siniy)를 의무적으로 구별하게 만든다.',
+      },
+    },
+    correctOrder: ['C', 'A', 'B'],
+    clues: [
+      {
+        phrase: 'however,',
+        clueType: 'contrast',
+        explanationKo:
+          '주어진 글의 20세기 보편주의 통념을 뒤집으며 최근 심리언어학 연구를 도입합니다.',
+      },
+      {
+        phrase: 'both groups',
+        clueType: 'reference',
+        explanationKo:
+          '(C)에서 영어 화자와 러시아어 화자를 대조 소개해야만 (A)의 "both groups"가 지시 대상을 갖게 됩니다.',
+      },
+      {
+        phrase: 'the lexical divide',
+        clueType: 'article',
+        explanationKo:
+          '(C)에서 처음 도입된 goluboy와 siniy의 어휘적 구분을 정관사 the로 받아 실험 결과를 전개합니다.',
+      },
+      {
+        phrase: 'this advantage',
+        clueType: 'reference',
+        explanationKo:
+          '(A)에서 러시아어 화자가 경계 구간에서 보인 "속도상의 이점(speed advantage)"을 그대로 가리켜 (A)→(B)를 확정합니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → C): 주어진 글이 "언어는 지각에 영향을 주지 않는다"는 과거 학계의 입장을 소개하면, (C)가 "however,"로 반전시키며 영어와 러시아어의 파란색 어휘 체계(goluboy / siniy) 차이를 제시합니다.\nStep 2 (C → A → B): (C)에서 소개한 두 언어 집단을 (A)가 "both groups"와 "the lexical divide"로 받아 러시아어 화자의 구별 속도 우위를 보여 줍니다. 마지막으로 (B)가 이를 "this advantage"로 받아 언어 방해 과제 시 효과가 사라진다는 통제 조건과 최종 해석을 제시합니다.',
+  },
+
+  /* =========================================================================
+   * 3. 수능 킬러 수준 — 3문항 (co-08 ~ co-10)
+   * ========================================================================= */
+  {
+    id: 'co-08',
+    numberLabel: '수능 37번 유형 · 기후생태학',
+    topicKo: '영양 단계 폭포와 생물학적 탄소 저장',
+    difficulty: '수능 킬러',
+    givenBoxEn:
+      'Climate models have traditionally treated forests and oceans as passive chemical sponges whose carbon uptake depends primarily on temperature, rainfall, and atmospheric carbon dioxide. Yet a growing body of ecological research warns that animal populations—long omitted from global climate equations—can dramatically reshape how much carbon an ecosystem stores.',
+    givenBoxKo:
+      '기후 모델은 전통적으로 숲과 바다를 기온·강수량·대기 중 이산화탄소 농도에 따라 탄소 흡수량이 결정되는 수동적 화학 스펀지로 취급해 왔다. 그러나 늘어나는 생태학 연구들은 오랫동안 지구 기후 방정식에서 누락되어 온 동물 개체군이 생태계의 탄소 저장량을 극적으로 바꿀 수 있다고 경고한다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'A comparable dynamic unfolds on land whenever apex predators vanish from temperate woodlands. In the absence of wolves or cougars, expanding deer herds overgraze young saplings, gradually shifting forest composition away from long-lived hardwood trees that lock carbon underground for centuries.',
+        textKo:
+          '이와 유사한 역학은 온대 삼림에서 최상위 포식자가 사라질 때마다 육지에서도 펼쳐진다. 늑대나 퓨마가 없는 상태에서 불어난 사슴 무리가 어린 묘목을 과도하게 뜯어먹으면서, 숲의 구성은 수 세기 동안 땅속에 탄소를 가두는 장수 활엽수림에서 점차 멀어지게 된다.',
+      },
+      B: {
+        textEn:
+          'Nowhere is this biological leverage more visible than along the kelp-rich coastlines of the North Pacific. By preying on voracious sea urchins, sea otters allow underwater kelp forests to flourish and absorb vast quantities of carbon; where otters disappear, unchecked urchins mow down those canopies into barren seafloors.',
+        textKo:
+          '이러한 생물학적 지렛대 효과가 북태평양의 다시마 숲 해안만큼 뚜렷하게 드러나는 곳도 없다. 해달은 탐식성 성게를 포식함으로써 수중 다시마 숲이 번성해 막대한 탄소를 흡수하도록 돕지만, 해달이 사라진 곳에서는 견제받지 않는 성게가 그 수관층을 깎아내려 황폐한 해저로 바꿔 버린다.',
+      },
+      C: {
+        textEn:
+          'Taken together, these marine and terrestrial cascades compel policymakers to reframe biodiversity conservation. Protecting wildlife is no longer merely an ethical gesture toward endangered species; it functions as a measurable form of natural climate stabilization whose erosion can accelerate warming beyond abiotic forecasts.',
+        textKo:
+          '종합해 보면, 이 해양과 육상의 연쇄 효과들은 정책 입안자들에게 생물다양성 보전을 새롭게 규정할 것을 요구한다. 야생동물 보호는 더 이상 멸종 위기종을 향한 윤리적 제스처에 그치지 않으며, 그 훼손이 비생물적 예측치를 넘어서는 온난화를 가속할 수 있는 측정 가능한 자연적 기후 안정화 기제로 작동한다.',
+      },
+    },
+    correctOrder: ['B', 'A', 'C'],
+    clues: [
+      {
+        phrase: 'this biological leverage',
+        clueType: 'reference',
+        explanationKo:
+          '주어진 글 말미의 "동물 개체군이 생태계의 탄소 저장량을 극적으로 바꿀 수 있다"는 핵심 개념을 곧바로 지칭합니다.',
+      },
+      {
+        phrase: 'A comparable dynamic',
+        clueType: 'connector',
+        explanationKo:
+          '"육지에서도 이와 유사한 역학이 펼쳐진다"는 표현은 앞선 단락에 육지가 아닌 해양 사례((B) 해달-성게-다시마)가 먼저 나왔음을 전제합니다.',
+      },
+      {
+        phrase: 'Taken together,',
+        clueType: 'connector',
+        explanationKo:
+          '앞서 제시된 두 사례를 하나로 통합해 정책적 결론으로 이끄는 종합 연결 표현입니다.',
+      },
+      {
+        phrase: 'these marine and terrestrial cascades',
+        clueType: 'reference',
+        explanationKo:
+          '(B)의 해양(marine) 사례와 (A)의 육상(terrestrial) 사례를 언급 순서 그대로 묶어 (B)→(A)→(C)를 100% 확정합니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → B): 주어진 글이 "동물이 생태계 탄소 저장을 극적으로 좌우한다"고 선언한 뒤, (B)가 "this biological leverage"로 이를 받아 북태평양 해달-성게-다시마 숲의 해양 사례를 제시합니다. (A)는 "A comparable dynamic unfolds on land"라 시작하므로 비교 대상이 되는 비육지 사례((B))가 반드시 선행해야 합니다.\nStep 2 (B → A → C): (B)의 해양 사례에 이어 (A)가 육지(온대 삼림의 늑대-사슴-활엽수)로 병렬 확장합니다. 마지막으로 (C)가 "Taken together, these marine and terrestrial cascades"로 해양(B)과 육상(A)을 정확히 그 순서대로 묶어 정책적 함의를 도출합니다.',
+  },
+  {
+    id: 'co-09',
+    numberLabel: '수능 37번 유형 · 과학철학',
+    topicKo: '관찰의 이론 적재성과 과학적 객관성',
+    difficulty: '수능 킬러',
+    givenBoxEn:
+      'In the popular textbook image of scientific discovery, inquiry begins with pure, unbiased observation: a researcher gathers raw sensory facts and only afterward builds a theory to account for them. Philosophers of science, however, have long contended that such theory-free observation is an illusion.',
+    givenBoxKo:
+      '대중적인 교과서 속 과학적 발견의 이미지에서 탐구는 순수하고 편향 없는 관찰로 시작된다. 연구자가 날것의 감각 사실을 모으고 나서야 비로소 이를 설명할 이론을 세운다는 것이다. 그러나 과학철학자들은 그러한 이론 중립적 관찰이란 하나의 환상에 불과하다고 오랫동안 주장해 왔다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'Does such theory-ladenness trap science inside circular self-confirmation, rendering objective progress impossible? Not necessarily: because the auxiliary theories embedded in an instrument are usually independent of the specific hypothesis under test, stubborn experimental anomalies can still force scientists to overturn entrenched paradigms.',
+        textKo:
+          '그렇다면 이러한 이론 적재성은 과학을 순환적 자기 확증 속에 가두어 객관적 진보를 불가능하게 만드는가? 반드시 그렇지는 않다. 장비에 내장된 보조 이론들은 대개 검증 대상인 특정 가설과 독립적이므로, 끈질긴 실험적 변칙 사례들은 여전히 과학자들로 하여금 뿌리 깊은 패러다임을 뒤집도록 강제할 수 있다.',
+      },
+      B: {
+        textEn:
+          'This entanglement of seeing and believing extends well beyond individual human eyes to the instruments laboratories design. A particle detector or radio telescope never records naked reality; it translates invisible phenomena into digital readouts only by relying on prior physical theories built into its calibration.',
+        textKo:
+          '보는 것과 믿는 것의 이러한 얽힘은 개별 인간의 눈을 훌쩍 넘어 실험실이 설계하는 측정 장비에까지 확장된다. 입자 검출기나 전파 망원경은 결코 벌거벗은 실재를 기록하지 않으며, 보정 장치에 내장된 기존 물리 이론들에 의존해서만 보이지 않는 현상을 디지털 수치로 번역한다.',
+      },
+      C: {
+        textEn:
+          'To see why, consider what occurs when a layperson and a seasoned radiologist examine the exact same chest X-ray. Although identical patterns of light strike both observers\' retinas, the novice sees only hazy gray shadows whereas the specialist immediately discerns a subtle pulmonary lesion through conceptual training.',
+        textKo:
+          '그 이유를 확인하려면 비전문가와 숙련된 영상의학과 의사가 완전히 똑같은 흉부 X선 사진을 들여다볼 때 무슨 일이 벌어지는지 생각해 보라. 두 관찰자의 망막에는 동일한 빛의 패턴이 닿지만, 초보자는 흐릿한 회색 그림자만 보는 반면 전문가는 개념적 훈련을 통해 미세한 폐 병변을 즉각 식별해 낸다.',
+      },
+    },
+    correctOrder: ['C', 'B', 'A'],
+    clues: [
+      {
+        phrase: 'To see why,',
+        clueType: 'connector',
+        explanationKo:
+          '주어진 글 마지막의 주장("theory-free observation is an illusion")에 대한 구체적 논증을 시작하는 신호입니다.',
+      },
+      {
+        phrase: 'This entanglement of seeing and believing',
+        clueType: 'reference',
+        explanationKo:
+          '(C)의 X선 사례에서 드러난 "개념적 훈련(믿음)과 시각 지각(봄)의 결합"을 정확히 받아 (C)→(B)로 이어집니다.',
+      },
+      {
+        phrase: 'extends well beyond',
+        clueType: 'connector',
+        explanationKo:
+          '(C)의 "개별 인간의 눈(individual human eyes)"에서 (B)의 "실험실 장비(instruments)"로 논의 범위를 점층 확대합니다.',
+      },
+      {
+        phrase: 'such theory-ladenness',
+        clueType: 'reference',
+        explanationKo:
+          '(C)의 지각적 이론 의존과 (B)의 장비적 이론 의존을 하나의 철학 용어로 집약한 뒤, 그로 인한 객관성 위기 반론을 다룹니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → C): 주어진 글이 "이론 없는 순수 관찰은 환상이다"라고 단언하자, (C)가 "To see why,"로 직관적 반례인 영상의학과 의사와 일반인의 X선 판독 사례를 제시합니다.\nStep 2 (C → B → A): (B)는 (C)의 시각적 사례를 "This entanglement of seeing and believing"으로 받아 "individual human eyes"를 넘어 실험 장비의 보정 이론으로 층위를 확장합니다. 마지막으로 (A)가 앞선 두 차원을 "such theory-ladenness"로 총칭하며 순환 논증 우려에 대한 반박(보조 이론의 독립성)으로 글을 완성합니다.',
+  },
+  {
+    id: 'co-10',
+    numberLabel: '수능 37번 유형 · 디지털 기억',
+    topicKo: '교류 기억과 디지털 외주화의 착시',
+    difficulty: '수능 킬러',
+    givenBoxEn:
+      'Long before smartphones existed, humans rarely memorized everything they needed to know as solitary individuals. Instead, couples, families, and work teams instinctively divided cognitive labor—relying on one partner to recall birthdays and another to track finances—in what psychologists call transactive memory.',
+    givenBoxKo:
+      '스마트폰이 등장하기 훨씬 전부터 인간은 알아야 할 모든 것을 고립된 개인으로서 암기하는 경우가 드물었다. 그 대신 부부·가족·직장 팀은 한 사람은 생일을 기억하고 다른 사람은 가계를 관리하는 식으로 인지 노동을 본능적으로 분담했으며, 심리학자들은 이를 교류 기억이라 부른다.',
+    paragraphs: {
+      A: {
+        textEn:
+          'The arrival of instant search engines has rapidly transformed the internet into our primary transactive partner. Behavioral studies confirm that when people expect facts to remain saved in a digital folder or searchable online, they remember where to retrieve the information far better than what the information actually says.',
+        textKo:
+          '즉각적인 검색 엔진의 등장은 인터넷을 우리의 주된 교류 파트너로 빠르게 탈바꿈시켰다. 행동 연구들은 사람들이 어떤 사실이 디지털 폴더에 저장되거나 온라인에서 검색 가능하리라 기대할 때, 그 정보의 실제 내용보다 정보를 어디서 꺼내야 하는지를 훨씬 더 잘 기억한다는 사실을 확인해 준다.',
+      },
+      B: {
+        textEn:
+          'What is at stake in this misplaced confidence is not merely trivia recall, but the capacity for original synthesis. Creative insight springs from unexpected collisions among ideas held simultaneously inside working memory; if foundational knowledge sits dormant behind a search bar until prompted, learners may never suspect which questions are worth asking in the first place.',
+        textKo:
+          '이 잘못 놓인 자신감에 걸려 있는 것은 단순한 잡학 암기가 아니라 독창적 종합 능력이다. 창의적 통찰은 작업 기억 안에 동시에 담겨 있는 아이디어들의 뜻밖의 충돌에서 솟아나는데, 기초 지식이 검색 명령을 기다리며 검색창 뒤편에 잠들어 있다면 학습자는 애초에 어떤 질문을 던져야 할지조차 짐작하지 못할 수 있다.',
+      },
+      C: {
+        textEn:
+          'Yet outsourcing retrieval to an algorithmic archive differs subtly from relying on a human spouse or colleague. Whereas asking a friend unmistakably reminds us that the knowledge resides outside our own skull, the frictionless speed of mobile search blurs the boundary between external data and internal mastery, inflating people\'s confidence in their own expertise.',
+        textKo:
+          '그러나 기억 인출을 알고리즘 아카이브에 외주화하는 일은 인간 배우자나 동료에게 의존하는 것과는 미묘하게 다르다. 친구에게 묻는 행위는 그 지식이 내 머릿속 바깥에 있다는 사실을 분명히 상기시키는 반면, 모바일 검색의 마찰 없는 속도는 외부 데이터와 내면화된 숙달 사이의 경계를 흐려 사람들이 자신의 전문성에 과도한 자신감을 품게 부풀린다.',
+      },
+    },
+    correctOrder: ['A', 'C', 'B'],
+    clues: [
+      {
+        phrase: 'our primary transactive partner',
+        clueType: 'reference',
+        explanationKo:
+          '주어진 글 마지막의 "transactive memory"를 곧장 이어받아 인터넷을 새로운 교류 기억 파트너로 연결합니다.',
+      },
+      {
+        phrase: 'Yet',
+        clueType: 'contrast',
+        explanationKo:
+          '(A)에서 인터넷이 교류 파트너가 되었다는 사실을 인정하면서도, 인간 파트너와의 본질적 차이로 논점을 전환합니다.',
+      },
+      {
+        phrase: 'outsourcing retrieval',
+        clueType: 'reference',
+        explanationKo:
+          '(A)의 "remember where to retrieve the information"을 압축해 받아 (A)→(C)를 논리적으로 맞물리게 합니다.',
+      },
+      {
+        phrase: 'this misplaced confidence',
+        clueType: 'reference',
+        explanationKo:
+          '(C) 끝의 "inflating people\'s confidence in their own expertise"를 정확히 지칭하여 (C)→(B)의 심층 결론을 확정합니다.',
+      },
+    ],
+    explanationKo:
+      'Step 1 (주어진 글 → A): 주어진 글이 인간 집단의 "transactive memory"를 정의하자, (A)가 "our primary transactive partner"라는 핵심 어휘 연결로 검색 엔진 시대의 기억 외주화(내용 대신 위치 기억)를 도입합니다.\nStep 2 (A → C → B): (C)는 "Yet outsourcing retrieval"로 (A)의 검색 의존을 받되, 마찰 없는 검색 속도가 외부 지식과 내 지식의 경계를 허물어 자신감을 부풀린다는 착시를 지적합니다. 마지막으로 (B)가 이를 "this misplaced confidence"로 받아 작업 기억 속 지식 충돌이 사라질 때 창의적 종합력까지 위축된다는 킬러급 함의로 글을 닫습니다.',
+  },
+];
+
+export const CSAT_INSERTION_10: CsatInsertionItem[] = [
+  /* =========================================================================
+   * 1. 고2 모의 수준 — 3문항 (ci-01 ~ ci-03)
+   * ========================================================================= */
+  {
+    id: 'ci-01',
+    numberLabel: '수능 38번 유형 · 인지심리학',
+    topicKo: '자이가르닉 효과와 미완성 과제 기억',
+    difficulty: '고2 모의',
+    targetSentenceEn:
+      'However, the moment the bill was paid and the meal ended, those exact same details vanished from their minds.',
+    targetSentenceKo:
+      '하지만 계산서가 치러지고 식사가 끝나자마자, 바로 그 똑같은 세부 사항들은 그들의 머릿속에서 사라져 버렸다.',
+    segmentsEn: [
+      'In the 1920s, psychologist Bluma Zeigarnik noticed a curious habit among waiters at a bustling cafe in Vienna.',
+      'Even without writing anything down, the servers could effortlessly recall complex orders for tables that were still dining.',
+      'Intrigued by this abrupt forgetting, Zeigarnik returned to her laboratory to test whether unfinished tasks hold a privileged place in human memory.',
+      'She asked volunteers to complete a series of simple puzzles and craft activities, deliberately interrupting them halfway through half of the tasks.',
+      'When quizzed afterward, participants remembered the interrupted assignments nearly twice as well as the ones they had been allowed to finish.',
+      'This lingering mental tension, now known as the Zeigarnik effect, explains why cliffhanger endings keep television viewers hooked long after an episode ends.',
+    ],
+    passageKo:
+      '1920년대에 심리학자 블루마 자이가르닉은 비엔나의 번화한 카페 웨이터들 사이에서 흥미로운 습관을 포착했다. 아무것도 적지 않고서도 종업원들은 아직 식사 중인 테이블의 복잡한 주문 내역을 손쉽게 기억해 낼 수 있었다. 하지만 계산서가 치러지고 식사가 끝나자마자, 바로 그 똑같은 세부 사항들은 그들의 머릿속에서 사라져 버렸다. 이 갑작스러운 망각에 호기심을 느낀 자이가르닉은 미완성 과제가 인간 기억 속에서 특권적인 자리를 차지하는지 검증하기 위해 실험실로 돌아갔다. 그녀는 지원자들에게 일련의 간단한 퍼즐과 공예 과제를 수행하게 하면서 절반의 과제에서는 일부러 도중에 작업을 중단시켰다. 이후 질문했을 때, 참가자들은 끝까지 마치도록 허용된 과제보다 중단된 과제를 거의 두 배 가까이 더 잘 기억했다. 오늘날 자이가르닉 효과로 알려진 이 잔존하는 정신적 긴장은, 절정에서 끊는 결말이 드라마가 끝난 뒤에도 오랫동안 시청자를 붙잡아 두는 이유를 설명해 준다.',
+    correctSlot: 2,
+    clues: [
+      {
+        phrase: 'However,',
+        clueType: 'contrast',
+        explanationKo:
+          '② 앞 문장의 "복잡한 주문을 손쉽게 기억한다"는 내용에서 "순식간에 잊어버린다"로 반전시키는 핵심 역접어입니다.',
+      },
+      {
+        phrase: 'those exact same details',
+        clueType: 'reference',
+        explanationKo:
+          '② 앞 문장의 "complex orders for tables that were still dining"을 직접 가리킵니다.',
+      },
+      {
+        phrase: 'this abrupt forgetting',
+        clueType: 'reference',
+        explanationKo:
+          '② 뒤 문장이 "이 갑작스러운 망각"을 언급하는데, 주어진 문장이 없으면 앞부분에 망각 사건 자체가 존재하지 않아 결정적 단절이 발생합니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ②: ② 앞 문장은 웨이터들이 식사 중인 손님의 복잡한 주문을 거뜬히 기억한다고 말하는데, ② 뒤 문장은 곧장 "Intrigued by this abrupt forgetting(이 갑작스러운 망각에 호기심을 느껴)"으로 시작합니다. 주어진 문장이 ②에 들어가야 "those exact same details"로 앞 문장의 복잡한 주문을 받고, "vanished from their minds"로 뒤 문장의 "this abrupt forgetting"의 선행사를 완벽히 채워 줍니다.',
+  },
+  {
+    id: 'ci-02',
+    numberLabel: '수능 38번 유형 · 해양생물학',
+    topicKo: '산호 백화 현상과 공생 관계의 붕괴',
+    difficulty: '고2 모의',
+    targetSentenceEn:
+      'When ocean temperatures climb even a degree or two above normal, however, that fragile partnership breaks down.',
+    targetSentenceKo:
+      '하지만 바닷물 온도가 평년보다 고작 1~2도만 올라가도, 그 연약한 공생 관계는 무너져 내린다.',
+    segmentsEn: [
+      'Vibrant coral reefs cover less than one percent of the ocean floor yet shelter roughly a quarter of all marine species.',
+      'Their vivid colors do not come from the coral animals themselves, but from microscopic algae living inside their transparent tissues.',
+      'In a mutually beneficial exchange, the coral provides a protected home while the algae supply up to ninety percent of its daily energy through photosynthesis.',
+      'Under heat stress, the algae begin producing toxic compounds, forcing the host coral to expel them into the surrounding water.',
+      'Stripped of its colorful tenants, the coral turns ghostly white—a warning sign biologists call bleaching—and begins to starve.',
+      'If cooler conditions return quickly, the reef can recruit new algae and recover, but prolonged warming often proves fatal.',
+    ],
+    passageKo:
+      '생동감 넘치는 산호초는 해저 면적의 1퍼센트 미만을 차지하지만 전체 해양 생물종의 약 4분의 1에게 보금자리를 제공한다. 그들의 선명한 색채는 산호 동물 자체에서 나오는 것이 아니라 투명한 조직 안에 사는 미세 조류에서 비롯된다. 상호 이익이 되는 교환 속에서 산호는 보호받는 집을 제공하고, 조류는 광합성을 통해 산호의 하루 에너지 중 최대 90퍼센트를 공급한다. 하지만 바닷물 온도가 평년보다 고작 1~2도만 올라가도, 그 연약한 공생 관계는 무너져 내린다. 열 스트레스 아래에서 조류는 독성 화합물을 만들어 내기 시작하고, 이로 인해 숙주 산호는 조류를 주변 바닷물로 내쫓을 수밖에 없게 된다. 다채로운 세입자를 잃은 산호는 유령처럼 하얗게 변하며—생물학자들은 이 경고 신호를 백화 현상이라 부른다—굶주리기 시작한다. 더 시원한 환경이 빠르게 돌아오면 산호초는 새 조류를 받아들여 회복할 수 있지만, 장기적인 온난화는 종종 치명적이다.',
+    correctSlot: 3,
+    clues: [
+      {
+        phrase: 'however,',
+        clueType: 'contrast',
+        explanationKo:
+          '③ 앞 문장의 조화로운 상리 공생에서 관계 붕괴로 논지를 꺾어 주는 역접 연결어입니다.',
+      },
+      {
+        phrase: 'that fragile partnership',
+        clueType: 'reference',
+        explanationKo:
+          '③ 앞 문장의 "a mutually beneficial exchange"를 정확히 지시하여 ③ 직후 위치임을 고정합니다.',
+      },
+      {
+        phrase: 'Under heat stress,',
+        clueType: 'connector',
+        explanationKo:
+          '③ 뒤 문장이 갑자기 "열 스트레스 아래에서"를 전제하므로, 해수 온도 상승을 도입하는 주어진 문장이 바로 앞에 반드시 와야 합니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ③: ③ 앞 문장은 산호와 조류의 상호 호혜적인 공생("a mutually beneficial exchange")을 평화롭게 설명하는 반면, ③ 뒤 문장은 아무런 수온 언급 없이 곧장 "Under heat stress,"로 넘어갑니다. 주어진 문장이 ③에 들어가야 "that fragile partnership"으로 앞선 공생을 받고, "ocean temperatures climb"으로 뒤 문장의 "Under heat stress"를 매끄럽게 열어 줍니다.',
+  },
+  {
+    id: 'ci-03',
+    numberLabel: '수능 38번 유형 · 기술사',
+    topicKo: '철도망 확대와 표준 시간대의 탄생',
+    difficulty: '고2 모의',
+    targetSentenceEn:
+      'To eliminate this dangerous confusion, North American railroad companies agreed in 1883 to divide the continent into four uniform time zones.',
+    targetSentenceKo:
+      '이 위험한 혼란을 없애기 위해 북미 철도 회사들은 1883년에 대륙을 네 개의 통일된 시간대로 나누기로 합의했다.',
+    segmentsEn: [
+      'For most of human history, telling time was strictly a local affair determined by the sun overhead.',
+      'Whenever the sun reached its highest point in the sky, town church bells declared noon for that community alone.',
+      'This arrangement worked smoothly in the era of horse-drawn carriages, when travelers moved too slowly to notice a few minutes\' difference between neighboring towns.',
+      'Once steam locomotives connected distant cities at high speed, though, juggling dozens of conflicting local clocks turned scheduling into a nightmare and raised the risk of collisions.',
+      'Almost overnight, municipalities across the United States and Canada reset their public clocks to match the new railway standard.',
+      'What began as an operational convenience for train dispatchers soon reshaped global governance, culminating in the international time-zone grid we still rely on today.',
+    ],
+    passageKo:
+      '인류 역사의 대부분 동안 시간을 재는 일은 머리 위 태양에 따라 결정되는 철저한 지역 문제였다. 태양이 하늘에서 가장 높은 지점에 도달할 때마다 마을 교회의 종이 그 공동체만을 위한 정오를 알렸다. 이 방식은 여행자들이 너무 느리게 이동해 이웃 마을 사이의 몇 분 차이를 눈치채지 못했던 마차 시대에는 순조롭게 작동했다. 하지만 증기 기관차가 먼 도시들을 고속으로 연결하자, 서로 충돌하는 수십 개의 지역 시계를 맞추는 일은 시간표 작성을 악몽으로 만들었고 충돌 위험을 높였다. 이 위험한 혼란을 없애기 위해 북미 철도 회사들은 1883년에 대륙을 네 개의 통일된 시간대로 나누기로 합의했다. 거의 하룻밤 사이에 미국과 캐나다 전역의 지방자치단체들이 이 새로운 철도 표준에 맞춰 공공 시계를 재설정했다. 열차 배차원들의 운영 편의를 위해 시작된 일은 곧 세계 질서를 재편해, 우리가 오늘날에도 여전히 의존하는 국제 표준 시간대 체계로 결실을 맺었다.',
+    correctSlot: 4,
+    clues: [
+      {
+        phrase: 'this dangerous confusion',
+        clueType: 'reference',
+        explanationKo:
+          '④ 앞 문장의 "서로 충돌하는 지역 시계로 인한 시간표 악몽과 열차 충돌 위험"을 그대로 가리킵니다.',
+      },
+      {
+        phrase: 'four uniform time zones',
+        clueType: 'article',
+        explanationKo:
+          '주어진 문장에서 철도 회사들의 네 개 통일 시간대 합의를 처음 도입해야만 뒤 문장의 정관사 표현이 성립합니다.',
+      },
+      {
+        phrase: 'the new railway standard',
+        clueType: 'article',
+        explanationKo:
+          '④ 뒤 문장이 지칭하는 "그 새로운 철도 표준"이 앞선 본문에는 전혀 등장하지 않아 명백한 단절이 드러납니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ④: ④ 앞 문장은 서로 다른 지역 시계 때문에 열차 충돌 위험이 커졌다는 문제 제기로 끝나는데, ④ 뒤 문장은 갑자기 미국과 캐나다 도시들이 "the new railway standard(그 새로운 철도 표준)"에 맞춰 시계를 다시 맞췄다고 서술합니다. 주어진 문장이 ④에 들어가야 "this dangerous confusion"으로 앞선 문제를 받고, 1883년 북미 철도 회사들의 4개 표준 시간대 합의를 도입해 "the new railway standard"의 선행사를 제공합니다.',
+  },
+
+  /* =========================================================================
+   * 2. 고3 평가원 수준 — 4문항 (ci-04 ~ ci-07)
+   * ========================================================================= */
+  {
+    id: 'ci-04',
+    numberLabel: '수능 38번 유형 · 경제·조직학',
+    topicKo: '굿하트의 법칙과 지표 왜곡의 대응',
+    difficulty: '고3 평가원',
+    targetSentenceEn:
+      'Rather than abandoning measurement altogether, effective leaders counter this distortion by rotating metrics and combining them with qualitative peer review.',
+    targetSentenceKo:
+      '측정을 아예 포기하기보다는, 유능한 리더들은 지표를 주기적으로 교체하고 이를 정성적 동료 평가와 결합함으로써 이러한 왜곡에 대응한다.',
+    segmentsEn: [
+      'Modern organizations rely heavily on numerical metrics to evaluate performance, from hospital mortality rates to university rankings.',
+      'British economist Charles Goodhart warned, however, that whenever a measure becomes a high-stakes target, it ceases to be a good measure.',
+      'For instance, if a school\'s funding depends solely on standardized test scores, instructors feel pressured to drill narrow test-taking tricks rather than cultivate deep understanding.',
+      'Similarly, software engineers rewarded strictly for lines of code written may inflate programs with redundant instructions that make maintenance harder.',
+      'In both cases, chasing the visible score silently erodes the deeper quality the metric was designed to protect.',
+      'By refusing to let any single number dictate rewards permanently, such hybrid oversight preserves accountability while depriving gamers of a fixed target to exploit.',
+    ],
+    passageKo:
+      '현대 조직은 병원 사망률에서 대학 순위에 이르기까지 성과를 평가하기 위해 수치 지표에 크게 의존한다. 그러나 영국의 경제학자 찰스 굿하트는 어떤 측정 지표든 중대한 이해관계가 걸린 목표가 되는 순간 더 이상 좋은 지표가 아니게 된다고 경고했다. 예를 들어 학교의 예산 지원이 표준화 시험 점수에만 달려 있다면, 교사들은 깊은 이해를 기르기보다 좁은 시험 요령을 반복 훈련하라는 압박을 느낀다. 마찬가지로 작성한 코드 줄 수만으로 보상을 받는 소프트웨어 엔지니어들은 유지보수를 어렵게 만드는 불필요한 명령어로 프로그램을 부풀릴 수 있다. 두 경우 모두 눈에 보이는 점수를 쫓는 행위가 애초에 지표가 지키려 했던 더 깊은 본질적 품질을 조용히 갉아먹는다. 측정을 아예 포기하기보다는, 유능한 리더들은 지표를 주기적으로 교체하고 이를 정성적 동료 평가와 결합함으로써 이러한 왜곡에 대응한다. 단 하나의 숫자가 영구적으로 보상을 좌우하도록 두지 않음으로써, 이러한 혼합형 감독 체계는 책무성을 지키면서도 요령을 부리는 이들에게 악용할 고정 목표를 빼앗아 버린다.',
+    correctSlot: 5,
+    clues: [
+      {
+        phrase: 'Rather than',
+        clueType: 'contrast',
+        explanationKo:
+          '지표의 부작용을 지적한 뒤 측정을 전면 폐기하는 대신 현실적 대안을 제시하는 전환 표현입니다.',
+      },
+      {
+        phrase: 'this distortion',
+        clueType: 'reference',
+        explanationKo:
+          '⑤ 앞 문장("In both cases, chasing the visible score silently erodes the deeper quality...")에서 두 사례를 종합해 진단한 지표 왜곡을 정확히 가리킵니다.',
+      },
+      {
+        phrase: 'such hybrid oversight',
+        clueType: 'reference',
+        explanationKo:
+          '⑤ 뒤 문장의 "그러한 혼합형 감독 체계"는 주어진 문장의 "지표 순환 + 정성적 동료 평가 결합"을 유일한 선행사로 요구합니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ⑤: ①~④는 굿하트의 법칙 제시 → 학교 사례(For instance) → 소프트웨어 사례(Similarly) → 두 사례의 종합(In both cases)으로 빈틈없이 이어집니다. 그런데 ⑤ 직후 문장이 갑자기 "such hybrid oversight(그러한 혼합형 감독 체계)"와 "단 하나의 숫자가 영구적으로 보상을 좌우하게 두지 않는다"는 해결책을 언급합니다. 앞선 문장 어디에도 혼합형 감독 방식은 나오지 않으므로, 지표 순환과 정성적 동료 평가의 결합을 도입하는 주어진 문장이 ⑤에 들어가야 완벽히 연결됩니다.',
+  },
+  {
+    id: 'ci-05',
+    numberLabel: '수능 39번 유형 · 음악인지과학',
+    topicKo: '예측 코딩과 음악적 쾌감의 최적점',
+    difficulty: '고3 평가원',
+    targetSentenceEn:
+      'Conversely, a composition so erratic that listeners can detect no underlying structure feels chaotic rather than intriguing.',
+    targetSentenceKo:
+      '반대로, 청자가 기저의 구조를 전혀 감지할 수 없을 정도로 종잡을 수 없는 악곡은 흥미롭기보다 혼란스럽게 느껴진다.',
+    segmentsEn: [
+      'Why does a simple melody sometimes trigger chills while another leaves listeners completely indifferent?',
+      'Neuroscientists trace musical pleasure to the brain\'s constant habit of predicting the next note before it arrives.',
+      'When a tune follows entirely predictable patterns, those forecasts prove effortless, and the listener quickly loses interest out of boredom.',
+      'Between these two extremes lies an optimal sweet spot where familiar rhythms set up clear expectations that the composer playfully delays or bends.',
+      'When a suspended chord finally resolves in an unexpected yet fitting way, reward circuits in the brain release a burst of dopamine.',
+      'In this sense, great music is less a display of sheer novelty than a finely calibrated dialogue between expectation and surprise.',
+    ],
+    passageKo:
+      '왜 어떤 단순한 선율은 때때로 전율을 일으키는 반면 다른 선율은 청자를 완전히 무관심하게 내버려 둘까? 신경과학자들은 음악적 쾌감의 뿌리를 다음 음이 도착하기 전에 미리 예측하는 뇌의 끊임없는 습관에서 찾는다. 선율이 완전히 예측 가능한 패턴만 따르면 그러한 예측에 아무 노력이 들지 않아 청자는 금세 지루함을 느끼고 흥미를 잃는다. 반대로, 청자가 기저의 구조를 전혀 감지할 수 없을 정도로 종잡을 수 없는 악곡은 흥미롭기보다 혼란스럽게 느껴진다. 이 두 극단 사이에는 친숙한 리듬이 명확한 기대를 형성하고 작곡가가 이를 재치 있게 지연하거나 비트는 최적의 황금 지점이 놓여 있다. 보류되었던 화음이 마침내 예상 밖이면서도 절묘하게 해결될 때, 뇌의 보상 회로는 도파민을 한꺼번에 분비한다. 이런 의미에서 위대한 음악은 순전한 새로움의 과시라기보다 기대와 놀라움 사이의 정교하게 조율된 대화이다.',
+    correctSlot: 3,
+    clues: [
+      {
+        phrase: 'Conversely,',
+        clueType: 'contrast',
+        explanationKo:
+          '③ 앞 문장의 "완전히 예측 가능해 지루한 음악"과 정반대 축인 "구조가 없어 혼란스러운 음악"을 대칭 배치하는 대조 연결어입니다.',
+      },
+      {
+        phrase: 'these two extremes',
+        clueType: 'reference',
+        explanationKo:
+          '③ 뒤 문장이 "이 두 극단"을 지칭하지만, ③ 앞까지는 한쪽 극단(지나친 예측 가능성)만 제시되어 있어 치명적인 수적·논리적 단절이 발생합니다.',
+      },
+      {
+        phrase: 'an optimal sweet spot',
+        clueType: 'article',
+        explanationKo:
+          '양 극단(지루함 vs. 혼란)이 모두 설정된 뒤에야 그 중간의 "최적 지점"을 도입할 수 있습니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ③: ③ 앞 문장은 전적으로 예측 가능한 선율이 지루함을 낳는다는 "첫 번째 극단"만 언급합니다. 그런데 ③ 뒤 문장이 다짜고짜 "Between these two extremes(이 두 극단 사이에)"라고 시작합니다. 주어진 문장이 ③에 들어가 "Conversely,"로 예측 불가능한 혼란이라는 "두 번째 극단"을 제시해야만 "these two extremes"가 지시 대상을 온전히 확보합니다.',
+  },
+  {
+    id: 'ci-06',
+    numberLabel: '수능 39번 유형 · 고고학·인류학',
+    topicKo: '농업 혁명의 역설적 비용과 인구 함정',
+    difficulty: '고3 평가원',
+    targetSentenceEn:
+      'Even more tellingly, skeletal remains from early farming villages show shorter stature, higher rates of dental decay, and heavier joint wear than those of neighboring hunter-gatherers.',
+    targetSentenceKo:
+      '더욱 시사적인 점은, 초기 농경 마을에서 출토된 유골들이 인근 수렵·채집민의 유골에 비해 더 작은 신장, 더 높은 충치율, 그리고 더 심한 관절 마모를 보인다는 것이다.',
+    segmentsEn: [
+      'For generations, history textbooks celebrated the shift from foraging to agriculture ten thousand years ago as humanity\'s greatest leap toward comfort and leisure.',
+      'Growing crops in permanent settlements, the story went, freed early communities from daily hunger and left ample time for art and governance.',
+      'Recent archaeological evidence, however, paints a far harsher picture of that transition for ordinary individuals.',
+      'Relying on just one or two staple grains narrowed people\'s diets dramatically, leaving settled populations vulnerable to famine whenever a drought struck.',
+      'Facing such steep physical costs, early farmers did not adopt agriculture because it improved individual health; rather, tilled fields could feed far more people per acre.',
+      'Once population density rose to match that larger food supply, communities found themselves locked into farming with no viable path back to foraging.',
+    ],
+    passageKo:
+      '수 세대 동안 역사 교과서들은 1만 년 전 수렵·채집에서 농업으로의 전환을 안락함과 여가를 향한 인류 최대의 도약으로 찬양해 왔다. 정착촌에서 작물을 재배함으로써 초기 공동체들이 매일의 굶주림에서 벗어나 예술과 통치에 쏟을 충분한 시간을 얻었다는 것이 그 이야기였다. 그러나 최근의 고고학적 증거는 평범한 개인들에게 그 전환이 훨씬 더 가혹했음을 보여 준다. 단 한두 가지 주식 곡물에 의존하면서 사람들의 식단은 극도로 좁아졌고, 정착 인구는 가뭄이 닥칠 때마다 기근에 취약해졌다. 더욱 시사적인 점은, 초기 농경 마을에서 출토된 유골들이 인근 수렵·채집민의 유골에 비해 더 작은 신장, 더 높은 충치율, 그리고 더 심한 관절 마모를 보인다는 것이다. 이토록 막대한 신체적 대가에 직면했음에도 초기 농부들이 농업을 택한 것은 개인의 건강이 좋아졌기 때문이 아니라, 경작지가 단위 면적당 훨씬 더 많은 인구를 먹여 살릴 수 있었기 때문이다. 인구 밀도가 그 커진 식량 공급에 맞춰 일단 늘어나고 나자, 공동체들은 수렵·채집으로 돌아갈 현실적 길 없이 농경에 묶여 버리게 되었다.',
+    correctSlot: 4,
+    clues: [
+      {
+        phrase: 'Even more tellingly,',
+        clueType: 'connector',
+        explanationKo:
+          '"더욱 시사적인 점은"이라는 점층 연결어이므로, 첫 번째 부정적 증거(④ 앞의 식단 협소화·기근 취약성) 뒤에 나와야 자연스럽습니다.',
+      },
+      {
+        phrase: 'than those of neighboring hunter-gatherers',
+        clueType: 'contrast',
+        explanationKo:
+          '초기 농경민과 인근 수렵·채집민의 건강 상태를 직접 대조하여 "농업 = 안락함"이라는 통념을 유골 증거로 반박합니다.',
+      },
+      {
+        phrase: 'such steep physical costs',
+        clueType: 'reference',
+        explanationKo:
+          '④ 뒤 문장이 가리키는 "그토록 막대한 신체적 대가"와 "individual health"는 주어진 문장의 저신장·충치·관절 마모를 직접 받습니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ④: ③ 뒤 문장은 첫 번째 근거로 식단 협소화와 기근 위험을 제시하므로, 점층 표현 "Even more tellingly,"로 시작하는 주어진 문장은 첫 번째 근거보다 앞인 ③에는 들어갈 수 없습니다. 반대로 ④ 뒤 문장은 "Facing such steep physical costs"와 "individual health"를 직접 언급하며 신체적 손상을 전제하는데, ④ 앞에는 아직 뼈·치아·관절의 신체적 대가가 제시되지 않았습니다. 따라서 주어진 문장은 ④에 위치해야 앞의 식단 근거를 심화하고 뒤의 신체적 대가와 완벽히 호응합니다.',
+  },
+  {
+    id: 'ci-07',
+    numberLabel: '수능 38번 유형 · 커뮤니케이션',
+    topicKo: '침묵의 나선 이론과 여론의 비대칭',
+    difficulty: '고3 평가원',
+    targetSentenceEn:
+      'People who sense that their viewpoint is losing favor therefore stay quiet in public, while those who believe they belong to the majority speak up ever more boldly.',
+    targetSentenceKo:
+      '따라서 자신의 관점이 지지를 잃고 있다고 감지한 사람들은 공개석상에서 입을 다무는 반면, 자신이 다수에 속한다고 믿는 이들은 더욱 대담하게 목소리를 높인다.',
+    segmentsEn: [
+      'In public debates, people rarely express controversial opinions solely on the basis of private conviction.',
+      'According to political scientist Elisabeth Noelle-Neumann, human beings constantly scan their social environment for cues about which views are gaining ground, driven by a deep fear of social isolation.',
+      'This asymmetry sets a self-reinforcing cycle in motion: the louder one side grows, the weaker the dissenting stance appears to onlookers.',
+      'As a result, even moderately popular perspectives can shrink into near invisibility if citizens mistakenly assume they stand alone.',
+      'Digital algorithms can intensify the pattern today by amplifying viral outrage and hiding nuanced dissent beneath layers of polarized commentary.',
+      'Yet history also shows that a vocal minority willing to bear social discomfort can occasionally break the spiral and shift what a society considers acceptable.',
+    ],
+    passageKo:
+      '공적 논쟁에서 사람들은 사적인 신념만을 근거로 논란이 있는 의견을 표명하는 경우가 드물다. 정치학자 엘리자베스 노엘레-노이만에 따르면, 인간은 사회적 고립에 대한 깊은 두려움에 이끌려 어떤 견해가 세를 얻고 있는지 사회적 환경에서 끊임없이 단서를 살핀다. 따라서 자신의 관점이 지지를 잃고 있다고 감지한 사람들은 공개석상에서 입을 다무는 반면, 자신이 다수에 속한다고 믿는 이들은 더욱 대담하게 목소리를 높인다. 이러한 비대칭성은 자기 강화적 순환을 가동시키는데, 한쪽 목소리가 커질수록 방관자들에게 반대 입장은 더욱 약해 보이게 된다. 그 결과 시민들이 자신이 혼자인 줄 잘못 가정하면, 상당히 지지를 받는 시각조차 거의 보이지 않을 정도로 위축될 수 있다. 오늘날 디지털 알고리즘은 자극적인 분노를 증폭시키고 양극화된 논평 아래 미묘한 이견을 숨김으로써 이 패턴을 심화할 수 있다. 그러나 역사는 사회적 불편을 감수하려는 적극적 소수가 때때로 이 나선을 깨고 사회가 수용하는 기준을 바꿀 수 있음도 보여 준다.',
+    correctSlot: 2,
+    clues: [
+      {
+        phrase: 'therefore',
+        clueType: 'connector',
+        explanationKo:
+          '② 앞 문장의 "사회적 고립에 대한 두려움 때문에 여론의 흐름을 살핀다"는 원인에서 구체적 행동 결과를 이끌어 냅니다.',
+      },
+      {
+        phrase: 'while',
+        clueType: 'contrast',
+        explanationKo:
+          '"침묵하는 소수"와 "더 대담히 발언하는 다수"라는 상반된 두 행동 양식을 한 문장 안에 대조시킵니다.',
+      },
+      {
+        phrase: 'This asymmetry',
+        clueType: 'reference',
+        explanationKo:
+          '② 뒤 문장이 "이러한 비대칭성"을 지칭하는데, 주어진 문장이 없으면 앞부분에 침묵 대 발언의 비대칭 구조가 전혀 등장하지 않습니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ②: ② 앞 문장은 사람들이 고립을 두려워해 사회적 단서를 살핀다는 심리 동기만 서술하고 끝납니다. 그런데 ② 뒤 문장이 곧장 "This asymmetry(이러한 비대칭성)"라고 받으며 한쪽이 커질수록 반대쪽이 약해 보인다고 말합니다. 주어진 문장이 ②에 들어가 "therefore"로 앞선 고립 공포의 귀결을 보여 주고, 침묵(stay quiet) 대 대담한 발언(speak up ever more boldly)의 비대칭을 제시해야만 ② 뒤의 "This asymmetry"가 완벽히 성립합니다.',
+  },
+
+  /* =========================================================================
+   * 3. 수능 킬러 수준 — 3문항 (ci-08 ~ ci-10)
+   * ========================================================================= */
+  {
+    id: 'ci-08',
+    numberLabel: '수능 39번 유형 · 에너지경제학',
+    topicKo: '제본스의 역설과 효율성의 반동 효과',
+    difficulty: '수능 킬러',
+    targetSentenceEn:
+      'To ensure that technical efficiency translates into genuine conservation, policymakers must therefore pair engineering upgrades with limits on total consumption or carbon pricing.',
+    targetSentenceKo:
+      '따라서 기술적 효율성이 진정한 자원 절약으로 이어지도록 보장하려면, 정책 입안자들은 공학적 개선을 총소비 상한제나 탄소 가격제와 결합해야 한다.',
+    segmentsEn: [
+      'When engineers design an appliance or engine that uses half as much energy to perform the same task, common sense suggests that total fuel consumption will drop proportionally.',
+      'Yet in 1865, economist William Stanley Jevons noticed the opposite trend in industrial Britain after James Watt\'s steam engine made coal dramatically more efficient.',
+      'Rather than shrinking national coal demand, the breakthrough lowered the effective cost of mechanical power so sharply that factories adopted steam across dozens of new industries.',
+      'The same rebound effect reappears in modern computing: cheaper, energy-saving microchips have not reduced electricity use, because society responded by embedding billions of processors into phones, cars, and data centers.',
+      'In short, when efficiency makes a resource cheaper per unit of service, expanding demand can easily outpace the savings achieved by each individual device.',
+      'Without such external guardrails, cleaner technology alone risks accelerating the very depletion it was celebrated for solving.',
+    ],
+    passageKo:
+      '공학자들이 같은 작업을 수행하는 데 에너지를 절반만 쓰는 가전제품이나 엔진을 설계하면, 상식적으로는 총 연료 소비량도 비례해서 줄어들 것이라 생각하기 쉽다. 그러나 1865년 경제학자 윌리엄 스탠리 제본스는 제임스 와트의 증기 기관이 석탄 효율을 극적으로 높인 뒤 산업화 영국에서 정반대의 추세를 포착했다. 그 혁신은 국가 전체의 석탄 수요를 줄이기는커녕 기계 동력의 실질 비용을 너무나 크게 낮추어, 공장들이 수십 개의 새 산업 분야에 증기 기관을 도입하게 만들었다. 동일한 반동 효과는 현대 컴퓨팅에서도 되풀이된다. 더 저렴하고 전력 효율이 높은 마이크로칩은 전력 소비를 줄이지 못했는데, 사회가 수십억 개의 프로세서를 휴대폰·자동차·데이터센터에 심는 방식으로 반응했기 때문이다. 요컨대 효율성 향상이 서비스 단위당 자원 비용을 낮출 때, 확대되는 수요가 개별 기기가 달성한 절감분을 쉽게 추월할 수 있다. 따라서 기술적 효율성이 진정한 자원 절약으로 이어지도록 보장하려면, 정책 입안자들은 공학적 개선을 총소비 상한제나 탄소 가격제와 결합해야 한다. 그러한 외부적 안전장치 없이는 친환경 기술만으로는 해결했다고 찬사받던 바로 그 자원 고갈을 오히려 가속할 위험이 있다.',
+    correctSlot: 5,
+    clues: [
+      {
+        phrase: 'In short,',
+        clueType: 'connector',
+        explanationKo:
+          '⑤ 앞 문장이 증기 기관과 마이크로칩 사례를 "요컨대"로 일반화하여, 정책적 해법(therefore)이 뒤따를 토대를 완성합니다.',
+      },
+      {
+        phrase: 'therefore',
+        clueType: 'connector',
+        explanationKo:
+          '효율성만으로는 수요 증가를 막지 못한다는 ⑤ 앞 문장의 요약 결론을 받아 정책적 처방을 도출하는 인과 연결어입니다.',
+      },
+      {
+        phrase: 'such external guardrails',
+        clueType: 'reference',
+        explanationKo:
+          '⑤ 뒤 문장의 "그러한 외부적 안전장치"는 앞선 본문에 전혀 등장하지 않으며, 주어진 문장의 "총소비 상한제나 탄소 가격제"를 정확히 지칭합니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ⑤: ①~④는 통념 → 제본스의 증기 기관 반례 → 증기 기관 확산 이유 → 현대 마이크로칩 반동 효과 → "In short," 일반화까지 경제적 원리 설명이 촘촘히 이어집니다. 그런데 ⑤ 뒤 문장이 갑자기 "Without such external guardrails(그러한 외부적 안전장치 없이는)"라고 말합니다. 본문 앞부분에는 어떤 외부 규제나 안전장치도 언급된 적이 없으므로, 총소비 상한제와 탄소 가격제를 정책 해법으로 제시하는 주어진 문장이 반드시 ⑤에 들어가야 합니다.',
+  },
+  {
+    id: 'ci-09',
+    numberLabel: '수능 39번 유형 · 신경과학',
+    topicKo: '신경 청킹과 기저핵의 습관 자동화',
+    difficulty: '수능 킬러',
+    targetSentenceEn:
+      'Once that sequence becomes sufficiently familiar, however, control gradually migrates from the effortful prefrontal cortex to a deeper region called the basal ganglia.',
+    targetSentenceKo:
+      '하지만 그 일련의 순서가 충분히 익숙해지고 나면, 통제권은 노력이 많이 드는 전전두엽 피질에서 기저핵이라 불리는 더 깊은 뇌 영역으로 서서히 이동한다.',
+    segmentsEn: [
+      'Learning to back a car out of a narrow driveway initially demands intense concentration, forcing a novice driver to monitor mirrors, pedals, and steering angles all at once.',
+      'At this early stage, brain scans show heavy activity across the prefrontal cortex as the mind consciously evaluates each discrete motion.',
+      'Every correction feels mentally taxing because the brain must process dozens of separate decisions one after another.',
+      'There, the scattered steps are compressed into a single automated routine—a process neuroscientists call chunking—that can run smoothly with minimal conscious oversight.',
+      'This delegation frees our limited working memory to hold a conversation or plan dinner while our hands execute the familiar maneuver flawlessly.',
+      'The hidden price of such efficiency is rigidity: because the compressed loop fires automatically at a familiar cue, breaking an ingrained bad habit requires deliberately pulling attention back to the prefrontal cortex.',
+    ],
+    passageKo:
+      '좁은 차도에서 차를 후진해 빼내는 법을 처음 배울 때는 극심한 집중력이 필요하며, 초보 운전자는 거울·페달·핸들 각도를 동시에 주시해야 한다. 이 초기 단계에서 뇌 영상은 마음이 각각의 분리된 동작을 의식적으로 평가함에 따라 전전두엽 피질 전반에 강한 활성이 나타남을 보여 준다. 뇌가 수십 개의 개별 결정을 연달아 처리해야 하기 때문에 모든 미세 조정이 정신적으로 큰 부담으로 느껴진다. 하지만 그 일련의 순서가 충분히 익숙해지고 나면, 통제권은 노력이 많이 드는 전전두엽 피질에서 기저핵이라 불리는 더 깊은 뇌 영역으로 서서히 이동한다. 그곳에서 흩어져 있던 단계들은 하나의 자동화된 루틴으로 압축되는데—신경과학자들은 이 과정을 청킹이라 부른다—이는 최소한의 의식적 감독만으로도 매끄럽게 실행될 수 있다. 이러한 권한 이양은 우리의 제한된 작업 기억을 해방해, 손이 익숙한 조작을 흠잡을 데 없이 수행하는 동안 대화를 나누거나 저녁 식사를 계획할 수 있게 해 준다. 그러한 효율성의 숨겨진 대가는 경직성이다. 압축된 고리가 익숙한 신호에 반응해 자동으로 발화하기 때문에, 몸에 밴 나쁜 습관을 깨려면 의도적으로 주의를 다시 전전두엽 피질로 끌어와야 한다.',
+    correctSlot: 3,
+    clues: [
+      {
+        phrase: 'however,',
+        clueType: 'contrast',
+        explanationKo:
+          '③ 앞까지의 "초기 단계의 힘겨운 의식적 처리"에서 "숙달 이후의 자동화 단계"로 국면을 전환합니다.',
+      },
+      {
+        phrase: 'a deeper region called the basal ganglia',
+        clueType: 'article',
+        explanationKo:
+          '부정관사 a와 함께 새로운 뇌 영역(기저핵)을 도입하여 뒤 문장의 장소 부사 "There,"에 정확한 지시 대상을 부여합니다.',
+      },
+      {
+        phrase: 'There,',
+        clueType: 'reference',
+        explanationKo:
+          '③ 뒤 문장의 "그곳에서 흩어진 단계들이 자동 루틴으로 압축된다"는 내용은 의식적 연산을 하는 전전두엽 피질과 모순되므로, 기저핵을 도입하는 주어진 문장이 바로 앞에 와야 합니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ③: ③ 앞 문장들은 전전두엽 피질에서 수십 개의 개별 결정을 의식적으로 힘겹게 처리하는 초기 학습 단계를 설명합니다. 그런데 ③ 뒤 문장이 "There,(그곳에서)"로 시작해 갑자기 흩어진 단계들이 최소한의 의식적 감독으로 돌아가는 자동 루틴으로 압축된다고 서술하며, 그다음 문장도 "This delegation(이러한 권한 이양)"을 전제합니다. 주어진 문장이 ③에 들어가 전전두엽 피질에서 기저핵으로의 통제권 이양을 제시해야만 "There,"와 "This delegation"이 모두 정확히 해결됩니다.',
+  },
+  {
+    id: 'ci-10',
+    numberLabel: '수능 39번 유형 · 번역·언어철학',
+    topicKo: '번역의 비등가성과 해석적 창조',
+    difficulty: '수능 킬러',
+    targetSentenceEn:
+      'Faced with such unavoidable mismatches, a translator must continuously choose which layer of meaning—literal precision, rhythmic flow, or cultural resonance—to prioritize.',
+    targetSentenceKo:
+      '이러한 피할 수 없는 불일치에 직면하여 번역가는 직역의 정확성, 리듬의 흐름, 문화적 울림 중 어떤 의미의 층위를 우선할지 끊임없이 선택해야 한다.',
+    segmentsEn: [
+      'Readers who have never translated literature often imagine the craft as a mechanical swap, like replacing bricks of one color with identical bricks of another.',
+      'Under this transparent-glass view, an ideal translation would carry every shade of the original text across linguistic borders without leaving a trace of the translator\'s hand.',
+      'In reality, languages do not divide human experience along identical seams, nor do their idioms carry matching historical echoes.',
+      'A single Japanese seasonal word can evoke a whole poetic tradition of fleeting autumn rain, whereas its nearest English dictionary equivalent may sound flat and clinical.',
+      'Each of these trade-offs stamps the resulting text with an interpretive signature, which explains why two faithful translations of the same novel can feel remarkably distinct.',
+      'Far from betraying the author, this quiet act of recreation is precisely what enables a classic work to breathe anew inside an unfamiliar culture.',
+    ],
+    passageKo:
+      '문학 번역을 해 본 적 없는 독자들은 흔히 번역을 한 색깔의 벽돌을 똑같은 다른 색 벽돌로 바꿔 끼우는 것 같은 기계적 치환으로 상상한다. 이 투명 유리관에 따르면, 이상적인 번역은 번역가의 손길이 전혀 남지 않은 채 원문의 모든 뉘앙스를 언어의 경계 너머로 그대로 옮겨 놓아야 한다. 그러나 실제로 언어들은 인간 경험을 동일한 경계선으로 나누지 않으며, 관용구들이 똑같은 역사적 울림을 지니지도 않는다. 일본어의 계절어 한 단어는 스쳐 가는 가을비의 시적 전통 전체를 불러일으킬 수 있지만, 그에 가장 가까운 영어 사전적 대응어는 평면적이고 건조하게 들릴 수 있다. 이러한 피할 수 없는 불일치에 직면하여 번역가는 직역의 정확성, 리듬의 흐름, 문화적 울림 중 어떤 의미의 층위를 우선할지 끊임없이 선택해야 한다. 이러한 절충 선택 하나하나는 결과 텍스트에 해석적 서명을 각인시키며, 바로 이 때문에 같은 소설의 충실한 두 번역본이 놀라울 만큼 다르게 느껴질 수 있는 것이다. 원작자를 배신하기는커녕, 이 조용한 재창조 행위야말로 고전 작품이 낯선 문화 속에서 새롭게 숨 쉬도록 만드는 바로 그 원동력이다.',
+    correctSlot: 4,
+    clues: [
+      {
+        phrase: 'In reality,',
+        clueType: 'contrast',
+        explanationKo:
+          '②~③에서 기계적 치환 통념을 깨고 언어 간 구조적 불일치와 일본어 계절어 사례를 제시하며 ④의 전제를 쌓습니다.',
+      },
+      {
+        phrase: 'such unavoidable mismatches',
+        clueType: 'reference',
+        explanationKo:
+          '③~④ 앞부분에서 제시된 언어 간 경험 분할의 차이와 일본어·영어 어휘의 비등가성을 정확히 받아 줍니다.',
+      },
+      {
+        phrase: 'Each of these trade-offs',
+        clueType: 'reference',
+        explanationKo:
+          '④ 뒤 문장이 가리키는 "이러한 절충 선택 하나하나"는 주어진 문장의 "직역·리듬·문화적 울림 중 우선순위 선택"을 유일한 선행사로 요구합니다.',
+      },
+    ],
+    explanationKo:
+      '단절 지점 ④: ④ 앞 문장은 일본어 계절어와 영어 사전 대응어 사이의 뉘앙스 격차(불일치)를 예로 들었을 뿐, 아직 번역가가 무엇을 포기하고 무엇을 취하는지(절충)는 언급하지 않았습니다. 그런데 ④ 뒤 문장이 곧바로 "Each of these trade-offs(이러한 절충 선택 하나하나가)"라고 시작하며 뚜렷한 논리적 단절을 만듭니다. 주어진 문장이 ④에 들어가야 "such unavoidable mismatches"로 앞의 비등가성 사례를 받고, 직역·리듬·문화적 울림 사이의 우선순위 선택을 도입해 뒤 문장의 "these trade-offs"와 빈틈없이 이어집니다.',
+  },
+];

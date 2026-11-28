@@ -12,12 +12,14 @@ import {
 import { SPEAKING_PROMPTS_16 } from '../data/speakingPrompts.ts';
 import type { MasteryStage } from '../types/academy.ts';
 import type { SpeakingAttemptRecord, SpeakingPromptItem } from '../types/v6.ts';
+import { playFanfare } from '../utils/soundFx.ts';
 import {
   isSpeechRecognitionSupported,
   speakEnglish,
   startSpeechRecognition
 } from '../utils/speech.ts';
 import { InteractiveText } from './InteractiveText.tsx';
+import { VoiceRecorderCompare } from './VoiceRecorderCompare.tsx';
 
 interface SpeakingChallengeLabProps {
   speakingAttempts: SpeakingAttemptRecord[];
@@ -231,6 +233,7 @@ export function SpeakingChallengeLab({
     const ev = evaluateSpeakingPerformance(transcript, Math.max(15, spokenSec), activePrompt);
     setEvalResult(ev);
     setPhase('result');
+    playFanfare();
     onRecordSpeakingAttempt({
       id: `spk-${activePrompt.id}-${speakingAttempts.length + 1}`,
       promptId: activePrompt.id,
@@ -450,6 +453,10 @@ export function SpeakingChallengeLab({
               💡 {micNote}
             </p>
           )}
+
+          <div style={{ marginTop: '12px' }}>
+            <VoiceRecorderCompare targetEnglish={activePrompt.modelAnswerEn} speechRate={0.94} compact />
+          </div>
 
           {/* LIVE TRANSCRIPT / SILENT TYPING AREA */}
           {(phase === 'speaking' || phase === 'result') && (

@@ -51,6 +51,12 @@ const SpeakingChallengeLab = lazy(() =>
   }))
 );
 
+const AdaptiveClozeAndPatternGym = lazy(() =>
+  import('./AdaptiveClozeAndPatternGym.tsx').then((m) => ({
+    default: m.AdaptiveClozeAndPatternGym
+  }))
+);
+
 interface CinematicLectureStudioProps {
   module: DayLessonModule;
   settings: LearnerSettings;
@@ -63,8 +69,12 @@ interface CinematicLectureStudioProps {
   completedRoleplayIds: string[];
   completedStorybookIds: string[];
   speakingAttempts: SpeakingAttemptRecord[];
+  vocabEloRating: number;
+  clozeSolvedCount: number;
+  patternReflexMasteredIds: string[];
   initialTab?: StudioTab;
-  initialRoleplaySub?: 'roleplay' | 'speaking';
+  initialRoleplaySub?: 'roleplay' | 'speaking' | 'pattern-gym';
+  initialGymMode?: 'cloze-elo' | 'pattern-reflex';
   onSelectDay: (dayNumber: number) => void;
   onMarkLectureComplete: () => void;
   onMarkVideoWatched: () => void;
@@ -74,6 +84,12 @@ interface CinematicLectureStudioProps {
   onCompleteRoleplay: (scenarioId: string, spokenTurns: number) => void;
   onCompleteStorybook: (bookId: string) => void;
   onRecordSpeakingAttempt: (attempt: SpeakingAttemptRecord) => void;
+  onUpdateClozeElo: (
+    nextElo: number,
+    isCorrect: boolean,
+    missedCard?: SpacedReviewCard
+  ) => void;
+  onCompletePatternSet: (patternId: string, spokenCount: number) => void;
   onAddReviewCard: (card: SpacedReviewCard) => void;
   onSaveNote: (note: string) => void;
   onSaveParaphrase: (item: ParaphraseResult, reviewCard?: SpacedReviewCard) => void;
@@ -103,8 +119,12 @@ export function CinematicLectureStudio({
   completedRoleplayIds,
   completedStorybookIds,
   speakingAttempts,
+  vocabEloRating,
+  clozeSolvedCount,
+  patternReflexMasteredIds,
   initialTab,
   initialRoleplaySub,
+  initialGymMode,
   onSelectDay,
   onMarkLectureComplete,
   onMarkVideoWatched,
@@ -114,6 +134,8 @@ export function CinematicLectureStudio({
   onCompleteRoleplay,
   onCompleteStorybook,
   onRecordSpeakingAttempt,
+  onUpdateClozeElo,
+  onCompletePatternSet,
   onAddReviewCard,
   onSaveNote,
   onSaveParaphrase,
@@ -121,7 +143,7 @@ export function CinematicLectureStudio({
 }: CinematicLectureStudioProps) {
   const [studioTab, setStudioTab] = useState<StudioTab>(initialTab ?? 'youtube');
   const [sitcomSubMode, setSitcomSubMode] = useState<SitcomSubMode>('watch');
-  const [roleplaySubMode, setRoleplaySubMode] = useState<'roleplay' | 'speaking'>(
+  const [roleplaySubMode, setRoleplaySubMode] = useState<'roleplay' | 'speaking' | 'pattern-gym'>(
     initialRoleplaySub ?? 'roleplay'
   );
 
@@ -1332,7 +1354,7 @@ export function CinematicLectureStudio({
       )}
 
       {/* =======================================================
-          TAB 6: MULTI-TURN REALTALK ROLEPLAY + 1-MIN SPEAKING CHALLENGE
+          TAB 6: MULTI-TURN REALTALK ROLEPLAY + 1-MIN SPEAKING + ELO/PATTERN GYM
          ======================================================= */}
       {studioTab === 'roleplay' && (
         <div>
@@ -1357,18 +1379,31 @@ export function CinematicLectureStudio({
               onClick={() => setRoleplaySubMode('speaking')}
             >
               <Mic size={15} />
-              <span>1분 스피킹 챌린지 · 수행평가·OPIc (16주제)</span>
+              <span>1분 스피킹 챌린지 (16주제)</span>
+            </button>
+            <button
+              id="roleplay-sub-pattern-gym"
+              type="button"
+              role="tab"
+              aria-selected={roleplaySubMode === 'pattern-gym'}
+              className={`sitcom-sub-btn ${roleplaySubMode === 'pattern-gym' ? 'active' : ''}`}
+              onClick={() => setRoleplaySubMode('pattern-gym')}
+            >
+              <Play size={15} />
+              <span>⚡ ELO 빈칸 · 2초 반사훈련 ({vocabEloRating})</span>
             </button>
           </div>
 
-          {roleplaySubMode === 'roleplay' ? (
+          {roleplaySubMode === 'roleplay' && (
             <RealTalkRoleplayStudio
               completedRoleplayIds={completedRoleplayIds}
               onCompleteRoleplay={onCompleteRoleplay}
               onAddReviewCard={onAddReviewCard}
               onOpenDictionary={onOpenDictionary}
             />
-          ) : (
+          )}
+
+          {roleplaySubMode === 'speaking' && (
             <Suspense
               fallback={
                 <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
@@ -1379,6 +1414,26 @@ export function CinematicLectureStudio({
               <SpeakingChallengeLab
                 speakingAttempts={speakingAttempts}
                 onRecordSpeakingAttempt={onRecordSpeakingAttempt}
+                onOpenDictionary={onOpenDictionary}
+              />
+            </Suspense>
+          )}
+
+          {roleplaySubMode === 'pattern-gym' && (
+            <Suspense
+              fallback={
+                <div className="surface-card" style={{ textAlign: 'center', padding: '40px' }}>
+                  말해보카식 ELO 빈칸 &amp; 스픽식 2초 반사훈련 엔진을 불러오는 중...
+                </div>
+              }
+            >
+              <AdaptiveClozeAndPatternGym
+                vocabEloRating={vocabEloRating}
+                clozeSolvedCount={clozeSolvedCount}
+                patternReflexMasteredIds={patternReflexMasteredIds}
+                initialMode={initialGymMode ?? 'cloze-elo'}
+                onUpdateClozeElo={onUpdateClozeElo}
+                onCompletePatternSet={onCompletePatternSet}
                 onOpenDictionary={onOpenDictionary}
               />
             </Suspense>

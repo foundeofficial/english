@@ -13,6 +13,7 @@ import {
 } from '../data/writingClinicData.ts';
 import type { SpacedReviewCard } from '../types/course.ts';
 import type { ConditionalWritingItem, ErrorCorrectionItem } from '../types/v6.ts';
+import { playCorrectChime, playSoftMiss } from '../utils/soundFx.ts';
 import { speakEnglish } from '../utils/speech.ts';
 import {
   evaluateSpeechOrDictation,
@@ -81,9 +82,11 @@ export function SchoolWritingClinic({
     });
 
     if (correct) {
+      playCorrectChime();
       speakEnglish(activeCw.answerEn, 0.94);
       onSolveWritingItem(activeCw.id, true);
     } else {
+      playSoftMiss();
       const today = new Date().toISOString().slice(0, 10);
       onSolveWritingItem(
         activeCw.id,
@@ -117,6 +120,8 @@ export function SchoolWritingClinic({
     const fullCorrect = spotCorrect && fixCorrect;
 
     setEcChecked({ spotCorrect, fixCorrect });
+    if (fullCorrect) playCorrectChime();
+    else playSoftMiss();
 
     if (fullCorrect) {
       onSolveWritingItem(activeEc.id, true);

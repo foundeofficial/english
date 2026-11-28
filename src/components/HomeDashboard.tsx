@@ -50,13 +50,16 @@ interface HomeDashboardProps {
   onSelectStage: (stage: MasteryStage) => void;
   onStartSprint: () => void;
   onStartGuidedSession: () => void;
+  onOpenOmnisearch: () => void;
   onNavigate: (
     route: MainRoute,
     opts?: {
       lectureTab?: 'youtube' | 'roleplay' | 'storybook';
-      roleplaySub?: 'roleplay' | 'speaking';
+      roleplaySub?: 'roleplay' | 'speaking' | 'pattern-gym';
+      gymMode?: 'cloze-elo' | 'pattern-reflex';
       worksheetTab?: 'concept' | 'exam' | 'mock-exam';
       academyTab?: AcademySubTab;
+      csatSub?: 'xray' | 'killer';
       vocabTab?: VocabTab;
       vaultView?: VaultView;
     }
@@ -184,6 +187,7 @@ export function HomeDashboard({
   onSelectStage,
   onStartSprint,
   onStartGuidedSession,
+  onOpenOmnisearch,
   onNavigate,
   onOpenDictionary
 }: HomeDashboardProps) {
@@ -375,16 +379,18 @@ export function HomeDashboard({
 
           <div className="command-mini-kpis">
             <div>
-              <span>파닉스·초등</span>
-              <strong>{state.phonicsMasteredIds.length} · {state.foundationCompletedIds.length}/10</strong>
+              <span>어휘력 ELO</span>
+              <strong style={{ color: 'var(--brand)', fontFamily: 'var(--font-mono)' }}>
+                {(state.vocabEloRating ?? 1000).toLocaleString()}
+              </strong>
             </div>
             <div>
-              <span>문법·내신서술형</span>
-              <strong>{state.grammarMasteredIds.length}/20 · {writingSolvedCount}/60</strong>
+              <span>문법·내신·킬러</span>
+              <strong>{state.grammarMasteredIds.length}/20 · {writingSolvedCount + (state.csatKillerSolvedIds?.length ?? 0)}/80</strong>
             </div>
             <div>
-              <span>원서·스피킹</span>
-              <strong>{state.completedStorybookIds?.length ?? 0}/12 · {state.completedRoleplayIds.length + speakingCount}</strong>
+              <span>스피킹·반사패턴</span>
+              <strong>{state.completedRoleplayIds.length + speakingCount} · {state.patternReflexMasteredIds?.length ?? 0}/20</strong>
             </div>
             <div>
               <span>누적 어휘</span>
@@ -394,7 +400,7 @@ export function HomeDashboard({
         </div>
       </section>
 
-      {/* QUICK LIVE ENGLISH-KOREAN DICTIONARY BAR */}
+      {/* QUICK LIVE ENGLISH-KOREAN DICTIONARY + CURRICULUM OMNISEARCH BAR */}
       <form
         className="home-quick-dict-bar"
         onSubmit={(e) => {
@@ -411,16 +417,27 @@ export function HomeDashboard({
             className="home-quick-dict-input"
             value={quickDictInput}
             onChange={(e) => setQuickDictInput(e.target.value)}
-            placeholder="궁금한 영어 단어나 한국어 뜻을 바로 검색하세요 (예: phonics, resilience, 협상, 분사구문) — 무료 실시간 API"
+            placeholder="영어 단어·한국어 뜻 실시간 검색 (예: phonics, resilience, 협상) — Ctrl+K로 전체 커리큘럼 통합검색"
           />
         </div>
-        <button id="home-quick-dict-submit" type="submit" className="btn-solid-brand" style={{ padding: '10px 18px', fontSize: '0.9rem' }}>
-          영한사전 검색
-        </button>
+        <div style={{ display: 'flex', gap: '8px', flexShrink: 0, flexWrap: 'wrap' }}>
+          <button
+            id="home-open-omnisearch-btn"
+            type="button"
+            className="btn-outline"
+            style={{ padding: '10px 14px', fontSize: '0.86rem' }}
+            onClick={onOpenOmnisearch}
+          >
+            전체 커리큘럼 ⌘K
+          </button>
+          <button id="home-quick-dict-submit" type="submit" className="btn-solid-brand" style={{ padding: '10px 18px', fontSize: '0.9rem' }}>
+            영한사전 검색
+          </button>
+        </div>
       </form>
 
       {/* =======================================================
-          ZERO-TO-MASTERY 5-STAGE LADDER + v6.0 POWER LAB SHORTCUTS
+          ZERO-TO-MASTERY 5-STAGE LADDER + v7.0 POWER LAB SHORTCUTS
          ======================================================= */}
       <section className="zero-to-mastery-section" aria-labelledby="z2m-heading">
         <div className="section-label-between" style={{ flexWrap: 'wrap', gap: '10px', marginBottom: '14px' }}>
@@ -432,9 +449,27 @@ export function HomeDashboard({
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
-              id="home-quick-writing-clinic-btn"
+              id="home-quick-elo-gym-btn"
               type="button"
               className="btn-solid-coral"
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
+              onClick={() => onNavigate('lecture', { lectureTab: 'roleplay', roleplaySub: 'pattern-gym', gymMode: 'cloze-elo' })}
+            >
+              <Zap size={15} /> ELO 빈칸·2초 반사훈련
+            </button>
+            <button
+              id="home-quick-csat-killer-btn"
+              type="button"
+              className="btn-outline"
+              style={{ padding: '8px 13px', fontSize: '0.84rem' }}
+              onClick={() => onNavigate('academy', { academyTab: 'csat-reading', csatSub: 'killer' })}
+            >
+              <Sparkles size={15} /> 수능 킬러 순서·삽입 20
+            </button>
+            <button
+              id="home-quick-writing-clinic-btn"
+              type="button"
+              className="btn-outline"
               style={{ padding: '8px 13px', fontSize: '0.84rem' }}
               onClick={() => onNavigate('academy', { academyTab: 'writing-clinic' })}
             >
@@ -456,7 +491,7 @@ export function HomeDashboard({
               style={{ padding: '8px 13px', fontSize: '0.84rem' }}
               onClick={() => onNavigate('vocab-review', { vocabTab: 'vault', vaultView: 'irregular-confusable' })}
             >
-              <Sparkles size={15} /> 불규칙80·혼동50
+              <Layers size={15} /> 불규칙80·혼동50
             </button>
             <button
               id="home-quick-storybook-btn"
@@ -465,7 +500,7 @@ export function HomeDashboard({
               style={{ padding: '8px 13px', fontSize: '0.84rem' }}
               onClick={() => onNavigate('lecture', { lectureTab: 'storybook' })}
             >
-              <BookOpen size={15} /> 영어 원서 12권
+              <BookOpen size={15} /> 원서 12권
             </button>
             <button
               id="home-quick-mock-btn"
@@ -474,7 +509,7 @@ export function HomeDashboard({
               style={{ padding: '8px 13px', fontSize: '0.84rem' }}
               onClick={() => onNavigate('worksheet', { worksheetTab: 'mock-exam' })}
             >
-              <Headphones size={15} /> 실전 듣기 모의고사
+              <Headphones size={15} /> 실전 모의고사
             </button>
           </div>
         </div>

@@ -25,6 +25,7 @@ import {
 import type { FoundationBuilderPuzzle, SightWordItem } from '../types/academy.ts';
 import type { SpacedReviewCard } from '../types/course.ts';
 import type { ConnectedSpeechRule } from '../types/v5.ts';
+import { playComboChime, playCorrectChime, playSoftMiss, playTick } from '../utils/soundFx.ts';
 import { evaluateSpeechOrDictation } from '../utils/speechScoring.ts';
 import {
   isSpeechRecognitionSupported,
@@ -32,6 +33,7 @@ import {
   startSpeechRecognition
 } from '../utils/speech.ts';
 import { InteractiveText } from './InteractiveText.tsx';
+import { VoiceRecorderCompare } from './VoiceRecorderCompare.tsx';
 
 interface PhonicsFoundationHubProps {
   phonicsMasteredIds: string[];
@@ -178,11 +180,13 @@ export function PhonicsFoundationHub({
     if (picked === mpSecretSide) {
       const nextStreak = mpStreak + 1;
       setMpStreak(nextStreak);
+      playComboChime(nextStreak);
       if (nextStreak > minimalPairBestStreak) {
         onRecordMinimalPairStreak(nextStreak);
       }
     } else {
       setMpStreak(0);
+      playSoftMiss();
     }
   };
 
@@ -198,8 +202,10 @@ export function PhonicsFoundationHub({
         setMpListening(false);
         const scored = evaluateSpeechOrDictation(transcript, targetWord);
         if (scored.accuracyPct >= 75 || transcript.toLowerCase().includes(targetWord.toLowerCase())) {
+          playCorrectChime();
           setMpMicStatus(`✓ 정확하게 인식됨! 인식 결과: "${transcript}" (발음 정확도 ${scored.accuracyPct}%)`);
         } else {
+          playSoftMiss();
           setMpMicStatus(`인식 결과: "${transcript}" — 목표 단어 "${targetWord}"의 입모양 팁을 보고 한 번 더 발음해 보세요.`);
         }
       },
@@ -227,6 +233,7 @@ export function PhonicsFoundationHub({
 
   const handleToggleBlock = (shuffledPos: number) => {
     if (puzzleFeedback === 'correct') return;
+    playTick(720);
     setPuzzleFeedback('idle');
     setPickedBlockIndices((prev) =>
       prev.includes(shuffledPos) ? prev.filter((p) => p !== shuffledPos) : [...prev, shuffledPos]
@@ -244,6 +251,7 @@ export function PhonicsFoundationHub({
     const target = activePuzzle.targetEn.trim().toLowerCase();
     if (assembled === target) {
       setPuzzleFeedback('correct');
+      playCorrectChime();
       speakEnglish(activePuzzle.targetEn, 0.9);
       const nextSolved = { ...solvedPuzzleIds, [activePuzzle.id]: true };
       setSolvedPuzzleIds(nextSolved);
@@ -601,7 +609,10 @@ export function PhonicsFoundationHub({
                     key={`${activeBlend.id}-${i}`}
                     type="button"
                     className={`blending-tile ${i === 1 ? 'vowel' : ''}`}
-                    onClick={() => speakEnglish(part, 0.72)}
+                    onClick={() => {
+                      playTick(540 + i * 120);
+                      speakEnglish(part, 0.72);
+                    }}
                   >
                     {part}
                   </button>
@@ -615,6 +626,7 @@ export function PhonicsFoundationHub({
                   className="btn-solid-brand"
                   onClick={() => {
                     setBlendMerged(true);
+                    playCorrectChime();
                     speakEnglish(activeBlend.word, 0.85);
                   }}
                 >
@@ -644,6 +656,10 @@ export function PhonicsFoundationHub({
                   <InteractiveText text={activeBlend.sampleSentenceEn} onLookupWord={onOpenDictionary} />
                 </p>
                 <p style={{ color: 'var(--text-sub)', fontSize: '0.9rem' }}>{activeBlend.sampleSentenceKo}</p>
+              </div>
+
+              <div style={{ marginTop: '14px' }}>
+                <VoiceRecorderCompare targetEnglish={activeBlend.word} speechRate={0.85} compact />
               </div>
             </div>
           </div>
